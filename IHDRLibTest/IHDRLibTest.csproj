@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClusterXTest.cs" />
+    <Compile Include="CovarianceMatrixTest.cs" />
     <Compile Include="NodeTest.cs" />
     <Compile Include="SamplesTest.cs" />
     <Compile Include="SampleTest.cs" />

@@ -32,7 +32,7 @@ namespace IHDRApplication
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             MnistParser parser = new MnistParser(@"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_images.bin", @"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_labels.bin");
-            parser.ParseData(1001);
+            parser.ParseData(101);
 
             ihdr = new IHDR();
             List<MNISTParserLib.Sample> mnistSamples = parser.Samples;
@@ -46,6 +46,7 @@ namespace IHDRApplication
         {
             MnistParser parser = new MnistParser(@"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_images.bin", @"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_labels.bin");
             parser.ParseData(1);
+
             parser.SaveSamplesToBmp(@"D:\Samples");
         }
 

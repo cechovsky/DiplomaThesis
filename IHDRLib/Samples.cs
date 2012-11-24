@@ -102,21 +102,16 @@ namespace IHDRLib
             return result; 
         }
 
+        /// <summary>
+        /// return mean of samples with the same label
+        /// </summary>
+        /// <param name="label">label of samples</param>
+        /// <returns>return mean of samples with the same label</returns>
         public Vector GetMeanOfDataWithLabel(double label)
         {
-            List<Sample> samples = GetSamplesOfLabel(label);
-            int count = samples.Count;
-            
-            Vector result = new Vector(Params.inputDataDimension, 0.0);
-            
-            foreach (Sample sample in samples)
-            {
-                result.Add(sample.X);                
-            }
+            List<Sample> samples = this.GetSamplesOfLabel(label);
 
-            result.Divide(count);
-
-            return result;
+            return Sample.GetXMeanOfSamples(samples);
         }
 
 

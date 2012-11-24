@@ -16,8 +16,21 @@ namespace IHDRLib
             clusterY = cY;
         }
 
-        public ClusterX X { get; set; }
-        public ClusterY Y { get; set; }
+        public ClusterX X
+        {
+            get
+            {
+                return clusterX;
+            }
+        }
+
+        public ClusterY Y
+        {
+            get
+            {
+                return clusterY;
+            }
+        }
 
 
     }

@@ -52,6 +52,14 @@ namespace IHDRLib
             }
         }
 
+        public void Multiply(double multiplier)
+        {
+            for (int i = 0; i < this.Count; i++)
+            {
+                this[i] = this[i] * multiplier;
+            }
+        }
+
         public bool EqualsToVector(Vector vector)
         {
             for (int i = 0; i < this.Count; i++)

@@ -16,8 +16,18 @@ namespace IHDRLib
         {
             this.items.Add(new Vector(sample.Y.ToArray(), sample.Label));
             this.mean = new Vector(sample.Y.ToArray());
+            
+            this.covarianceMatrix = new CovarianceMatrix(this.mean, Params.outputDataDimension);
+        }
 
-            #warning TODO count covariance matrix 
+        public void AddItem(Vector vector)
+        {
+            this.items.Add(vector);
+
+            // update mean
+            this.UpdateMean(vector);
+            // update covariance matrix
+            this.covarianceMatrix.UpdateMatrix(vector, this.mean, this.items.Count);
         }
 
         

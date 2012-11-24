@@ -85,30 +85,23 @@ namespace IHDRLib
 
         public void UpdateNode(Sample sample)
         {
-            // if sample hasn't output y assign mean of node samples 
+            // add sample (because of counting of output)
+            samples.Add(sample);
+
             if (sample.Y == null)
             {
-                // if its first sample
-                if (this.samples.Count == 0)
-                {
-                    Vector newY = new Vector(sample.X.ToArray());
-                    sample.SetY(newY);
-                }
-                // if contains some samples
-                else
-                {
-                    sample.SetY(samples.GetMeanOfDataWithLabel(sample.Label));
-                }
+                sample.SetY(samples.GetMeanOfDataWithLabel(sample.Label));
             }
+
+            #endregion set output of sample
 
             if (this.isLeafNode)
             {
                 // do leaf node staff
-                if (this.samples.Count == 0)
+                if (this.samples.Count == 1)
                 {
                     // create new clusters and cluster pair
                     this.CreateNewClusters(sample);
-                    this.samples.Add(sample);
                 }
                 else
                 {
@@ -120,21 +113,21 @@ namespace IHDRLib
                     double distance = 0.0;
                     ClusterPair nearestCluster = this.GetNearestClusterPairX(sample, out distance);
 
+                    Console.WriteLine(distance.ToString());
                     // if is count < like bl and distance > delta create new cluster
                     // add new cluster pair (x,y), increment n
-                    if (clusterPairs.Count < Params.bl && distance > Params.deltaX)
+                    if (samples.Count < Params.bl && distance > Params.deltaX)
                     {
                         this.CreateNewClusters(sample);
                     }
                     // else update xj cluster and yj cluster using amnesic average
                     else
                     {
-                        // update covariance matrix and mean of xcluster with amnesic average
-
-                        // update covariance matrix and mean of ycluster with amnesic average
+                        // add sample to clusters, update statistics of clusters
+                        nearestCluster.X.AddItem(sample.X);
+                        nearestCluster.Y.AddItem(sample.Y);
                     }
 
-                    this.samples.Add(sample);
                     // spawn if necessary 
                 }
             }
@@ -174,8 +167,6 @@ namespace IHDRLib
 
             this.clusterPairs.Add(clusterPair);
         }
-
-        #endregion
 
         #region Update cluster pairs
 

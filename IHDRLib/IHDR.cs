@@ -30,12 +30,12 @@ namespace IHDRLib
 
         private void SetSettings()
         {
-            Params.useClassMeanLikeY = true;
+            Params.useClassMeanLikeY = false;
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
             Params.q = 20;
             Params.outputIsDefined = false;
-            Params.deltaX = 2000.0;
+            Params.deltaX = 2100.0;
             Params.bl = 20;
         }
 
@@ -63,7 +63,7 @@ namespace IHDRLib
                 samples.CountOutputsFromClassLabels();
             }
 
-            if (samples != null && samples.Count > 1000)
+            if (samples != null && samples.Count > 100)
             {
                 foreach (Sample sample in samples)
                 {

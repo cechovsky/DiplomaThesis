@@ -62,6 +62,38 @@ namespace IHDRLib
         {
             this.y = y; 
         }
+
+        public static Vector GetXMeanOfSamples(List<Sample> samples)
+        {
+            if (samples.Count == 0) throw new InvalidOperationException("impossible to return mean from 0 samples");
+
+            int count = samples.Count;
+            
+            Vector result = new Vector(Params.inputDataDimension, 0.0);
+            foreach (Sample sample in samples)
+            {
+                result.Add(sample.X);
+            }
+
+            result.Divide(count);
+            return result;
+        }
+
+        public static Vector GetYMeanOfSamples(List<Sample> samples)
+        {
+            int count = samples.Count;
+
+            Vector result = new Vector(Params.inputDataDimension, 0.0);
+
+            foreach (Sample sample in samples)
+            {
+                result.Add(sample.Y);
+            }
+
+            result.Divide(count);
+
+            return result;
+        }
         
     }
 }

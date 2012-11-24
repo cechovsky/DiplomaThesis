@@ -9,8 +9,7 @@ namespace IHDRLib
     {
         private Node child;
 
-        public ClusterX()
-            : base()
+        public ClusterX() : base()
         {
             this.child = null;
         }
@@ -24,7 +23,7 @@ namespace IHDRLib
             this.mean = new Vector(sample.X.ToArray());
 
             //#warning TODO count covariance matrix 
-            this.covarianceMatrix = new CovarianceMatrix(this.mean);
+            this.covarianceMatrix = new CovarianceMatrix(this.mean, Params.inputDataDimension);
         }
 
         public void SetClusterPair(ClusterPair clusterPair)
@@ -52,6 +51,19 @@ namespace IHDRLib
         {
             get { return clusterPair; }
         }
+        
+        public void AddItem(Vector vector)
+        {
+            this.items.Add(vector);
 
+            // update mean
+            this.UpdateMean(vector);
+            // update covariance matrix
+            this.covarianceMatrix.UpdateMatrix(vector, this.mean, this.items.Count);
+        }
+
+
+
+       
     }
 }
