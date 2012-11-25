@@ -44,6 +44,17 @@ namespace IHDRLib
             }
         }
 
+        public void Substract(Vector vector)
+        {
+            if (this.Count != vector.Count) throw new InvalidOperationException("Not the same count of attributes");
+
+            for (int i = 0; i < this.Count; i++)
+            {
+                double res = this[i] - vector[i];
+                this[i] =res;
+            }
+        }
+
         public void Divide(double divider)
         {
             for (int i = 0; i < this.Count; i++)

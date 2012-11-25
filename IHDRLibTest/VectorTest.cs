@@ -25,6 +25,19 @@ namespace IHDRLibTest
         }
 
         [TestMethod]
+        public void Substract_RestulVectorIsCorrect()
+        {
+            Vector vector = new Vector(new double[] { 1.0, 2.0, 3.0 });
+            Vector vector2 = new Vector(new double[] { 2.0, 4.0, 6.0 });
+
+            vector.Substract(vector2);
+
+            Assert.AreEqual(vector[0], -1.0);
+            Assert.AreEqual(vector[1], -2.0);
+            Assert.AreEqual(vector[2], -3.0);
+        }
+
+        [TestMethod]
         public void Equals_VectorEqualsToVector()
         {
             Vector vector1 = new Vector(new double[] { 1.0, 2.0, 0, 3.0 });

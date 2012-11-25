@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra.Double;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,10 +15,12 @@ namespace IHDRLib
 
         public ClusterY(Sample sample) : base(sample)
         {
+            this.dimension = Params.outputDataDimension;
+
             this.items.Add(new Vector(sample.Y.ToArray(), sample.Label));
             this.mean = new Vector(sample.Y.ToArray());
-            
-            this.covarianceMatrix = new CovarianceMatrix(this.mean, Params.outputDataDimension);
+
+            this.covarianceMatrix = new DenseMatrix(Params.outputDataDimension, Params.outputDataDimension, 0.0);
         }
 
         public void AddItem(Vector vector)
@@ -27,7 +30,7 @@ namespace IHDRLib
             // update mean
             this.UpdateMean(vector);
             // update covariance matrix
-            this.covarianceMatrix.UpdateMatrix(vector, this.mean, this.items.Count);
+            this.UpdateCovarianceMatrix(vector);
         }
 
         
