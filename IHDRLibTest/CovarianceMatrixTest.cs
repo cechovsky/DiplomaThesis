@@ -22,8 +22,6 @@ namespace IHDRLibTest
             clusterX.AddItem(new Vector(new double[] { 3.9, 2.0, 0.58 }));
             clusterX.AddItem(new Vector(new double[] { 4.3, 2.1, 0.62 }));
             clusterX.AddItem(new Vector(new double[] { 4.1, 2.2, 0.63 }));
-
-
         }
     }
 }

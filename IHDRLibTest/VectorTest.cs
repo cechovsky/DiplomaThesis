@@ -30,7 +30,7 @@ namespace IHDRLibTest
             Vector vector = new Vector(new double[] { 1.0, 2.0, 3.0 });
             Vector vector2 = new Vector(new double[] { 2.0, 4.0, 6.0 });
 
-            vector.Substract(vector2);
+            vector.Subtract(vector2);
 
             Assert.AreEqual(vector[0], -1.0);
             Assert.AreEqual(vector[1], -2.0);
@@ -68,6 +68,21 @@ namespace IHDRLibTest
             double distance = Math.Round(v1.GetDistance(v2), 3);
 
             Assert.AreEqual(distance, 6.164);
+
+        }
+
+        [TestMethod]
+        public void GetMeanOfVectors_GetCorrectMean()
+        {
+            List<Vector> vectors = new List<Vector>();
+            vectors.Add(new Vector(new double[]{ 1.0, 2.0, 3.0}, 1.0));
+            vectors.Add(new Vector(new double[] { 2.0, 3.0, 4.0 }, 1.0));
+
+            Vector result = Vector.GetMeanOfVectors(vectors);
+
+            Assert.AreEqual(result[0], 1.5);
+            Assert.AreEqual(result[1], 2.5);
+            Assert.AreEqual(result[2], 3.5);
 
         }
     }

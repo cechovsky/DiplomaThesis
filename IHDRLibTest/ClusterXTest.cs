@@ -41,7 +41,30 @@ namespace IHDRLibTest
 
             Assert.AreEqual(clusterX.Mean[0], 2.0);
             Assert.AreEqual(clusterX.Mean[1], 3.0);
-            Assert.AreEqual(Math.Round(clusterX.Mean[2]), 4.0);
+            Assert.AreEqual(clusterX.Mean[2], 4.0);
+        }
+
+        [TestMethod]
+        public void CountCovarianceMatrix_CovarianceMatrixIsCorrect()
+        {
+#warning not complet test, update of covariance matrix must be reimplemented
+            Params.inputDataDimension = 3;
+            Params.outputDataDimension = 3;
+
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0));
+            clusterX.AddItem(new Vector(new double[] { 4.2, 2.1, 0.59 }));
+
+            //clusterX.CountCovariacneMatrix();
+
+            clusterX.AddItem(new Vector(new double[] { 3.9, 2.0, 0.58 }));
+            clusterX.AddItem(new Vector(new double[] { 4.3, 2.1, 0.62 }));
+
+            clusterX.CountCovariacneMatrix();
+
+            clusterX.AddItem(new Vector(new double[] { 4.1, 2.2, 0.63 }));
+
+            clusterX.CountCovariacneMatrix();
+
         }
     }
 }

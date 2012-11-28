@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,6 @@ namespace IHDRLib
 
         public Cluster()
         {
-            
             this.clusterPair = null;
             this.covarianceMatrix = null;
             this.items = new List<Vector>();
@@ -33,8 +33,6 @@ namespace IHDRLib
             this.clusterPair = clusterPair;
         }
 
-        
-
         /// <summary>
         /// Update mean with amnesic average
         /// </summary>
@@ -43,11 +41,14 @@ namespace IHDRLib
         {
             #warning this must be remade according to F. Amnesic average with parameters t1, t2
             
-            double t = this.items.Count;
-            this.mean.Multiply((t-1)/t);
+            decimal t = (decimal)this.items.Count;
+
+            decimal multiplier1 = (t - 1) / t;
+            this.mean.Multiply(multiplier1);
 
             Vector incrementPart = new Vector(vector.ToArray());
-            incrementPart.Multiply(1 / t);
+            decimal multiplier2 = 1 / t;
+            incrementPart.Multiply(multiplier2);
 
             this.mean.Add(incrementPart);
         }
@@ -66,24 +67,43 @@ namespace IHDRLib
 
             //newVector - mean(t)
             Vector v1 = new Vector(vector.ToArray());
-            v1.Substract(this.mean);
+            v1.Subtract(this.mean);
 
             DenseMatrix vector1 = new DenseMatrix(this.dimension, 1);
             vector1.SetColumn(0, v1.ToArray());
             DenseMatrix vector2 = new DenseMatrix(1, this.dimension);
             vector2.SetRow(0, v1.ToArray());
 
+#warning need to edit update covariance matrix
             double t = (double) this.items.Count;
-            double fragment1 = (t - 2) / t - 1;
-            double fragment2 = t / Math.Pow(t-1, 2);
+            double fragment1 = (t - 2) / (t - 1);
+            double fragment2 = t / (Math.Pow((t-1),2));
 
-
-            DenseMatrix oldPart = fragment1 * this.covarianceMatrix ;
+            DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
             DenseMatrix newCovPart = vector1 * vector2;
 
-            DenseMatrix incrementalPart = fragment2 * newCovPart;
+            DenseMatrix incrementalPart = newCovPart * fragment2;
 
             this.covarianceMatrix = oldPart + incrementalPart;
+        }
+
+        public void CountCovariacneMatrix()
+        {
+            this.mean = Vector.GetMeanOfVectors(this.items);
+            this.covarianceMatrix = new DenseMatrix(dimension, dimension);
+
+            for (int i = 0; i < dimension; i++)
+            {
+                for (int j = 0; j < dimension; j++)
+                {
+                    double sum = 0.0;
+                    foreach (Vector item in items)
+                    {
+                        sum += (item[i] - this.mean[i]) * (item[j] - this.mean[j]);
+                    }
+                    this.covarianceMatrix[i,j] = sum / (items.Count - 1);
+                }
+            }
         }
     }
 }

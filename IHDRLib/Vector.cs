@@ -18,13 +18,11 @@ namespace IHDRLib
             this.InsertRange(0, vector);
         }
 
-        public Vector(double[] vector, double label)
-            : base()
+        public Vector(double[] vector, double label) : base()
         {
             this.InsertRange(0, vector);
             this.label = label;
         }
-
 
         public Vector(int dimension, double value): base(dimension)
         {
@@ -40,34 +38,37 @@ namespace IHDRLib
 
             for (int i = 0; i < this.Count; i++)
             {
-                this[i] = this[i] + vector[i];
+                decimal res = (decimal)this[i] + (decimal)vector[i];
+                this[i] = (double)res;
             }
         }
 
-        public void Substract(Vector vector)
+        public void Subtract(Vector vector)
         {
             if (this.Count != vector.Count) throw new InvalidOperationException("Not the same count of attributes");
 
             for (int i = 0; i < this.Count; i++)
             {
-                double res = this[i] - vector[i];
-                this[i] =res;
+                decimal res = (decimal)this[i] - (decimal)vector[i];
+                this[i] = (double)res;
             }
         }
 
-        public void Divide(double divider)
+        public void Divide(decimal divider)
         {
             for (int i = 0; i < this.Count; i++)
             {
-                this[i] = this[i] / divider;
+                decimal res = (decimal)this[i] / (decimal)divider;
+                this[i] = (double)res;
             }
         }
 
-        public void Multiply(double multiplier)
+        public void Multiply(decimal multiplier)
         {
             for (int i = 0; i < this.Count; i++)
             {
-                this[i] = this[i] * multiplier;
+                decimal res = (decimal)this[i] * multiplier;
+                this[i] = (double)res;
             }
         }
 
@@ -90,6 +91,21 @@ namespace IHDRLib
                 sum += Math.Pow(this[i] - vector[i], 2);
             }
             return Math.Sqrt(sum);
+        }
+
+        public static Vector GetMeanOfVectors(List<Vector> vectors)
+        {
+            if(vectors.Count == null) throw new InvalidOperationException("impossible to return mean from 0 vectors");
+            Vector result = new Vector(vectors[0].Count, 0.0);
+
+            foreach (Vector item in vectors)
+            {
+                result.Add(item);
+            }
+
+            result.Divide((decimal)vectors.Count);
+
+            return result;
         }
     }
 }
