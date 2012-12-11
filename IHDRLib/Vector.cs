@@ -24,6 +24,14 @@ namespace IHDRLib
             this.label = label;
         }
 
+        public Vector(double[] vector, double label, int id)
+            : base()
+        {
+            this.InsertRange(0, vector);
+            this.label = label;
+            this.Id = id;
+        }
+
         public Vector(int dimension, double value): base(dimension)
         {
             for (int i = 0; i < dimension; i++)
@@ -107,5 +115,52 @@ namespace IHDRLib
 
             return result;
         }
+
+        public static int GetIdOfClosestVector(Vector vector, List<Vector> vectors)
+        {
+            int result = 0;
+            double minDistance = double.MaxValue;
+
+            foreach (Vector item in vectors)
+            {
+                double distance = vector.GetDistance(item);
+                if (distance < minDistance)
+                {
+                    result = item.Id;
+                    minDistance = distance;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// return id of closest vector from list
+        /// </summary>
+        /// <param name="vectors">vector list</param>
+        /// <returns></returns>
+        public int GetIdOfClosestVector(List<Vector> vectors)
+        {
+            int result = 0;
+            double minDistance = double.MaxValue;
+
+            foreach (Vector item in vectors)
+            {
+                double distance = this.GetDistance(item);
+                if (distance < minDistance)
+                {
+                    result = item.Id;
+                    minDistance = distance;
+                }
+            }
+
+            return result;
+        }
+
+        #region Properties
+
+        public int Id { get; set; }
+
+        #endregion
     }
 }

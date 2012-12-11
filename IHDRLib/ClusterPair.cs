@@ -14,6 +14,9 @@ namespace IHDRLib
         {
             clusterX = cX;
             clusterY = cY;
+
+            this.PreviousCenter = 0;
+            this.CurrentCenter = 0;
         }
 
         public ClusterX X
@@ -32,6 +35,16 @@ namespace IHDRLib
             }
         }
 
+        public void CurrentToPrev()
+        {
+            this.PreviousCenter = this.CurrentCenter;
+            this.CurrentCenter = -1;
+
+        }
+
+        public int Id { get; set; }
+        public int PreviousCenter { get; set; }
+        public int CurrentCenter { get; set; }
 
     }
 }

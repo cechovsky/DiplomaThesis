@@ -10,7 +10,10 @@ namespace IHDRLib
         // number of maximum children for each internal note
         public static int q { get; set; }
 
-        // number of samples needed per scalar parameter
+        // number of maximum micro-clusters in node
+        public static int qmc { get; set; }
+
+        // number of samples needed per scalar parameter ( boundary of NSPP in spawning )
         public static double bs { get; set; }
 
         //

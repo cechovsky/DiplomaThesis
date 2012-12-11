@@ -85,5 +85,22 @@ namespace IHDRLibTest
             Assert.AreEqual(result[2], 3.5);
 
         }
+
+        [TestMethod]
+        public void GetIdOfClosestVector_GetCorrectId()
+        {
+            List<Vector> vectors = new List<Vector>();
+            vectors.Add(new Vector(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0));
+            vectors.Add(new Vector(new double[] { 2.0, 3.0, 4.0 }, 1.0, 1));
+            vectors.Add(new Vector(new double[] { 2.0, 2.0, 2.0 }, 1.0, 2));
+            vectors.Add(new Vector(new double[] { 7.0, 8.0, 6.0 }, 1.0, 3));
+
+            Vector vector = new Vector(new double[] { 2.0, 3.0, 5.0 });
+
+            int result = vector.GetIdOfClosestVector(vectors);
+
+            Assert.AreEqual(result, 1);
+
+        }
     }
 }

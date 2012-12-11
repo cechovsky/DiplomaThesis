@@ -51,6 +51,8 @@
     <Compile Include="ClusterY.cs" />
     <Compile Include="CovarianceMatrix.cs" />
     <Compile Include="IHDR.cs" />
+    <Compile Include="KMeanRegion.cs" />
+    <Compile Include="KMeansResolver.cs" />
     <Compile Include="MatrixItem.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Params.cs" />

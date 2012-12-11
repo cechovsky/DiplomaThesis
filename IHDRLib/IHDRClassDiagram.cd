@@ -3,7 +3,7 @@
   <Class Name="IHDRLib.Tree">
     <Position X="1.25" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAACAAEAAgIBAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAACAAEAAgAAAAAIAAAAAAAAAAAAAAQAA=</HashCode>
       <FileName>Tree.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -24,18 +24,13 @@
         <Position X="0.039" Y="0.084" />
       </MemberNameLabel>
     </AssociationLine>
-    <AssociationLine Name="Y" Type="IHDRLib.Vector" FixedFromPoint="true">
-      <Path>
-        <Point X="10.375" Y="3.391" />
-        <Point X="10.375" Y="3.528" />
-        <Point X="12" Y="3.528" />
-      </Path>
+    <AssociationLine Name="Y" Type="IHDRLib.Vector">
       <MemberNameLabel ManuallyPlaced="true">
         <Position X="0.084" Y="-0.504" />
       </MemberNameLabel>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAABgAAAAYAA=</HashCode>
+      <HashCode>AAAAAAAwEAAAABIAAAAAAAAAAAAAAAAAAABgAAAAZAA=</HashCode>
       <FileName>Sample.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -46,7 +41,7 @@
   <Class Name="IHDRLib.Vector">
     <Position X="12" Y="2.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAIAIABAAQAAABAAAAADAAAAAQAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Vector.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -68,7 +63,7 @@
       </Path>
     </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAgABAAIBAAAAAQAEAAAAiIAAAACQAAMAAAAI=</HashCode>
+      <HashCode>AAAAAAAAgABAAIBAAAAAQEEAACAgIAAAACAAAEAQAAA=</HashCode>
       <FileName>Node.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -82,69 +77,29 @@
   </Class>
   <Class Name="IHDRLib.ClusterX">
     <Position X="7" Y="3.75" Width="1.5" />
-    <AssociationLine Name="Child" Type="IHDRLib.Node" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="7.438" Y="3.75" />
-        <Point X="7.438" Y="3.47" />
-        <Point X="6.75" Y="3.47" />
-        <Point X="6.75" Y="3.842" />
-        <Point X="6" Y="3.842" />
-      </Path>
-    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAgACIAAAAAAEAAAAAAAAAAEAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAIAAAACAAAAAgAACAAAEAAAAIAAAAAA=</HashCode>
       <FileName>ClusterX.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Child" />
-      <Property Name="Pair" />
-    </ShowAsAssociation>
   </Class>
   <Class Name="IHDRLib.ClusterY">
     <Position X="7" Y="7" Width="1.5" />
-    <AssociationLine Name="Pair" Type="IHDRLib.ClusterPair" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="7" Y="7.218" />
-        <Point X="5.375" Y="7.218" />
-        <Point X="5.375" Y="6.118" />
-      </Path>
-      <MemberNameLabel ManuallyPlaced="true">
-        <Position X="0.099" Y="0.071" />
-      </MemberNameLabel>
-    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ClusterY.cs</FileName>
     </TypeIdentifier>
-    <ShowAsAssociation>
-      <Property Name="Pair" />
-    </ShowAsAssociation>
   </Class>
   <Class Name="IHDRLib.Params">
     <Position X="1.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABCgAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAACAAAAAAAAgAAAAAAAAAAAFCgAAEAYAAA=</HashCode>
       <FileName>Params.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IHDRLib.ClusterPair">
     <Position X="4" Y="5.25" Width="1.5" />
-    <AssociationLine Name="X" Type="IHDRLib.ClusterX" FixedFromPoint="true">
-      <Path>
-        <Point X="5.5" Y="5.562" />
-        <Point X="7.344" Y="5.562" />
-        <Point X="7.344" Y="5.367" />
-      </Path>
-    </AssociationLine>
-    <AssociationLine Name="Y" Type="IHDRLib.ClusterY" FixedFromPoint="true" FixedToPoint="true">
-      <Path>
-        <Point X="5" Y="6.118" />
-        <Point X="5" Y="7.499" />
-        <Point X="7" Y="7.499" />
-      </Path>
-    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAA=</HashCode>
+      <HashCode>AAAAAAAAAAABAAAIAAAAAAAAAAAAAAAAAAAAAAAAYAA=</HashCode>
       <FileName>ClusterPair.cs</FileName>
     </TypeIdentifier>
     <ShowAsAssociation>
@@ -155,12 +110,12 @@
   <Class Name="IHDRLib.CovarianceMatrix">
     <Position X="9.5" Y="4" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAACBAAAQgAAAAIAAAAAAAAAA=</HashCode>
       <FileName>CovarianceMatrix.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IHDRLib.MatrixItem">
-    <Position X="9.5" Y="5.25" Width="1.5" />
+    <Position X="11.25" Y="6.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgACABAAA=</HashCode>
       <FileName>MatrixItem.cs</FileName>
@@ -169,14 +124,14 @@
   <Class Name="IHDRLib.IHDR">
     <Position X="1.25" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAEAgAAAIAAABCAAAAAAAABAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAEAgAAAIACABCAAAAAgAABAAAAAAAA=</HashCode>
       <FileName>IHDR.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="IHDRLib.Samples">
     <Position X="12.25" Y="1" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AQAgAEAAAAAAAAAQAAggIAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Samples.cs</FileName>
     </TypeIdentifier>
   </Class>

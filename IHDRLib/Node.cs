@@ -113,7 +113,7 @@ namespace IHDRLib
                     double distance = 0.0;
                     ClusterPair nearestCluster = this.GetNearestClusterPairX(sample, out distance);
 
-                    Console.WriteLine(distance.ToString());
+                    //Console.WriteLine(distance.ToString());
                     // if is count < like bl and distance > delta create new cluster
                     // add new cluster pair (x,y), increment n
                     if (samples.Count < Params.bl && distance > Params.deltaX)
@@ -129,6 +129,14 @@ namespace IHDRLib
                     }
 
                     // spawn if necessary 
+                    // if 2(n - q)/q2 > bs spawn to  q children
+                    // use k-means alg
+                    if (this.GetNSPP() > Params.bs)
+                    {
+                        this.Swap();
+                    }
+
+
                 }
             }
             else
@@ -148,6 +156,8 @@ namespace IHDRLib
 
             }
         }
+
+        
 
         /// <summary>
         /// Create new clusers X and Y and their cluster pair
@@ -189,5 +199,91 @@ namespace IHDRLib
 
         #endregion
 
+        private double GetNSPP()
+        {
+            return 2 * (this.samples.Count - Params.q) / Math.Pow(Params.q, 2);
+        }
+
+        #region Swapping
+
+        private void Swap()
+        {
+            if (this.clusterPairs.Count < Params.q)
+            {
+                // create new children
+            }
+
+            // select q random samples 
+            List<Vector> centres = new List<Vector>();
+            Random random = new Random();
+            List<int> randoms = new List<int>();
+            for (int i = 0; i < Params.q; i++)
+            {
+                bool randomIsNotUnique = true;
+                int r = 0;
+                while (randomIsNotUnique)
+                {
+                    r = random.Next(this.clusterPairs.Count);
+                    randomIsNotUnique = randoms.Contains(r);
+                }
+
+                randoms.Add(r);
+                
+                Vector vector = new Vector(this.clusterPairs[r].X.Mean.ToArray());
+                vector.Id = i;
+                centres.Add(vector);
+            }
+
+            // evaluate to which center vector belongs
+            foreach (ClusterPair clPair in clusterPairs)
+            {
+                clPair.CurrentToPrev();
+                clPair.CurrentCenter = clPair.X.Mean.GetIdOfClosestVector(centres);
+            }
+            
+
+            // while assignment is not changed, do
+            bool next = true;
+            while (next)
+            {
+                for (int i = 0; i < centres.Count; i++)
+                {
+                    //select all vectors assignet to center
+                    List<Vector> assignedVectors = clusterPairs.Where(cp => cp.CurrentCenter == centres[i].Id).Select(cp => cp.X.Mean).ToList<Vector>();
+                    // update center
+                    if(assignedVectors.Count > 0) centres[i] = Vector.GetMeanOfVectors(assignedVectors);
+                    centres[i].Id = i;
+                }
+                
+                // update assignments 
+                // evaluate to which center vector belongs
+                foreach (ClusterPair clPair in clusterPairs)
+                {
+                    clPair.CurrentToPrev();
+                    clPair.CurrentCenter = clPair.X.Mean.GetIdOfClosestVector(centres);
+                }
+
+                next = this.AssigmentIsChanged();
+            }
+        }
+
+        /// <summary>
+        /// return true if assignment to centres is changed
+        /// </summary>
+        /// <returns></returns>
+        private bool AssigmentIsChanged()
+        {
+            foreach (var item in clusterPairs)
+            {
+                if (item.CurrentCenter != item.PreviousCenter) return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
     }
+
+    
 }

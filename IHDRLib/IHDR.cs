@@ -33,10 +33,12 @@ namespace IHDRLib
             Params.useClassMeanLikeY = false;
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
-            Params.q = 20;
+            Params.q = 4;
+            Params.bs = 25;
             Params.outputIsDefined = false;
             Params.deltaX = 2100.0;
             Params.bl = 20;
+
         }
 
         public void AddSample(double[] sample, double label)
