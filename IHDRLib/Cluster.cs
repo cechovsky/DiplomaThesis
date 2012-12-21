@@ -82,9 +82,16 @@ namespace IHDRLib
             DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
             DenseMatrix newCovPart = vector1 * vector2;
 
-            DenseMatrix incrementalPart = newCovPart * fragment2;
-
-            this.covarianceMatrix = oldPart + incrementalPart;
+            try
+            {
+                DenseMatrix incrementalPart = newCovPart * fragment2;
+                this.covarianceMatrix = oldPart + incrementalPart;
+            }
+            catch (Exception)
+            {
+                int i = 0;
+            }
+            
         }
 
         public void CountCovariacneMatrix()
@@ -103,6 +110,69 @@ namespace IHDRLib
                     }
                     this.covarianceMatrix[i,j] = sum / (items.Count - 1);
                 }
+            }
+        }
+
+        public List<Vector> Items
+        {
+            get
+            {
+                return this.items;
+            }
+            set
+            {
+                this.items = value;
+            }
+        }
+
+        public void AddItem(Vector vector)
+        {
+            this.items.Add(vector);
+
+            // update mean
+            this.UpdateMean(vector);
+            // update covariance matrix
+            this.UpdateCovarianceMatrix(vector);
+        }
+
+        public void AddItemWithoutUpdatingStats(Vector vector)
+        {
+            this.items.Add(vector);
+        }
+
+        public DenseMatrix CovMatrix
+        {
+            get
+            {
+                return this.covarianceMatrix;
+            }
+            set
+            {
+                this.covarianceMatrix = value;
+            }
+        }
+
+        public Vector Mean
+        {
+            get
+            {
+                return this.mean;
+            }
+            set
+            {
+                this.mean = value;
+            }
+        }
+
+        public ClusterPair ClusterPair
+        {
+            get
+            {
+                return this.clusterPair;
+            }
+            set
+            {
+                this.clusterPair = value;
             }
         }
     }

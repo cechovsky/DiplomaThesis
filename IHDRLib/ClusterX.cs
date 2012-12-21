@@ -13,6 +13,7 @@ namespace IHDRLib
         public ClusterX() : base()
         {
             this.child = null;
+            this.dimension = Params.inputDataDimension;
         }
 
         public ClusterX(Sample sample) : base(sample)
@@ -33,36 +34,11 @@ namespace IHDRLib
             this.clusterPair = clusterPair;
         }
 
-        public Vector Mean
-        {
-            get
-            {
-                return this.mean;
-            }
-        }
-
-        public DenseMatrix CovMatrix
-        {
-            get
-            {
-                return this.covarianceMatrix;
-            }
-        }
-
-        public ClusterPair ClusterPair
-        {
-            get { return clusterPair; }
-        }
         
-        public void AddItem(Vector vector)
-        {
-            this.items.Add(vector);
 
-            // update mean
-            this.UpdateMean(vector);
-            // update covariance matrix
-            this.UpdateCovarianceMatrix(vector);
-        }
+        
+
+        
 
         
 

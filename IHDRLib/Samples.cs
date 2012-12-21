@@ -86,7 +86,7 @@ namespace IHDRLib
 
             foreach (Sample item in this)
             {
-                item.SetY(labelsMeans[item.Label]);
+                item.SetY(new Vector(labelsMeans[item.Label].ToArray()));
             }
         }
 

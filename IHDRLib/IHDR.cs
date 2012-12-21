@@ -34,11 +34,13 @@ namespace IHDRLib
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
             Params.q = 4;
-            Params.bs = 25;
+            Params.bs = 15;
             Params.outputIsDefined = false;
-            Params.deltaX = 2100.0;
-            Params.bl = 20;
-
+            Params.deltaX = 1000.0;
+            Params.deltaY = 1000.0;
+            Params.blx = 20;
+            Params.bly = 20;
+            Params.p = 20;
         }
 
         public void AddSample(double[] sample, double label)

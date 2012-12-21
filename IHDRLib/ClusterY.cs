@@ -10,7 +10,7 @@ namespace IHDRLib
     {
         public ClusterY() : base()
         {
-            
+            this.dimension = Params.outputDataDimension;
         }
 
         public ClusterY(Sample sample) : base(sample)
@@ -23,15 +23,7 @@ namespace IHDRLib
             this.covarianceMatrix = new DenseMatrix(Params.outputDataDimension, Params.outputDataDimension, 0.0);
         }
 
-        public void AddItem(Vector vector)
-        {
-            this.items.Add(vector);
-
-            // update mean
-            this.UpdateMean(vector);
-            // update covariance matrix
-            this.UpdateCovarianceMatrix(vector);
-        }
+        
 
         
 
