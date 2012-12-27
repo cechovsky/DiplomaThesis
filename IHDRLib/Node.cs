@@ -16,6 +16,7 @@ namespace IHDRLib
         private bool isLeafNode;
         private bool isPlastic;
         private bool isActive;
+        private int count;
 
         private List<Node> children;
 
@@ -27,6 +28,7 @@ namespace IHDRLib
             this.clusterPairs = new List<ClusterPair>();
             this.isLeafNode = true;
             this.parent = null;
+            this.count = 0;
 
             this.children = new List<Node>(Params.q);
         }
@@ -40,6 +42,7 @@ namespace IHDRLib
             samples = new Samples();
             clusterPairs = new List<ClusterPair>();
             isLeafNode = true;
+            count = 0;
 
             this.children = new List<Node>(Params.q);
         }
@@ -108,6 +111,9 @@ namespace IHDRLib
 
         public void UpdateNode(Sample sample)
         {
+            count++;
+            Console.WriteLine("Add sample " + count.ToString());
+
             // add sample (because of counting of output)
             samples.Add(sample);
 

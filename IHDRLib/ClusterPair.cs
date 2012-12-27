@@ -42,11 +42,20 @@ namespace IHDRLib
                 cp.Y.AddItemWithoutUpdatingStats(y);
             }
 
-            cp.X.CovMatrix = new DenseMatrix(this.X.CovMatrix);
-            cp.X.Mean = new Vector(this.X.Mean.ToArray());
+            try
+            {
+                cp.X.CovMatrix = new DenseMatrix(this.X.CovMatrix);
+                cp.X.Mean = new Vector(this.X.Mean.ToArray());
 
-            cp.Y.CovMatrix = new DenseMatrix(this.Y.CovMatrix);
-            cp.Y.Mean = new Vector(this.Y.Mean.ToArray());
+                cp.Y.CovMatrix = new DenseMatrix(this.Y.CovMatrix);
+                cp.Y.Mean = new Vector(this.Y.Mean.ToArray());
+            }
+            catch (Exception)
+            {
+                int i = 0;
+            }
+
+            
 
             if (cp.X.CovMatrix == null || cp.Y.CovMatrix == null || cp.X.Mean == null || cp.Y.Mean == null)
             {

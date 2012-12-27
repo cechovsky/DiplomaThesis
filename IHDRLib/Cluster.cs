@@ -79,13 +79,13 @@ namespace IHDRLib
             double fragment1 = (t - 2) / (t - 1);
             double fragment2 = t / (Math.Pow((t-1),2));
 
-            DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
-            DenseMatrix newCovPart = vector1 * vector2;
+            //DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
+            //DenseMatrix newCovPart = vector1 * vector2;
 
             try
             {
-                DenseMatrix incrementalPart = newCovPart * fragment2;
-                this.covarianceMatrix = oldPart + incrementalPart;
+                //DenseMatrix incrementalPart = newCovPart * fragment2;
+                this.covarianceMatrix = fragment1 * this.covarianceMatrix + (vector1 * vector2) * fragment2;
             }
             catch (Exception)
             {
