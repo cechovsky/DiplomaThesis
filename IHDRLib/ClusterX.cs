@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
+﻿using ILNumerics;
+using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +22,12 @@ namespace IHDRLib
             this.child = null;
             this.dimension = Params.inputDataDimension;
 
-            items.Add(new Vector(sample.X.ToArray(), sample.Label));
+            items.Add(new Vector(sample.X.ToArray(), sample.Label, 1));
 
             this.mean = new Vector(sample.X.ToArray());
 
             //#warning TODO count covariance matrix 
-            this.covarianceMatrix = new DenseMatrix(Params.inputDataDimension, Params.inputDataDimension, 0.0);
+            this.covarianceMatrix = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
         }
 
         public void SetClusterPair(ClusterPair clusterPair)
@@ -34,16 +35,12 @@ namespace IHDRLib
             this.clusterPair = clusterPair;
         }
 
-        
-
-        
-
-        
-
-        
-
-
-
-       
+        public void SaveSamples()
+        {
+            foreach (var item in items)
+            {
+                item.SaveToBitmap(this.SavePath);
+            }
+        }
     }
 }

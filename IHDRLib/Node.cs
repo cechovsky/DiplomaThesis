@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ILNumerics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,8 @@ namespace IHDRLib
         private bool isPlastic;
         private bool isActive;
         private int count;
+        private string path;
+        private ILArray<double> GSOManifold;
 
         private List<Node> children;
 
@@ -31,9 +34,10 @@ namespace IHDRLib
             this.count = 0;
 
             this.children = new List<Node>(Params.q);
+            this.path = Params.savePath + "root\\";
         }
 
-        public Node(Node parent)
+        public Node(Node parent, string path)
         {
             this.parent = parent;
 
@@ -45,6 +49,7 @@ namespace IHDRLib
             count = 0;
 
             this.children = new List<Node>(Params.q);
+            this.path = path;
         }
 
         #region properties
@@ -102,6 +107,18 @@ namespace IHDRLib
             set
             {
                 this.isPlastic = true;
+            }
+        }
+
+        public string Path
+        {
+            get
+            {
+                return this.path;
+            }
+            set
+            {
+                this.path = value;
             }
         }
 
@@ -391,7 +408,8 @@ namespace IHDRLib
 
             for (int i = 0; i < Params.q; i++)
             {
-                Node node = new Node(this);
+                // create node + set save path
+                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\");
                 List<ClusterPair> clPairs = this.clusterPairs.Where(cp => cp.CurrentCenter == i).ToList();
 
                 foreach (var item in clPairs)
@@ -427,8 +445,6 @@ namespace IHDRLib
                     return;
                 }
             }
-
-
         }
 
         /// <summary>
@@ -487,5 +503,141 @@ namespace IHDRLib
 
             return null;             
         }
+
+        #region SavingToFileHierarchy
+
+        public void SaveToFileHierarchy()
+        {
+            this.SetPathsToClusters();
+            this.SaveClusters();
+
+            // save children
+            foreach (var child in children)
+            {
+                child.SaveToFileHierarchy();
+            }
+        }
+
+        private void SetPathsToClusters()
+        {
+            int i = 1;
+            string ii = "";
+            foreach (var item in ClustersX)
+            {
+                if (i < 10)
+                {
+                    ii = "0" + i.ToString();
+                }
+                else
+                {
+                    ii = i.ToString();
+                }
+
+                item.SavePath = this.path + "cluster" + ii + "\\";
+                i++;
+            }
+        }
+
+        private void SaveClusters()
+        {
+            foreach (var item in clustersX)
+            {
+                item.SaveSamples();
+            }
+        }
+
+        #endregion
+
+        #region Grand Schmidt Ortogonalisation Process
+
+        public void CountGSOManifold()
+        {
+            List<Vector> scatterVectors = this.GetScatterVectors();
+            GSOManifold = this.GetManifold(scatterVectors);
+        }
+
+        public ILArray<double> GetManifold(List<Vector> scatterVectors)
+        {
+            ILArray<double> newArray = ILMath.zeros(Params.inputDataDimension, clustersX.Count);
+
+            List<ILArray<double>> ortBasisVectors = new List<ILArray<double>>(clustersX.Count);
+            // count manifold
+            for (int i = 0; i < scatterVectors.Count; i++)
+            {
+                if (i == 0)
+                {
+                    ILArray<double> newVector = scatterVectors[i].ToArray();
+                    double normNum = Vector.GetNormalisationNum(newVector);
+
+                    // normalize
+                    newVector = newVector / normNum;
+
+                    this.SetColumnToILArray(newArray, newVector, i);
+                    ortBasisVectors.Add(newVector);
+                }
+                else
+                {
+                    // initialise ortogonal projection
+                    ILArray<double> projectionW = ILMath.zeros(Params.inputDataDimension);
+                    for (int j = 0; j < i; j++)
+                    {
+                        ILArray<double> incrementalPart = ILMath.zeros(Params.inputDataDimension);
+                        ILArray<double> si = scatterVectors[i].ToArray();
+                        si = si.T;
+
+                        ILArray<double> siaj = ILMath.multiply(si, ortBasisVectors[j]);
+                        incrementalPart = siaj[0] * ortBasisVectors[j];
+
+                        // count divider
+                        projectionW = (projectionW + incrementalPart);
+                    }
+
+                    ILArray<double> scatterVector = ILMath.array<double>(scatterVectors[i].ToArray());
+                    ILArray<double> newColumn = scatterVector - projectionW;
+
+                    double normNum = Vector.GetNormalisationNum(newColumn);
+
+                    // normalize
+                    newColumn = newColumn / normNum;
+
+                    this.SetColumnToILArray(newArray, newColumn, i);
+                    ortBasisVectors.Add(newColumn);
+                }
+            }
+
+            return newArray;
+        }
+
+        public void SetColumnToILArray(ILArray<double> array, ILArray<double> column, int index)
+        {
+            int i = 0;
+            foreach (double item in column)
+            {
+                array[i, index] = item;
+                i++;
+            }
+        }
+
+        public Vector GetCFromClustersX()
+        {
+            return Vector.GetMeanOfVectors(clustersX.Select(cl => cl.Mean).ToList<Vector>());
+        }
+
+        public List<Vector> GetScatterVectors()
+        {
+            List<Vector> scatterVectors = new List<Vector>(clustersX.Count);
+            Vector C = this.GetCFromClustersX();
+
+            foreach (var item in clustersX)
+            {
+                Vector newScatter = new Vector(item.Mean.ToArray());
+                newScatter.Subtract(C);
+                scatterVectors.Add(newScatter);
+            }
+
+            return scatterVectors;
+        }
+
+        #endregion
     }
 }

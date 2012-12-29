@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 
 namespace IHDRLib
 {
@@ -10,17 +11,20 @@ namespace IHDRLib
         private Vector x;
         private Vector y;
         private double label;
+        private int id;
 
-        public Sample(double[] input, double label)
+        public Sample(double[] input, double label, int id)
         {
             this.x = new Vector(input);
             this.label = label;
+            this.id = id;
         }
 
-        public Sample(double[] input, double[] output)
+        public Sample(double[] input, double[] output, int id)
         {
             this.x = new Vector(input);
             this.y = new Vector(input);
+            this.id = id;
         }
 
         public Vector X
@@ -36,6 +40,18 @@ namespace IHDRLib
             get
             {
                 return y;
+            }
+        }
+
+        public int Id
+        {
+            get
+            {
+                return this.id;
+            }
+            set
+            {
+                this.id = value;
             }
         }
 
@@ -94,6 +110,21 @@ namespace IHDRLib
 
             return result;
         }
-        
+
+        public void SaveToBitmap(string locationPath)
+        {
+            Bitmap bitmap = new Bitmap(28, 28);
+
+            for (int i = 0; i < 28; i++)
+            {
+                for (int j = 0; j < 28; j++)
+                {
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)x[i * 28 + j], (int)x[i * 28 + j], (int)x[i * 28 + j]));
+                }
+            }
+
+            bitmap.Save(locationPath + @"\sample_" + this.Id + "_" + this.Label + ".bmp");
+        }
+
     }
 }

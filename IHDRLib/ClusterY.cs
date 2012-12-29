@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
+﻿using ILNumerics;
+using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,10 @@ namespace IHDRLib
         {
             this.dimension = Params.outputDataDimension;
 
-            this.items.Add(new Vector(sample.Y.ToArray(), sample.Label));
+            this.items.Add(new Vector(sample.Y.ToArray(), sample.Label, this.items.Count + 1));
             this.mean = new Vector(sample.Y.ToArray());
 
-            this.covarianceMatrix = new DenseMatrix(Params.outputDataDimension, Params.outputDataDimension, 0.0);
+            this.covarianceMatrix = ILMath.zeros(Params.outputDataDimension, Params.outputDataDimension);
         }
 
         

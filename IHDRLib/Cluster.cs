@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
+﻿using ILNumerics;
+using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace IHDRLib
     public class Cluster
     {
         protected ClusterPair clusterPair;
-        protected DenseMatrix covarianceMatrix;
+        protected ILArray<double> covarianceMatrix;
         protected List<Vector> items;
         protected Vector mean;
         protected int dimension;
@@ -69,10 +70,10 @@ namespace IHDRLib
             Vector v1 = new Vector(vector.ToArray());
             v1.Subtract(this.mean);
 
-            DenseMatrix vector1 = new DenseMatrix(this.dimension, 1);
-            vector1.SetColumn(0, v1.ToArray());
-            DenseMatrix vector2 = new DenseMatrix(1, this.dimension);
-            vector2.SetRow(0, v1.ToArray());
+            ILArray<double> vector1 = v1.ToArray();
+            ILArray<double> vector2 = v1.ToArray();
+            // transpone
+            vector2 = vector2.T;
 
 #warning need to edit update covariance matrix
             double t = (double) this.items.Count;
@@ -85,9 +86,9 @@ namespace IHDRLib
             try
             {
                 //DenseMatrix incrementalPart = newCovPart * fragment2;
-                this.covarianceMatrix = fragment1 * this.covarianceMatrix + (vector1 * vector2) * fragment2;
+                this.covarianceMatrix =  (this.covarianceMatrix * fragment1) + (ILMath.multiply(vector1, vector2) * fragment2);
             }
-            catch (Exception)
+            catch (Exception ee)
             {
                 int i = 0;
             }
@@ -97,7 +98,7 @@ namespace IHDRLib
         public void CountCovariacneMatrix()
         {
             this.mean = Vector.GetMeanOfVectors(this.items);
-            this.covarianceMatrix = new DenseMatrix(dimension, dimension);
+            this.covarianceMatrix = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
 
             for (int i = 0; i < dimension; i++)
             {
@@ -125,8 +126,11 @@ namespace IHDRLib
             }
         }
 
+        public string SavePath { get; set; }
+
         public void AddItem(Vector vector)
         {
+            vector.Id = this.items.Count + 1;
             this.items.Add(vector);
 
             // update mean
@@ -140,7 +144,7 @@ namespace IHDRLib
             this.items.Add(vector);
         }
 
-        public DenseMatrix CovMatrix
+        public ILArray<double> CovMatrix
         {
             get
             {

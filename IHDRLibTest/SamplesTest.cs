@@ -15,12 +15,12 @@ namespace IHDRLibTest
         public void GetLabels_FunctionReturnCorrectLabels()
         {
             Samples samples = new Samples();
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1));
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 3));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1, 0));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 3, 0));
 
             List<double> result = samples.GetLabels();
 
@@ -34,12 +34,12 @@ namespace IHDRLibTest
         public void GetSamplesOfLabel_ReturnSamplesWithSpecificLabel()
         {
             Samples samples = new Samples();
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1));
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 3));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1, 0));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 3, 0));
 
             List<Sample> result = samples.GetSamplesOfLabel(1.0);
 
@@ -55,12 +55,12 @@ namespace IHDRLibTest
             Params.inputDataDimension = 3;
 
             Samples samples = new Samples();
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1));
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 3));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1, 0));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 3, 0));
 
             Vector result1 = samples.GetMeanOfDataWithLabel(1.0);
 
@@ -75,12 +75,12 @@ namespace IHDRLibTest
         public void CountOutputsFromClassLabels_CountCorrectOutputs()
         {
             Samples samples = new Samples();
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1));
-            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1));
-            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2));
-            samples.Add(new Sample(new double[] { 3, 4, 5 }, 2));
-            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2));
-            samples.Add(new Sample(new double[] { 6, 3, 7 }, 3));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 1, 0));
+            samples.Add(new Sample(new double[] { 2, 3, 4 }, 1, 0));
+            samples.Add(new Sample(new double[] { 1, 2, 3 }, 2, 0));
+            samples.Add(new Sample(new double[] { 3, 4, 5 }, 2, 0));
+            samples.Add(new Sample(new double[] { 5, 6, 7 }, 2, 0));
+            samples.Add(new Sample(new double[] { 6, 3, 7 }, 3, 0));
 
             samples.CountOutputsFromClassLabels();
             Assert.IsTrue(samples[0].Y.EqualsToVector(new Vector(new double[] { 1.5, 2.5, 3.5 })));

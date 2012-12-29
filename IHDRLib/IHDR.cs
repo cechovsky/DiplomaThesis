@@ -22,10 +22,12 @@ namespace IHDRLib
 
         public IHDR()
         {
+            SetSettings();
+
             this.samples = new Samples();
             this.tree = new Tree();
 
-            SetSettings();
+            
         }
 
         private void SetSettings()
@@ -36,16 +38,17 @@ namespace IHDRLib
             Params.q = 4;
             Params.bs = 15;
             Params.outputIsDefined = false;
-            Params.deltaX = 1000.0;
-            Params.deltaY = 1000.0;
-            Params.blx = 20;
-            Params.bly = 20;
+            Params.deltaX = 1500.0;
+            Params.deltaY = 1500.0;
+            Params.blx = 10;
+            Params.bly = 10;
             Params.p = 20;
+            Params.savePath = @"D:\IHDRTree\";
         }
 
         public void AddSample(double[] sample, double label)
         {
-            samples.AddSample(new Sample(sample, label));
+            samples.AddSample(new Sample(sample, label, samples.Count + 1));
         }
 
         public void AddSamples(List<double[]> samples, double[] labels)
@@ -55,7 +58,7 @@ namespace IHDRLib
             int iterator = 0;
             foreach (double[] item in samples)
             {
-                this.samples.AddSample(new Sample(item, labels[iterator]));
+                this.samples.AddSample(new Sample(item, labels[iterator], samples.Count + 1));
                 iterator++;
             }
         }
@@ -69,12 +72,24 @@ namespace IHDRLib
 
             if (samples != null && samples.Count > 100)
             {
+                int i = 0;
                 foreach (Sample sample in samples)
                 {
+                    Console.WriteLine("Update tree Sample " + i.ToString());
                     this.tree.UpdateTree(sample);
+                    i++;
                 }
             }
         }
+
+        public void SaveTreeToFileHierarchy()
+        {
+            if (this.tree != null)
+            {
+                this.tree.SaveToFileHierarchy();
+            }
+        }
+
     }
 }
 

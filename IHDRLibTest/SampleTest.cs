@@ -14,8 +14,8 @@ namespace IHDRLibTest
         [TestMethod]
         public void GetXDistanceFromSample_GiveCorrectDistance()
         {
-            Sample sample1 = new Sample(new double[] { 0, 3, 4, 5}, 1);
-            Sample sample2 = new Sample(new double[] { 7, 6, 3, -1}, 1);
+            Sample sample1 = new Sample(new double[] { 0, 3, 4, 5}, 1, 0);
+            Sample sample2 = new Sample(new double[] { 7, 6, 3, -1}, 1, 0);
 
             double distance = Math.Round(sample1.GetXDistanceFromSample(sample2), 3);
             Assert.AreEqual(distance, 9.747);

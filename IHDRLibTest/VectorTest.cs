@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IHDRLib;
+using ILNumerics;
 
 namespace IHDRLibTest
 {
@@ -75,8 +76,8 @@ namespace IHDRLibTest
         public void GetMeanOfVectors_GetCorrectMean()
         {
             List<Vector> vectors = new List<Vector>();
-            vectors.Add(new Vector(new double[]{ 1.0, 2.0, 3.0}, 1.0));
-            vectors.Add(new Vector(new double[] { 2.0, 3.0, 4.0 }, 1.0));
+            vectors.Add(new Vector(new double[]{ 1.0, 2.0, 3.0}, 1.0, 0));
+            vectors.Add(new Vector(new double[] { 2.0, 3.0, 4.0 }, 1.0, 0));
 
             Vector result = Vector.GetMeanOfVectors(vectors);
 
@@ -100,7 +101,15 @@ namespace IHDRLibTest
             int result = vector.GetIdOfClosestVector(vectors);
 
             Assert.AreEqual(result, 1);
+        }
 
+        [TestMethod]
+        public void GetNormalisationNum_GetCorrectNum()
+        {
+            ILArray<double> vector = new double[] { 1, 1, 1, 1 };
+            double normNum = Vector.GetNormalisationNum(vector);
+
+            Assert.AreEqual(normNum, 2.0);
         }
     }
 }

@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ILNumerics32">
+      <HintPath>..\packages\ILNumerics.32Bit.2.14.4735.552\lib\ILNumerics32.dll</HintPath>
+    </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\ExternalLibs\MathNet.Numerics.dll</HintPath>
     </Reference>
@@ -38,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,8 +55,6 @@
     <Compile Include="ClusterY.cs" />
     <Compile Include="CovarianceMatrix.cs" />
     <Compile Include="IHDR.cs" />
-    <Compile Include="KMeanRegion.cs" />
-    <Compile Include="KMeansResolver.cs" />
     <Compile Include="MatrixItem.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Params.cs" />
@@ -64,6 +66,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="IHDRClassDiagram.cd" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="libiomp5md.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="mkl_custom32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

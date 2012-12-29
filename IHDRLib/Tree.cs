@@ -40,5 +40,14 @@ namespace IHDRLib
         {
             this.root.UpdateNode(sample);
         }
+
+        public void SaveToFileHierarchy()
+        {
+            if (this.root != null)
+            {
+                this.root.SaveToFileHierarchy();
+            }
+
+        }
     }
 }

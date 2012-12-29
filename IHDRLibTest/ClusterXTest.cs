@@ -17,7 +17,7 @@ namespace IHDRLibTest
             // set params 
             Params.inputDataDimension = 3;
 
-            Sample sample = new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0);
+            Sample sample = new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0);
             
             ClusterX clusterX = new ClusterX(sample);
 
@@ -29,7 +29,7 @@ namespace IHDRLibTest
         {
             Params.inputDataDimension = 3;
 
-            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0));
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0));
 
             clusterX.AddItem(new Vector(new double[] { 2.0, 3.0, 4.0 }));
 
@@ -51,7 +51,7 @@ namespace IHDRLibTest
             Params.inputDataDimension = 3;
             Params.outputDataDimension = 3;
 
-            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0));
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0, 0));
             clusterX.AddItem(new Vector(new double[] { 4.2, 2.1, 0.59 }));
 
             //clusterX.CountCovariacneMatrix();

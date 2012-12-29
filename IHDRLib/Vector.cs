@@ -1,5 +1,8 @@
-﻿using System;
+﻿using ILNumerics;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -16,12 +19,6 @@ namespace IHDRLib
         public Vector(double[] vector) : base()
         {
             this.InsertRange(0, vector);
-        }
-
-        public Vector(double[] vector, double label) : base()
-        {
-            this.InsertRange(0, vector);
-            this.label = label;
         }
 
         public Vector(double[] vector, double label, int id)
@@ -134,6 +131,29 @@ namespace IHDRLib
             return result;
         }
 
+        public void SaveToBitmap(string locationPath)
+        {
+            Bitmap bitmap = new Bitmap(28, 28);
+
+            for (int i = 0; i < 28; i++)
+            {
+                for (int j = 0; j < 28; j++)
+                {
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)this[i * 28 + j], (int)this[i * 28 + j], (int)this[i * 28 + j]));
+                }
+            }
+
+            // create directory
+            DirectoryInfo dir = new DirectoryInfo(locationPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+
+
+            bitmap.Save(locationPath + @"\vector_" + this.Id + ".bmp");
+        }
+
         /// <summary>
         /// return id of closest vector from list
         /// </summary>
@@ -155,6 +175,12 @@ namespace IHDRLib
             }
 
             return result;
+        }
+
+        public static double GetNormalisationNum(ILArray<double> vector)
+        {
+            double sum = ILMath.multiply(vector.T, vector).ToArray()[0];
+            return Math.Sqrt(sum);
         }
 
         #region Properties

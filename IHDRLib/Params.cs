@@ -46,6 +46,9 @@ namespace IHDRLib
         // p - portion of y cluster that will be updated ( in percents )
         public static double p { get; set; }
 
+        // path for sample saving
+        public static string savePath { get; set; }
+
 
                 
     }

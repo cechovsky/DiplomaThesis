@@ -32,7 +32,7 @@ namespace IHDRApplication
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             MnistParser parser = new MnistParser(@"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_images.bin", @"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_labels.bin");
-            parser.ParseData(1000);
+            parser.ParseData(350);
 
             ihdr = new IHDR();
             List<MNISTParserLib.Sample> mnistSamples = parser.Samples;
@@ -53,6 +53,11 @@ namespace IHDRApplication
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             ihdr.BuildTree();
+        }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            ihdr.SaveTreeToFileHierarchy();
         }
 
         //private void Button_Click_3(object sender, RoutedEventArgs e)

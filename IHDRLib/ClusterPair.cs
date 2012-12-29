@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra.Double;
+﻿using ILNumerics;
+using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,13 +45,13 @@ namespace IHDRLib
 
             try
             {
-                cp.X.CovMatrix = new DenseMatrix(this.X.CovMatrix);
+                cp.X.CovMatrix = ILMath.array(this.X.CovMatrix.ToArray(), Params.inputDataDimension, Params.inputDataDimension);
                 cp.X.Mean = new Vector(this.X.Mean.ToArray());
 
-                cp.Y.CovMatrix = new DenseMatrix(this.Y.CovMatrix);
+                cp.Y.CovMatrix = ILMath.array(this.X.CovMatrix.ToArray(), Params.outputDataDimension, Params.outputDataDimension);
                 cp.Y.Mean = new Vector(this.Y.Mean.ToArray());
             }
-            catch (Exception)
+            catch (Exception ee)
             {
                 int i = 0;
             }
