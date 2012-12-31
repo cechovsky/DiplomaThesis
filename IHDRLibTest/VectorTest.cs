@@ -73,6 +73,18 @@ namespace IHDRLibTest
         }
 
         [TestMethod]
+        public void GetMDFDistance_GetCorrectDistance()
+        {
+            Vector v = new Vector(new double[] { 1, 3, 4 });
+            v.MostDiscrimatingFeatures = new double[] { 1, 3, 4 };
+            ILArray<double> a2 = new double[] { 7, 2, 3 };
+
+            double distance = Math.Round(v.GetMDFDistance(a2), 3);
+
+            Assert.AreEqual(distance, 6.164);
+        }
+
+        [TestMethod]
         public void GetMeanOfVectors_GetCorrectMean()
         {
             List<Vector> vectors = new List<Vector>();

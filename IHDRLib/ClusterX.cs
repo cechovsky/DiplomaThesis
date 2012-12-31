@@ -42,5 +42,21 @@ namespace IHDRLib
                 item.SaveToBitmap(this.SavePath);
             }
         }
+
+        public void CountMDFOfItems(ILArray<double> gSOManifold)
+        {
+            foreach (var vector in items)
+            {
+                vector.CountMostDiscrimatingFeatures(gSOManifold);
+            }
+        }
+
+        public double GetMDFDistanceFromMDFMean(ILArray<double> vector)
+        {
+            ILArray<double> delta = this.meanMDF - vector;
+            double result = ILMath.multiply(delta.T, delta).ToArray()[0];
+            if (result == 0) return 0;
+            return Math.Sqrt(result);
+        }
     }
 }

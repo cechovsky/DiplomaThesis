@@ -11,7 +11,8 @@ namespace IHDRLib
     public class Vector : List<double>
     {
         double label;
-        
+        ILArray<double> mostDiscrimatingFeatures;
+
         /// <summary>
         /// insert attributes in array to vector
         /// </summary>
@@ -27,6 +28,24 @@ namespace IHDRLib
             this.InsertRange(0, vector);
             this.label = label;
             this.Id = id;
+        }
+
+        public ILArray<double> MostDiscrimatingFeatures
+        {
+            get 
+            {
+                return mostDiscrimatingFeatures;
+            }
+            set
+            {
+                this.mostDiscrimatingFeatures = value;
+            }
+        }
+
+        public void CountMostDiscrimatingFeatures(ILArray<double> GSOmanifold)
+        {
+            ILArray<double> thisVector = this.ToArray();
+            mostDiscrimatingFeatures = ILMath.multiply(GSOmanifold.T, thisVector);
         }
 
         public Vector(int dimension, double value): base(dimension)
@@ -95,8 +114,18 @@ namespace IHDRLib
             {
                 sum += Math.Pow(this[i] - vector[i], 2);
             }
+            if (sum == 0) return 0;
             return Math.Sqrt(sum);
         }
+
+        public double GetMDFDistance(ILArray<double> vector)
+        {
+            ILArray<double> delta = this.mostDiscrimatingFeatures - vector;
+            double result = ILMath.multiply(delta.T, delta).ToArray()[0];
+            if (result == 0) return 0;
+            return Math.Sqrt(result);
+        }
+        
 
         public static Vector GetMeanOfVectors(List<Vector> vectors)
         {

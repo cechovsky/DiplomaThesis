@@ -20,6 +20,7 @@ namespace IHDRLib
         private int count;
         private string path;
         private ILArray<double> GSOManifold;
+        private int differentReturnedCluster = 0;
 
         private List<Node> children;
 
@@ -128,6 +129,27 @@ namespace IHDRLib
 
         public void UpdateNode(Sample sample)
         {
+
+            if (!this.isLeafNode)
+            {
+                double d1 = double.MaxValue;
+                int index1 = -1;
+                this.GetNearestClusterPairX(sample, out d1, out index1);
+                double d2 = double.MaxValue;
+                int index2 = -1;
+                this.GetNearestClusterPairXMDF(sample, out d2, out index2);
+
+                this.CountMDFOfVectors();
+                this.CountGSOManifold();
+                this.CountMDFMeans();
+
+                if (index1 != index2)
+                {
+                    differentReturnedCluster++;
+                    Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
+                }
+            }
+
             count++;
             Console.WriteLine("Add sample " + count.ToString());
 
@@ -169,7 +191,7 @@ namespace IHDRLib
                 
                 // TODO update subspace of most discrimanting subspace
 
-
+                #warning not euclidean
                 // TODO compute probabilities described in Subsection IV-C. ( it will be implemented latest )
                 // closest X will active node to be searched deaper
                 Node next = this.GetNextAByEuclidean(sample);
@@ -201,20 +223,57 @@ namespace IHDRLib
 
         #region Update cluster pairs
 
-        private ClusterPair GetNearestClusterPairX(Sample sample, out double distance)
+        private ClusterPair GetNearestClusterPairX(Sample sample, out double distance, out int index)
         {
             distance = double.MaxValue;
             ClusterPair closestPair = clusterPairs[0];
+            int i = 0;
+            index = -1;
             foreach (ClusterPair item in clusterPairs)
             {
                 double newDistance = item.X.Mean.GetDistance(sample.X);
-                if (item.X.Mean.GetDistance(sample.X) < distance)
+                if (newDistance < distance)
                 {
                     distance = newDistance;
                     closestPair = item;
+                    index = i;
                 }
-
+                i++;
             }
+
+            //Console.WriteLine("Normal" + sample.Id.ToString() + " : " + index.ToString());
+
+            return closestPair;
+        }
+
+        /// <summary>
+        /// get nearest cluster pair by most dicrimnating features vector
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        private ClusterPair GetNearestClusterPairXMDF(Sample sample, out double distance, out int index)
+        {
+            ILArray<double> vector = ILMath.multiply(this.GSOManifold.T, sample.X.ToArray());
+                
+            distance = double.MaxValue;
+            ClusterPair closestPair = clusterPairs[0];
+            int i = 0;
+            index = -1;
+            foreach (ClusterPair item in clusterPairs)
+            {
+                double newDistance = item.X.GetMDFDistanceFromMDFMean(vector);
+                if (newDistance < distance)
+                {
+                    distance = newDistance;
+                    closestPair = item;
+                    index = i;
+                }
+                i++;
+            }
+
+            //Console.WriteLine("MDF" + sample.Id.ToString() + " : " + index.ToString());
+
             return closestPair;
         }
 
@@ -226,8 +285,9 @@ namespace IHDRLib
             // find nearest xj cluster using euclidean distance 
 
             double distance = 0.0;
-            ClusterPair nearestCluster = this.GetNearestClusterPairX(sample, out distance);
-
+            int index = 0;
+            ClusterPair nearestCluster = this.GetNearestClusterPairX(sample, out distance, out index);
+            
             //Console.WriteLine(distance.ToString());
             // if is count < like bl and distance > delta create new cluster
             // add new cluster pair (x,y), increment n
@@ -292,6 +352,9 @@ namespace IHDRLib
             // else update p percents of xj cluster and yj cluster using amnesic average
             else
             {
+                #warning TODO update ceratin portion
+                //Update a certain portion p (e.g., p = 0:2, i.e., pulling top 20%) of nearest clusters using the amnesic average
+                //explained in Section III-F and return the index j
                 // add sample to clusters, update statistics of clusters
                 nearestCluster.X.AddItem(sample.X);
                 nearestCluster.Y.AddItem(sample.Y);
@@ -424,6 +487,50 @@ namespace IHDRLib
 
                 // add children
                 this.children.Add(node);
+            }
+
+            this.CountMDFOfVectors();
+            this.CountMDFMeans();
+        }
+
+        /// <summary>
+        /// count MDF means in all clusters
+        /// </summary>
+        public void CountMDFMeans()
+        {
+            foreach (var item in clustersX)
+            {
+                item.CountMDFMean();
+            }
+        }
+
+
+        /// <summary>
+        /// count most discrimating vectors for all x 
+        /// </summary>
+        private void CountMDFOfVectors()
+        {
+            this.CountGSOManifold();
+
+            foreach (var item in clustersX)
+            {
+                item.CountMDFOfItems(this.GSOManifold);
+            }
+        }
+
+        private void TestDistancesFromMDF()
+        {
+            Vector startPoint = clustersX[0].Items[0];
+            foreach (var item in clustersX)
+            {
+                int i = 0;
+                foreach (var vector in item.Items)
+                {
+                    double normal = vector.GetDistance(startPoint);
+                    double MDF = vector.GetMDFDistance(startPoint.MostDiscrimatingFeatures);
+                    //Console.WriteLine("Normal " + i.ToString() + " : "+ normal.ToString());
+                    //Console.WriteLine("MDF " + i.ToString() + " : " + MDF.ToString());
+                }
             }
         }
 

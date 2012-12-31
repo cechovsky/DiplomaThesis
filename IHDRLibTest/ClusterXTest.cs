@@ -64,7 +64,27 @@ namespace IHDRLibTest
             clusterX.AddItem(new Vector(new double[] { 4.1, 2.2, 0.63 }));
 
             clusterX.CountCovariacneMatrix();
+        }
 
+        [TestMethod]
+        public void CountMDFMean_CountCorrectMean()
+        {
+            Params.inputDataDimension = 3;
+            Params.outputDataDimension = 3;
+
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1, 2, 3 }, 1.0, 0));
+            clusterX.AddItem(new Vector(new double[] { 2, 3, 4 }));
+            clusterX.AddItem(new Vector(new double[] { 3, 4, 5 }));
+
+            clusterX.Items[0].MostDiscrimatingFeatures = new double[] { 1, 2, 3 };
+            clusterX.Items[1].MostDiscrimatingFeatures = new double[] { 2, 3, 4 };
+            clusterX.Items[2].MostDiscrimatingFeatures = new double[] { 3, 4, 5 };
+
+            clusterX.CountMDFMean();
+
+            Assert.AreEqual(clusterX.MeanMDF[0], 2.0);
+            Assert.AreEqual(clusterX.MeanMDF[1], 3.0);
+            Assert.AreEqual(clusterX.MeanMDF[2], 4.0);
         }
     }
 }
