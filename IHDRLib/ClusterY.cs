@@ -21,9 +21,16 @@ namespace IHDRLib
             this.items.Add(new Vector(sample.Y.ToArray(), sample.Label, this.items.Count + 1));
             this.mean = new Vector(sample.Y.ToArray());
 
-            this.covarianceMatrix = ILMath.zeros(Params.outputDataDimension, Params.outputDataDimension);
         }
 
+        public void AddItem(Vector vector)
+        {
+            vector.Id = this.items.Count + 1;
+            this.items.Add(vector);
+
+            // update mean
+            this.UpdateMean(vector);
+        }
         
 
         

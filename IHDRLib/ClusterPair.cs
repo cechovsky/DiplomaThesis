@@ -48,7 +48,6 @@ namespace IHDRLib
                 cp.X.CovMatrix = ILMath.array(this.X.CovMatrix.ToArray(), Params.inputDataDimension, Params.inputDataDimension);
                 cp.X.Mean = new Vector(this.X.Mean.ToArray());
 
-                cp.Y.CovMatrix = ILMath.array(this.X.CovMatrix.ToArray(), Params.outputDataDimension, Params.outputDataDimension);
                 cp.Y.Mean = new Vector(this.Y.Mean.ToArray());
             }
             catch (Exception ee)
@@ -56,14 +55,11 @@ namespace IHDRLib
                 int i = 0;
             }
 
-            
-
-            if (cp.X.CovMatrix == null || cp.Y.CovMatrix == null || cp.X.Mean == null || cp.Y.Mean == null)
+            if (cp.X.CovMatrix == null ||  cp.X.Mean == null || cp.Y.Mean == null)
             {
                 throw new InvalidCastException("Bad clone");
             }
             
-
             return cp;
         }
 

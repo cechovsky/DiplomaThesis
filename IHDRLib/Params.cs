@@ -49,6 +49,9 @@ namespace IHDRLib
         // path for sample saving
         public static string savePath { get; set; }
 
+        // if count nearest cluster by normal euclidean distance or by most discriminating features distance
+        public static bool NearestClusterNormal{ get; set; }
+
 
                 
     }

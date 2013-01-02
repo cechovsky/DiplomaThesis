@@ -19,7 +19,7 @@ namespace IHDRLib
         private bool isActive;
         private int count;
         private string path;
-        private ILArray<double> GSOManifold;
+        private ILArray<double> gSOManifold;
         private int differentReturnedCluster = 0;
 
         private List<Node> children;
@@ -123,6 +123,18 @@ namespace IHDRLib
             }
         }
 
+        public ILArray<double> GSOManifold
+        {
+            get
+            {
+                return this.gSOManifold;
+            }
+            set
+            {
+                this.gSOManifold = value;
+            }
+        }
+
         #endregion
 
         #region UpdateNode
@@ -130,25 +142,25 @@ namespace IHDRLib
         public void UpdateNode(Sample sample)
         {
 
-            if (!this.isLeafNode)
-            {
-                double d1 = double.MaxValue;
-                int index1 = -1;
-                this.GetNearestClusterPairX(sample, out d1, out index1);
-                double d2 = double.MaxValue;
-                int index2 = -1;
-                this.GetNearestClusterPairXMDF(sample, out d2, out index2);
+            //if (!this.isLeafNode)
+            //{
+            //    double d1 = double.MaxValue;
+            //    int index1 = -1;
+            //    this.GetNearestClusterPairX(sample, out d1, out index1);
+            //    double d2 = double.MaxValue;
+            //    int index2 = -1;
+            //    this.GetNearestClusterPairXMDF(sample, out d2, out index2);
 
-                this.CountMDFOfVectors();
-                this.CountGSOManifold();
-                this.CountMDFMeans();
+            //    this.CountMDFOfVectors();
+            //    this.CountGSOManifold();
+            //    this.CountMDFMeans();
 
-                if (index1 != index2)
-                {
-                    differentReturnedCluster++;
-                    Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
-                }
-            }
+            //    if (index1 != index2)
+            //    {
+            //        differentReturnedCluster++;
+            //        Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
+            //    }
+            //}
 
             count++;
             Console.WriteLine("Add sample " + count.ToString());
@@ -212,7 +224,6 @@ namespace IHDRLib
             ClusterY newClusterY = new ClusterY(sample);
             this.clustersY.Add(newClusterY);
 
-
             ClusterPair clusterPair = new ClusterPair(newClusterX, newClusterY);
             newClusterX.SetClusterPair(clusterPair);
             newClusterY.SetClusterPair(clusterPair);
@@ -254,7 +265,7 @@ namespace IHDRLib
         /// <returns></returns>
         private ClusterPair GetNearestClusterPairXMDF(Sample sample, out double distance, out int index)
         {
-            ILArray<double> vector = ILMath.multiply(this.GSOManifold.T, sample.X.ToArray());
+            ILArray<double> vector = ILMath.multiply(this.gSOManifold.T, sample.X.ToArray());
                 
             distance = double.MaxValue;
             ClusterPair closestPair = clusterPairs[0];
@@ -327,6 +338,13 @@ namespace IHDRLib
 
                 this.EvaluateSwap();
                 this.Swap();
+
+                // count most discriminating features space etc.
+                this.CountGSOManifold();
+                this.CountMDFOfVectors();
+                this.CountMDFMeans();
+                this.CountCovarianceMatricesMDF();
+                this.DisposeCovarianceMatrices();
             }
         }
 
@@ -339,8 +357,24 @@ namespace IHDRLib
             // parameters bly bound of number of y clusters in node, dy resolution
             // find nearest xj cluster using euclidean distance 
 
-            double distance = 0.0;
-            ClusterPair nearestCluster = this.GetNearestClusterPairY(sample, out distance);
+            ClusterPair nearestCluster = null;
+            double distance = double.MaxValue;
+            int index1 = -1;
+            int index2 = -1;
+            if (Params.NearestClusterNormal)
+            {
+                nearestCluster = this.GetNearestClusterPairX(sample, out distance, out index1);
+            }
+            else
+            {
+                nearestCluster = this.GetNearestClusterPairXMDF(sample, out distance, out index2);
+            }
+
+            if (index1 != index2)
+            {
+                differentReturnedCluster++;
+                Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
+            }
 
             //Console.WriteLine(distance.ToString());
             // if is count < like bly and distance > deltay create new cluster
@@ -348,6 +382,12 @@ namespace IHDRLib
             if (samples.Count < Params.bly && distance > Params.deltaY)
             {
                 this.CreateNewClusters(sample);
+
+                // update MDF space
+                this.CountGSOManifold();
+                this.CountMDFOfVectors();
+                this.CountMDFMeans();
+                this.CountCovarianceMatricesMDF();
             }
             // else update p percents of xj cluster and yj cluster using amnesic average
             else
@@ -356,7 +396,8 @@ namespace IHDRLib
                 //Update a certain portion p (e.g., p = 0:2, i.e., pulling top 20%) of nearest clusters using the amnesic average
                 //explained in Section III-F and return the index j
                 // add sample to clusters, update statistics of clusters
-                nearestCluster.X.AddItem(sample.X);
+                nearestCluster.X.AddItemNonLeaf(sample.X, this);
+
                 nearestCluster.Y.AddItem(sample.Y);
             }
         }
@@ -373,7 +414,6 @@ namespace IHDRLib
                     distance = newDistance;
                     closestPair = item;
                 }
-
             }
             return closestPair;
         }
@@ -478,7 +518,6 @@ namespace IHDRLib
                 foreach (var item in clPairs)
                 {
                     ClusterPair clusterPair = item.GetClone();
-
                     node.AddClusterPair(clusterPair);                    
                 }
 
@@ -488,9 +527,6 @@ namespace IHDRLib
                 // add children
                 this.children.Add(node);
             }
-
-            this.CountMDFOfVectors();
-            this.CountMDFMeans();
         }
 
         /// <summary>
@@ -504,17 +540,37 @@ namespace IHDRLib
             }
         }
 
+        /// <summary>
+        /// count MDF means in all clusters
+        /// </summary>
+        public void CountCovarianceMatricesMDF()
+        {
+            foreach (var item in clustersX)
+            {
+                item.CountCovarianceMatrixMDF();
+            }
+        }
+
+        /// <summary>
+        /// count MDF means in all clusters
+        /// </summary>
+        public void DisposeCovarianceMatrices()
+        {
+            foreach (var item in clustersX)
+            {
+                item.DisposeCovMatrix();
+            }
+        }
+
 
         /// <summary>
         /// count most discrimating vectors for all x 
         /// </summary>
         private void CountMDFOfVectors()
         {
-            this.CountGSOManifold();
-
             foreach (var item in clustersX)
             {
-                item.CountMDFOfItems(this.GSOManifold);
+                item.CountMDFOfItems(this.gSOManifold);
             }
         }
 
@@ -660,7 +716,7 @@ namespace IHDRLib
         public void CountGSOManifold()
         {
             List<Vector> scatterVectors = this.GetScatterVectors();
-            GSOManifold = this.GetManifold(scatterVectors);
+            gSOManifold = this.GetManifold(scatterVectors);
         }
 
         public ILArray<double> GetManifold(List<Vector> scatterVectors)
