@@ -46,13 +46,34 @@ namespace IHDRLib
         // p - portion of y cluster that will be updated ( in percents )
         public static double p { get; set; }
 
+        // it is value alpha. it is needed by computing bounds of NSPP
+        public static double confidenceValue { get; set; }
+
+        // it is value alpha. it is needed by computing bounds of NSPP
+        public static double digitizationNoise { get; set; }
+
         // path for sample saving
         public static string savePath { get; set; }
 
         // if count nearest cluster by normal euclidean distance or by most discriminating features distance
-        public static bool NearestClusterNormal{ get; set; }
+        public static bool NearestClusterNormal { get; set; }
 
+        // if during saving to hierarchy save also Means to text files
+        public static bool SaveMeans { get; set; }
 
-                
+        // if during saving to hierarchy save also Means to text files
+        public static bool SaveMeansMDF { get; set; }
+
+        // if during saving to hierarchy save also CovMatrices to text files
+        public static bool SaveCovMatrices { get; set; }
+
+        // if during saving to hierarchy save also CovMatrices to text files
+        public static bool SaveCovMatricesMDF { get; set; }
+
+        // if during saving to hierarchy save also vectors to text files
+        public static bool SaveVectors { get; set; }
+
+        // if during saving to hierarchy save also vectors to text files
+        public static bool ContainsSingularCovarianceMatrixes { get; set; }
     }
 }

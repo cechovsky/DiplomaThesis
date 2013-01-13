@@ -20,7 +20,7 @@ namespace IHDRLibTest
             Sample s2 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s3 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
 
-            node.ClustersX.Add(new ClusterX(s1));
+            node.ClustersX.Add(new ClusterX(s1, null));
         }
 
         [TestMethod]
@@ -31,9 +31,9 @@ namespace IHDRLibTest
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
             Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
 
-            node.ClustersX.Add(new ClusterX(s1));
-            node.ClustersX.Add(new ClusterX(s2));
-            node.ClustersX.Add(new ClusterX(s3));
+            node.ClustersX.Add(new ClusterX(s1, null));
+            node.ClustersX.Add(new ClusterX(s2, null));
+            node.ClustersX.Add(new ClusterX(s3, null));
 
             Vector C = node.GetCFromClustersX();
 
@@ -50,9 +50,9 @@ namespace IHDRLibTest
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
             Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
 
-            node.ClustersX.Add(new ClusterX(s1));
-            node.ClustersX.Add(new ClusterX(s2));
-            node.ClustersX.Add(new ClusterX(s3));
+            node.ClustersX.Add(new ClusterX(s1, null));
+            node.ClustersX.Add(new ClusterX(s2, null));
+            node.ClustersX.Add(new ClusterX(s3, null));
 
             List<Vector> scatterVectors = node.GetScatterVectors();
 
@@ -80,9 +80,9 @@ namespace IHDRLibTest
             Sample s2 = new Sample(new double[] { -1, 1, 0, -1 }, 1, 0);
             Sample s3 = new Sample(new double[] { 2, 1, 1, 1 }, 1, 0);
 
-            node.ClustersX.Add(new ClusterX(s1));
-            node.ClustersX.Add(new ClusterX(s2));
-            node.ClustersX.Add(new ClusterX(s3));
+            node.ClustersX.Add(new ClusterX(s1, null));
+            node.ClustersX.Add(new ClusterX(s2, null));
+            node.ClustersX.Add(new ClusterX(s3, null));
 
             List<Vector> scatterVectors = new List<Vector>();
             scatterVectors.Add(new Vector(new double[] { 1, 0, 2, 1 }));

@@ -8,6 +8,7 @@ namespace IHDRLib
 {
     public class Node
     {
+        private int id;
         private Node parent;
         private Sample lastAddedSample;
         private Samples samples;
@@ -21,6 +22,9 @@ namespace IHDRLib
         private string path;
         private ILArray<double> gSOManifold;
         private int differentReturnedCluster = 0;
+        protected ILArray<double> covarianceMatrixMeanMDF;
+        protected ILArray<double> covarianceMatrixMean;
+        protected ILArray<double> c;
 
         private List<Node> children;
 
@@ -60,6 +64,14 @@ namespace IHDRLib
             get
             {
                 return this.parent;
+            }
+        }
+
+        public ILArray<double> C
+        {
+            get
+            {
+                return this.c;
             }
         }
 
@@ -123,6 +135,18 @@ namespace IHDRLib
             }
         }
 
+        public int Id
+        {
+            get
+            {
+                return this.id;
+            }
+            set
+            {
+                this.id = value;
+            }
+        }
+
         public ILArray<double> GSOManifold
         {
             get
@@ -135,35 +159,38 @@ namespace IHDRLib
             }
         }
 
+        public ILArray<double> CovarianceMatrixMeanMDF
+        {
+            get
+            {
+                return this.covarianceMatrixMeanMDF;
+            }
+            set
+            {
+                this.covarianceMatrixMeanMDF = value;
+            }
+        }
+
+        public ILArray<double> CovarianceMatrixMean
+        {
+            get
+            {
+                return this.covarianceMatrixMean;
+            }
+            set
+            {
+                this.covarianceMatrixMean = value;
+            }
+        }
+
         #endregion
 
         #region UpdateNode
 
         public void UpdateNode(Sample sample)
         {
-
-            //if (!this.isLeafNode)
-            //{
-            //    double d1 = double.MaxValue;
-            //    int index1 = -1;
-            //    this.GetNearestClusterPairX(sample, out d1, out index1);
-            //    double d2 = double.MaxValue;
-            //    int index2 = -1;
-            //    this.GetNearestClusterPairXMDF(sample, out d2, out index2);
-
-            //    this.CountMDFOfVectors();
-            //    this.CountGSOManifold();
-            //    this.CountMDFMeans();
-
-            //    if (index1 != index2)
-            //    {
-            //        differentReturnedCluster++;
-            //        Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
-            //    }
-            //}
-
             count++;
-            Console.WriteLine("Add sample " + count.ToString());
+            //Console.WriteLine("Add sample " + count.ToString());
 
             // add sample (because of counting of output)
             samples.Add(sample);
@@ -181,7 +208,7 @@ namespace IHDRLib
                 if (this.samples.Count == 1)
                 {
                     // create new clusters and cluster pair
-                    this.CreateNewClusters(sample);
+                    this.CreateNewClusters(sample, this);
                 }
                 else
                 {
@@ -207,6 +234,19 @@ namespace IHDRLib
                 // TODO compute probabilities described in Subsection IV-C. ( it will be implemented latest )
                 // closest X will active node to be searched deaper
                 Node next = this.GetNextAByEuclidean(sample);
+                Node next2 = this.GetNextByPropability(sample);
+
+                if (this.children[0].IsLeafNode)
+                {
+                    if (next.Id == next2.Id)
+                    {
+                        Console.WriteLine("Similar next node");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Different next node");
+                    }
+                }    
                 next.UpdateNode(sample);                
             }
         }
@@ -217,11 +257,11 @@ namespace IHDRLib
         /// Create new clusers X and Y and their cluster pair
         /// </summary>
         /// <param name="sample">new sample</param>
-        private void CreateNewClusters(Sample sample)
+        private void CreateNewClusters(Sample sample, Node parent)
         {
-            ClusterX newClusterX = new ClusterX(sample);
+            ClusterX newClusterX = new ClusterX(sample, parent);
             this.clustersX.Add(newClusterX);
-            ClusterY newClusterY = new ClusterY(sample);
+            ClusterY newClusterY = new ClusterY(sample, parent);
             this.clustersY.Add(newClusterY);
 
             ClusterPair clusterPair = new ClusterPair(newClusterX, newClusterY);
@@ -257,6 +297,27 @@ namespace IHDRLib
             return closestPair;
         }
 
+        private ClusterPair GetNearestClusterPairY(Sample sample, out double distance, out int index)
+        {
+            distance = double.MaxValue;
+            ClusterPair closestPair = clusterPairs[0];
+            int i = 0;
+            index = -1;
+            foreach (ClusterPair item in clusterPairs)
+            {
+                double newDistance = item.Y.Mean.GetDistance(sample.Y);
+                if (newDistance < distance)
+                {
+                    distance = newDistance;
+                    closestPair = item;
+                    index = i;
+                }
+                i++;
+            }
+
+            return closestPair;
+        }
+
         /// <summary>
         /// get nearest cluster pair by most dicrimnating features vector
         /// </summary>
@@ -265,7 +326,9 @@ namespace IHDRLib
         /// <returns></returns>
         private ClusterPair GetNearestClusterPairXMDF(Sample sample, out double distance, out int index)
         {
-            ILArray<double> vector = ILMath.multiply(this.gSOManifold.T, sample.X.ToArray());
+            ILArray<double> thisVector = sample.X.ToArray();
+            ILArray<double> scaterPart = thisVector - C;
+            ILArray<double> vector = ILMath.multiply(this.gSOManifold.T, scaterPart.ToArray());
                 
             distance = double.MaxValue;
             ClusterPair closestPair = clusterPairs[0];
@@ -274,6 +337,64 @@ namespace IHDRLib
             foreach (ClusterPair item in clusterPairs)
             {
                 double newDistance = item.X.GetMDFDistanceFromMDFMean(vector);
+                //Console.WriteLine("Distance in MDF : " + newDistance.ToString());
+                if (newDistance < distance)
+                {
+                    distance = newDistance;
+                    closestPair = item;
+                    index = i;
+                }
+                i++;
+            }
+
+            //Console.WriteLine("Distance in MDF : " + distance.ToString());
+
+
+            //Console.WriteLine("MDF" + sample.Id.ToString() + " : " + index.ToString());
+
+            return closestPair;
+        }
+
+        /// <summary>
+        /// get nearest cluster pair by most dicrimnating features vector
+        /// </summary>
+        /// <param name="sample"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        private ClusterPair GetNearestClusterPairXMDFProbability(Sample sample, out double distance, out int index)
+        {
+            distance = double.MaxValue;
+            ClusterPair closestPair = clusterPairs[0];
+            int i = 0;
+            index = -1;
+            foreach (ClusterPair item in clusterPairs)
+            {
+                double newDistance = item.X.GetSDNLL_MDF(sample.X.ToArray(), this.gSOManifold, this.c);
+                if (newDistance < distance)
+                {
+                    distance = newDistance;
+                    closestPair = item;
+                    index = i;
+                }
+                i++;
+            }
+
+            //Console.WriteLine("MDF" + sample.Id.ToString() + " : " + index.ToString());
+
+            return closestPair;
+        }
+
+        private ClusterPair GetNearestClusterPairXProbability(Sample sample, out double distance, out int index)
+        {
+            ILArray<double> vector = sample.X.ToArray();
+
+            distance = double.MaxValue;
+            ClusterPair closestPair = clusterPairs[0];
+            int i = 0;
+            index = -1;
+            foreach (ClusterPair item in clusterPairs)
+            {
+                double newDistance = item.X.GetSDNLL(vector);
                 if (newDistance < distance)
                 {
                     distance = newDistance;
@@ -304,7 +425,7 @@ namespace IHDRLib
             // add new cluster pair (x,y), increment n
             if (clusterPairs.Count < Params.blx && distance > Params.deltaX)
             {
-                this.CreateNewClusters(sample);
+                this.CreateNewClusters(sample, this);
             }
             // else update xj cluster and yj cluster using amnesic average
             else
@@ -340,11 +461,17 @@ namespace IHDRLib
                 this.Swap();
 
                 // count most discriminating features space etc.
+                this.CountC();
                 this.CountGSOManifold();
                 this.CountMDFOfVectors();
                 this.CountMDFMeans();
                 this.CountCovarianceMatricesMDF();
-                this.DisposeCovarianceMatrices();
+                
+                //dispose matrices
+                //this.DisposeCovarianceMatrices();
+
+                //count cov matrix mean
+                this.CountCovarianceMatrixMeanMDF();
             }
         }
 
@@ -358,36 +485,56 @@ namespace IHDRLib
             // find nearest xj cluster using euclidean distance 
 
             ClusterPair nearestCluster = null;
+            ClusterPair nearestCluster2 = null;
+            ClusterPair nearestCluster3 = null;
+            ClusterPair nearestCluster4 = null;
             double distance = double.MaxValue;
+            double distance2 = double.MaxValue;
+            double distance3 = double.MinValue;
             int index1 = -1;
             int index2 = -1;
-            if (Params.NearestClusterNormal)
-            {
-                nearestCluster = this.GetNearestClusterPairX(sample, out distance, out index1);
-            }
-            else
-            {
-                nearestCluster = this.GetNearestClusterPairXMDF(sample, out distance, out index2);
-            }
+            int index3 = -1;
+            int index4 = -1;
+            
+            
+            nearestCluster = this.GetNearestClusterPairY(sample, out distance, out index1);
+            
+            //nearestCluster2 = this.GetNearestClusterPairXMDF(sample, out distance2, out index2);
+            //nearestCluster3 = this.GetNearestClusterPairXMDFProbability(sample, out distance3, out index3);
+            //nearestCluster4 = this.GetNearestClusterPairXGaussian(sample, out distance, out index4);
 
-            if (index1 != index2)
-            {
-                differentReturnedCluster++;
-                Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
-            }
+            //Console.WriteLine("Distance1 : " + distance.ToString());
+            //Console.WriteLine("Distance2 : " + distance3.ToString());
+
+            //Console.WriteLine("Index1 : " + index2.ToString());
+            //Console.WriteLine("Index2 : " + index3.ToString());
+
+            //if (index2 != index3)
+            //{
+            //    differentReturnedCluster++;
+            //    Console.WriteLine("Increment diff clusters" + differentReturnedCluster.ToString());
+            //}
+            //else
+            //{
+            //    Console.WriteLine("The same clusters.");
+            //}
 
             //Console.WriteLine(distance.ToString());
             // if is count < like bly and distance > deltay create new cluster
             // add new cluster pair (x,y), increment n
             if (samples.Count < Params.bly && distance > Params.deltaY)
             {
-                this.CreateNewClusters(sample);
+                this.CreateNewClusters(sample, this);
 
                 // update MDF space
+                this.CountC();
                 this.CountGSOManifold();
                 this.CountMDFOfVectors();
                 this.CountMDFMeans();
                 this.CountCovarianceMatricesMDF();
+
+                //count cov matrix mean
+                this.CountCovarianceMatrixMeanMDF();
             }
             // else update p percents of xj cluster and yj cluster using amnesic average
             else
@@ -397,7 +544,6 @@ namespace IHDRLib
                 //explained in Section III-F and return the index j
                 // add sample to clusters, update statistics of clusters
                 nearestCluster.X.AddItemNonLeaf(sample.X, this);
-
                 nearestCluster.Y.AddItem(sample.Y);
             }
         }
@@ -479,7 +625,7 @@ namespace IHDRLib
                     // update center
                     if (assignedVectors.Count > 0)
                     {
-                        Vector v = new Vector(784, 0.0);
+                        Vector v = new Vector(Params.inputDataDimension, 0.0);
                         double dis1 = centres[i].GetDistance(v);
                         centres[i] = Vector.GetMeanOfVectors(assignedVectors);
                         double dis2 = centres[i].GetDistance(v);
@@ -515,17 +661,34 @@ namespace IHDRLib
                 Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\");
                 List<ClusterPair> clPairs = this.clusterPairs.Where(cp => cp.CurrentCenter == i).ToList();
 
+                // set id of node
+                node.Id = this.children.Count + 1;
+
                 foreach (var item in clPairs)
                 {
                     ClusterPair clusterPair = item.GetClone();
-                    node.AddClusterPair(clusterPair);                    
+                    node.AddClusterPair(clusterPair);
                 }
+
+                // set parent to clusters X
+                node.SetParentToXClusters();
+
+                // count covariance patrix mean for probability counting
+                node.CountCovarianceMatrixMean();
 
                 // set plastic/non plastic 
                 this.UpdatePlasticityOfParents(node);
 
                 // add children
                 this.children.Add(node);
+            }
+        }
+
+        public void SetParentToXClusters()
+        {
+            foreach (var item in ClustersX)
+            {
+                item.Parent = this;
             }
         }
 
@@ -552,6 +715,19 @@ namespace IHDRLib
         }
 
         /// <summary>
+        /// count MDF covariance mean
+        /// </summary>
+        public void CountCovarianceMatricesMeanMDF()
+        {
+            this.covarianceMatrixMeanMDF = ILMath.zeros(this.clustersX.Count - 1, this.clustersX.Count - 1);
+            foreach (var item in this.clustersX)
+            {
+                this.covarianceMatrixMeanMDF = this.covarianceMatrixMeanMDF + item.CovMatrixMDF;
+            }
+            this.covarianceMatrixMeanMDF = this.covarianceMatrixMeanMDF / this.clustersX.Count;
+        }
+
+        /// <summary>
         /// count MDF means in all clusters
         /// </summary>
         public void DisposeCovarianceMatrices()
@@ -561,8 +737,7 @@ namespace IHDRLib
                 item.DisposeCovMatrix();
             }
         }
-
-
+        
         /// <summary>
         /// count most discrimating vectors for all x 
         /// </summary>
@@ -570,7 +745,7 @@ namespace IHDRLib
         {
             foreach (var item in clustersX)
             {
-                item.CountMDFOfItems(this.gSOManifold);
+                item.CountMDFOfItems(this.gSOManifold, this.c);
             }
         }
 
@@ -650,21 +825,73 @@ namespace IHDRLib
 
                 foreach (var node in children)
                 {
+                    int clusterIndex = 1;
                     foreach (var cluster in node.ClustersX)
                     {
                         double tmpDistance = cluster.Mean.GetDistance(sample.X);
+
+                        //Console.WriteLine(String.Format("E : N : {0}, C:{1}, D:{2}", node.Id, clusterIndex, tmpDistance.ToString()));
+                        clusterIndex++;
+
                         if (tmpDistance < distance)
                         {
                             distance = tmpDistance;
                             result = node;
+                            
                         }
                     }
                 }
-
+                
                 return result;
             }
 
             return null;             
+        }
+
+        public Node GetNextByPropability(Sample sample)
+        {
+            if (children.Count > 0)
+            {
+                double distance = double.MaxValue;
+                Node result = children[0];
+
+                foreach (var node in children)
+                {
+                    if (node.IsLeafNode == true)
+                    {
+                        int clusterIndex = 1;
+                        foreach (var cluster in node.ClustersX)
+                        {
+                            double tmpDistance = cluster.GetSDNLL(sample.X.ToArray());
+
+                            //Console.WriteLine(String.Format("P : N : {0}, C:{1}, D:{2}", node.Id, clusterIndex, tmpDistance.ToString()));
+                            clusterIndex++;
+
+                            if (tmpDistance < distance)
+                            {
+                                distance = tmpDistance;
+                                result = node;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var cluster in node.ClustersX)
+                        {
+                            double tmpDistance = cluster.GetSDNLL_MDF(sample.X.ToArray(), this.gSOManifold, this.c);
+                            if (tmpDistance < distance)
+                            {
+                                distance = tmpDistance;
+                                result = node;
+                            }
+                        }
+                    }
+                }
+                
+                return result;
+            }
+
+            return null;    
         }
 
         #region SavingToFileHierarchy
@@ -713,15 +940,21 @@ namespace IHDRLib
 
         #region Grand Schmidt Ortogonalisation Process
 
+        public void CountC()
+        {
+            this.c = this.GetCFromClustersX().ToArray();
+        }
+
         public void CountGSOManifold()
         {
+            // get scatter vecrtors, count = q-1, we ignore cluster with less samples
             List<Vector> scatterVectors = this.GetScatterVectors();
             gSOManifold = this.GetManifold(scatterVectors);
         }
 
         public ILArray<double> GetManifold(List<Vector> scatterVectors)
         {
-            ILArray<double> newArray = ILMath.zeros(Params.inputDataDimension, clustersX.Count);
+            ILArray<double> newArray = ILMath.zeros(Params.inputDataDimension, clustersX.Count - 1);
 
             List<ILArray<double>> ortBasisVectors = new List<ILArray<double>>(clustersX.Count);
             // count manifold
@@ -752,7 +985,7 @@ namespace IHDRLib
                         incrementalPart = siaj[0] * ortBasisVectors[j];
 
                         // count divider
-                        projectionW = (projectionW + incrementalPart);
+                        projectionW = projectionW + incrementalPart;
                     }
 
                     ILArray<double> scatterVector = ILMath.array<double>(scatterVectors[i].ToArray());
@@ -789,6 +1022,7 @@ namespace IHDRLib
         public List<Vector> GetScatterVectors()
         {
             List<Vector> scatterVectors = new List<Vector>(clustersX.Count);
+            
             Vector C = this.GetCFromClustersX();
 
             foreach (var item in clustersX)
@@ -798,9 +1032,54 @@ namespace IHDRLib
                 scatterVectors.Add(newScatter);
             }
 
+            // delete one vectore, we need q-1
+            int i = 0;
+            int index = 0;
+            int minCount = int.MaxValue;
+            foreach (var item in clustersX)
+            {
+                if (item.Items.Count < minCount)
+                {
+                    index = i;
+                    minCount = item.Items.Count;
+                }
+                i++;
+            }
+            scatterVectors.RemoveAt(index);
             return scatterVectors;
         }
 
         #endregion
+
+        #region Covariance Matrix Mean 
+
+        public void CountCovarianceMatrixMean()
+        {
+            ILArray<double> mean = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
+
+            foreach (var item in clustersX)
+            {
+                mean = mean + item.CovMatrix;
+            }
+
+            mean = mean / this.clustersX.Count;
+            this.covarianceMatrixMean = mean;
+        }
+
+        public void CountCovarianceMatrixMeanMDF()
+        {
+            ILArray<double> mean = ILMath.zeros(this.clustersX.Count - 1, this.ClustersX.Count - 1);
+
+            foreach (var item in clustersX)
+            {
+                mean = mean + item.CovMatrixMDF;
+            }
+
+            mean = mean / this.clustersX.Count;
+            this.covarianceMatrixMeanMDF = mean;
+        }
+
+        #endregion
+
     }
 }

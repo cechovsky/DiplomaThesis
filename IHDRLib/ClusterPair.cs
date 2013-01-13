@@ -12,11 +12,14 @@ namespace IHDRLib
         private ClusterX clusterX;
         private ClusterY clusterY;
 
+        /// <summary>
+        /// create cluster pair with clusterX and clusterY, not set Clusters parents
+        /// </summary>
         public ClusterPair()
         {
-            this.clusterX = new ClusterX();
+            this.clusterX = new ClusterX(null);
             this.clusterX.SetClusterPair(this);
-            this.clusterY = new ClusterY();
+            this.clusterY = new ClusterY(null);
             this.clusterY.SetClusterPair(this);
         }
 
@@ -37,6 +40,7 @@ namespace IHDRLib
             {
                 cp.X.AddItemWithoutUpdatingStats(x);
                 cp.X.ClusterPair = cp;
+
             }
             foreach (var y in this.Y.Items)
             {
@@ -52,7 +56,7 @@ namespace IHDRLib
             }
             catch (Exception ee)
             {
-                int i = 0;
+                throw new InvalidOperationException("");
             }
 
             if (cp.X.CovMatrix == null ||  cp.X.Mean == null || cp.Y.Mean == null)
@@ -61,6 +65,11 @@ namespace IHDRLib
             }
             
             return cp;
+        }
+
+        public void SetParentsToXCluster(Node parent)
+        {
+            this.clusterX.Parent = parent;
         }
 
         public ClusterX X

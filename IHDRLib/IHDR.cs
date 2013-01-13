@@ -26,8 +26,6 @@ namespace IHDRLib
 
             this.samples = new Samples();
             this.tree = new Tree();
-
-            
         }
 
         private void SetSettings()
@@ -36,14 +34,21 @@ namespace IHDRLib
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
             Params.q = 4;
-            Params.bs = 15;
+            Params.bs = 30;
             Params.outputIsDefined = false;
-            Params.deltaX = 1500.0;
-            Params.deltaY = 1500.0;
+            Params.deltaX = 1200.0;
+            Params.deltaY = 1200.0;
             Params.blx = 10;
             Params.bly = 10;
             Params.p = 20;
+            Params.confidenceValue = 0.05;
+            Params.digitizationNoise = 1;
+            Params.ContainsSingularCovarianceMatrixes = true;
             Params.savePath = @"D:\IHDRTree\";
+            Params.SaveCovMatrices = false;
+            Params.SaveCovMatricesMDF = true;
+            Params.SaveMeans = false;
+            Params.SaveMeansMDF = true;
         }
 
         public void AddSample(double[] sample, double label)

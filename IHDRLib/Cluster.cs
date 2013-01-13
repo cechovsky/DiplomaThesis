@@ -16,18 +16,21 @@ namespace IHDRLib
         protected Vector mean;
         protected ILArray<double> meanMDF;
         protected int dimension;
+        protected Node parent;
 
-        public Cluster()
+        public Cluster(Node parent)
         {
             this.clusterPair = null;
             
             this.items = new List<Vector>();
             this.mean = null;
+            this.parent = parent;
         }
 
-        public Cluster(Sample sample)
+        public Cluster(Sample sample, Node parent)
         {
             this.items = new List<Vector>();
+            this.parent = parent;
         }
 
         public void SetClusterPair(ClusterPair clusterPair)
@@ -37,15 +40,21 @@ namespace IHDRLib
 
         public void CountMDFMean()
         {
-            // initialize array with nulls
-            ILArray<double> sum = ILMath.zeros(this.items[0].MostDiscrimatingFeatures.Length);
-
-            foreach (var item in this.items)
+            if (this.items.Count == 1)
             {
-                sum = sum + item.MostDiscrimatingFeatures;
+                this.meanMDF = this.items[0].MostDiscrimatingFeatures.ToArray();
             }
+            else
+            {
+                // initialize array with nulls
+                ILArray<double> sum = ILMath.zeros(this.items[0].MostDiscrimatingFeatures.Length);
+                for (int i = 0; i < this.items.Count; i++)
+                {
+                    sum = ILMath.add(sum, items[i].MostDiscrimatingFeatures);
+                }
 
-            this.meanMDF = sum / items.Count;
+                this.meanMDF = sum / items.Count;
+            }
         }
 
         /// <summary>
@@ -115,6 +124,18 @@ namespace IHDRLib
             set
             {
                 this.mean = value;
+            }
+        }
+
+        public Node Parent
+        {
+            get
+            {
+                return this.parent;
+            }
+            set
+            {
+                this.parent = value;
             }
         }
 

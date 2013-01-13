@@ -9,12 +9,14 @@ namespace IHDRLib
 {
     public class ClusterY : Cluster
     {
-        public ClusterY() : base()
+        public ClusterY(Node parent)
+            : base(parent)
         {
             this.dimension = Params.outputDataDimension;
         }
 
-        public ClusterY(Sample sample) : base(sample)
+        public ClusterY(Sample sample, Node parent)
+            : base(sample, parent)
         {
             this.dimension = Params.outputDataDimension;
 
@@ -31,11 +33,6 @@ namespace IHDRLib
             // update mean
             this.UpdateMean(vector);
         }
-        
-
-        
-
-
 
     }
 }

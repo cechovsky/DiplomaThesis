@@ -42,10 +42,12 @@ namespace IHDRLib
             }
         }
 
-        public void CountMostDiscrimatingFeatures(ILArray<double> GSOmanifold)
+        public void CountMDF(ILArray<double> GSOmanifold, ILArray<double> C)
         {
             ILArray<double> thisVector = this.ToArray();
-            mostDiscrimatingFeatures = ILMath.multiply(GSOmanifold.T, thisVector);
+            ILArray<double> scaterPart = thisVector - C;
+
+            this.mostDiscrimatingFeatures = ILMath.multiply(GSOmanifold.T, scaterPart);
         }
 
         public Vector(int dimension, double value): base(dimension)
@@ -160,7 +162,7 @@ namespace IHDRLib
             return result;
         }
 
-        public void SaveToBitmap(string locationPath)
+        public void SaveToBitmap(string locationPath, bool isMean)
         {
             Bitmap bitmap = new Bitmap(28, 28);
 
@@ -180,7 +182,18 @@ namespace IHDRLib
             }
 
 
-            bitmap.Save(locationPath + @"\vector_" + this.Id + ".bmp");
+            if (isMean)
+            {
+                bitmap.Save(locationPath + @"\mean.bmp");
+            }
+            else
+            {
+                bitmap.Save(locationPath + @"\vector_" + this.Id + ".bmp");
+            }
+
+            
+
+            
         }
 
         /// <summary>

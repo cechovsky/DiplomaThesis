@@ -17,7 +17,7 @@ namespace IHDRLibTest
             // set params 
             Params.inputDataDimension = 3;
             Sample sample = new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0);
-            ClusterX clusterX = new ClusterX(sample);
+            ClusterX clusterX = new ClusterX(sample, null);
             Assert.IsTrue(clusterX.Mean.EqualsToVector(new Vector(new double[] { 1.0, 2.0, 3.0 }))); 
         }
 
@@ -26,7 +26,7 @@ namespace IHDRLibTest
         {
             Params.inputDataDimension = 3;
 
-            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0));
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0), null);
 
             clusterX.AddItem(new Vector(new double[] { 2.0, 3.0, 4.0 }));
 
@@ -48,7 +48,7 @@ namespace IHDRLibTest
             Params.inputDataDimension = 3;
             Params.outputDataDimension = 3;
 
-            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0, 0));
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0, 0), null);
             clusterX.AddItem(new Vector(new double[] { 4.2, 2.1, 0.59 }));
 
             //clusterX.CountCovariacneMatrix();
@@ -69,7 +69,7 @@ namespace IHDRLibTest
             Params.inputDataDimension = 3;
             Params.outputDataDimension = 3;
 
-            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1, 2, 3 }, 1.0, 0));
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1, 2, 3 }, 1.0, 0), null);
             clusterX.AddItem(new Vector(new double[] { 2, 3, 4 }));
             clusterX.AddItem(new Vector(new double[] { 3, 4, 5 }));
 
@@ -90,7 +90,7 @@ namespace IHDRLibTest
             Params.inputDataDimension = 3;
             Params.outputDataDimension = 3;
 
-            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0, 0));
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 4.0, 2.0, 0.6 }, 1.0, 0), null);
             clusterX.AddItem(new Vector(new double[] { 4.2, 2.1, 0.59 }));
             clusterX.AddItem(new Vector(new double[] { 3.9, 2.0, 0.58 }));
             clusterX.AddItem(new Vector(new double[] { 4.3, 2.1, 0.62 }));
@@ -104,6 +104,27 @@ namespace IHDRLibTest
             clusterX.Items[4].MostDiscrimatingFeatures = new double[] { 4.1, 2.2, 0.63 };
 
             clusterX.CountCovarianceMatrixMDF();
+        }
+
+        [TestMethod]
+        public void GetGaussianNLL_GetCorrectGausianNLL()
+        {
+            Params.inputDataDimension = 3;
+            Params.outputDataDimension = 3;
+
+            ClusterX clusterX = new ClusterX(new Sample(new double[] { 1, 2, 3 }, 1.0, 0), null);
+            clusterX.AddItem(new Vector(new double[] { 2, 3, 4 }));
+            clusterX.AddItem(new Vector(new double[] { 3, 4, 5 }));
+
+            clusterX.Items[0].MostDiscrimatingFeatures = new double[] { 1, 2, 3 };
+            clusterX.Items[1].MostDiscrimatingFeatures = new double[] { 2, 3, 4 };
+            clusterX.Items[2].MostDiscrimatingFeatures = new double[] { 3, 4, 5 };
+
+            clusterX.CountMDFMean();
+
+            clusterX.CovMatrixMDF = new double[3, 3] { { 1, 2, 3 }, { 2, 1, 2 }, { 3, 3, 1 } };
+
+            clusterX.GetGaussianNLL(new double[] { 1, 2, 3 });
         }
     }
 }
