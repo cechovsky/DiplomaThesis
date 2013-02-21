@@ -20,9 +20,9 @@ namespace IHDRLibTest
 
             vector.Add(vector2);
 
-            Assert.AreEqual(vector[0], 3.0);
-            Assert.AreEqual(vector[1], 5.0);
-            Assert.AreEqual(vector[2], 7.0);
+            Assert.AreEqual(vector.Values[0], 3.0);
+            Assert.AreEqual(vector.Values[1], 5.0);
+            Assert.AreEqual(vector.Values[2], 7.0);
         }
 
         [TestMethod]
@@ -33,9 +33,9 @@ namespace IHDRLibTest
 
             vector.Subtract(vector2);
 
-            Assert.AreEqual(vector[0], -1.0);
-            Assert.AreEqual(vector[1], -2.0);
-            Assert.AreEqual(vector[2], -3.0);
+            Assert.AreEqual(vector.Values[0], -1.0);
+            Assert.AreEqual(vector.Values[1], -2.0);
+            Assert.AreEqual(vector.Values[2], -3.0);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace IHDRLibTest
         public void GetMDFDistance_GetCorrectDistance()
         {
             Vector v = new Vector(new double[] { 1, 3, 4 });
-            v.MostDiscrimatingFeatures = new double[] { 1, 3, 4 };
+            v.ValuesMDF = new double[] { 1, 3, 4 };
             ILArray<double> a2 = new double[] { 7, 2, 3 };
 
             double distance = Math.Round(v.GetMDFDistance(a2), 3);
@@ -93,9 +93,9 @@ namespace IHDRLibTest
 
             Vector result = Vector.GetMeanOfVectors(vectors);
 
-            Assert.AreEqual(result[0], 1.5);
-            Assert.AreEqual(result[1], 2.5);
-            Assert.AreEqual(result[2], 3.5);
+            Assert.AreEqual(result.Values[0], 1.5);
+            Assert.AreEqual(result.Values[1], 2.5);
+            Assert.AreEqual(result.Values[2], 3.5);
 
         }
 

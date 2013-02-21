@@ -3,15 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Runtime.Serialization;
 
 namespace IHDRLib
 {
-    public class Sample
+    [Serializable]
+    public class Sample : ISerializable
     {
         private Vector x;
         private Vector y;
         private double label;
         private int id;
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("x", x, typeof(Vector));
+            info.AddValue("y", y, typeof(Vector));
+            info.AddValue("label", label, typeof(double));
+            info.AddValue("id", id, typeof(int));
+        }
+
+        // The special constructor is used to deserialize values. 
+        public Sample(SerializationInfo info, StreamingContext context)
+        {
+            x = (Vector)info.GetValue("x", typeof(Vector));
+            y = (Vector)info.GetValue("y", typeof(Vector));
+            label = (double)info.GetValue("label", typeof(double));
+            id = (int)info.GetValue("id", typeof(int));
+        }
 
         public Sample(double[] input, double label, int id)
         {
@@ -65,11 +84,11 @@ namespace IHDRLib
 
         public double GetXDistanceFromSample(Sample sample)
         {
-            int count = this.x.Count;
+            int count = this.x.Values.Length;
             double sum = 0;
             for (int i = 0; i < count; i++)
             {
-                sum += Math.Pow(this.x.ElementAt(i) - sample.X.ElementAt(i), 2);
+                sum += Math.Pow(this.x.Values.ToArray()[i] - sample.X.Values.ToArray()[i], 2);
             }
             return Math.Sqrt(sum);
         }
@@ -111,7 +130,7 @@ namespace IHDRLib
             return result;
         }
 
-        public void SaveToBitmap(string locationPath)
+        public void SaveXToBitmap(string locationPath)
         {
             Bitmap bitmap = new Bitmap(28, 28);
 
@@ -119,12 +138,26 @@ namespace IHDRLib
             {
                 for (int j = 0; j < 28; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)x[i * 28 + j], (int)x[i * 28 + j], (int)x[i * 28 + j]));
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)x.Values[i * 28 + j], (int)x.Values[i * 28 + j], (int)x.Values[i * 28 + j]));
                 }
             }
 
             bitmap.Save(locationPath + @"\sample_" + this.Id + "_" + this.Label + ".bmp");
         }
 
+        public void SaveYToBitmap(string locationPath)
+        {
+            Bitmap bitmap = new Bitmap(28, 28);
+
+            for (int i = 0; i < 28; i++)
+            {
+                for (int j = 0; j < 28; j++)
+                {
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)y.Values[i * 28 + j], (int)y.Values[i * 28 + j], (int)y.Values[i * 28 + j]));
+                }
+            }
+
+            bitmap.Save(locationPath + @"\sample_" + this.Id + "_" + this.Label + ".bmp");
+        }
     }
 }

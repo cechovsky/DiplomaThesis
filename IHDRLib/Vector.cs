@@ -4,14 +4,36 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace IHDRLib
 {
-    public class Vector : List<double>
+    [Serializable]
+    public class Vector : ISerializable
     {
         double label;
-        ILArray<double> mostDiscrimatingFeatures;
+        ILArray<double> valuesMDF;
+        ILArray<double> values;
+        int id;
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("label", label, typeof(double));
+            info.AddValue("valuesMDF", valuesMDF, typeof(ILArray<double>));
+            info.AddValue("values", values, typeof(ILArray<double>));
+            info.AddValue("id", id, typeof(int));
+        }
+
+        // The special constructor is used to deserialize values. 
+        public Vector(SerializationInfo info, StreamingContext context)
+        {
+            label = (double)info.GetValue("label", typeof(double));
+            valuesMDF = (ILArray<double>)info.GetValue("valuesMDF", typeof(ILArray<double>));
+            values = (ILArray<double>)info.GetValue("values", typeof(ILArray<double>));
+            id = (int)info.GetValue("id", typeof(int));
+        }
+
 
         /// <summary>
         /// insert attributes in array to vector
@@ -19,102 +41,107 @@ namespace IHDRLib
         /// <param name="vector"></param>
         public Vector(double[] vector) : base()
         {
-            this.InsertRange(0, vector);
+            this.values = vector.ToArray();
         }
 
         public Vector(double[] vector, double label, int id)
             : base()
         {
-            this.InsertRange(0, vector);
+            this.values = vector.ToArray();
             this.label = label;
             this.Id = id;
         }
 
-        public ILArray<double> MostDiscrimatingFeatures
+        public ILArray<double> ValuesMDF
         {
             get 
             {
-                return mostDiscrimatingFeatures;
+                return this.valuesMDF;
             }
             set
             {
-                this.mostDiscrimatingFeatures = value;
+                this.valuesMDF = value;
+            }
+        }
+
+        public ILArray<double> Values
+        {
+            get
+            {
+                return this.values;
+            }
+            set
+            {
+                this.values = value;
+            }
+        }
+
+        public double Label
+        {
+            get
+            {
+                return this.label;
+            }
+            set
+            {
+                this.label = value;
             }
         }
 
         public void CountMDF(ILArray<double> GSOmanifold, ILArray<double> C)
         {
-            ILArray<double> thisVector = this.ToArray();
-            ILArray<double> scaterPart = thisVector - C;
+            ILArray<double> scaterPart = this.values - C;
 
-            this.mostDiscrimatingFeatures = ILMath.multiply(GSOmanifold.T, scaterPart);
+            this.valuesMDF = ILMath.multiply(GSOmanifold.T, scaterPart);
         }
 
-        public Vector(int dimension, double value): base(dimension)
+        public Vector(int dimension, double value)
         {
-            for (int i = 0; i < dimension; i++)
-            {
-                this.Add(value);
-            }
+            this.values = ILMath.array<double>(value, dimension);
         }
 
         public void Add(Vector vector)
         {
-            if (this.Count != vector.Count) throw new InvalidOperationException("Not the same count of attributes");
+            if (this.values.Length != vector.values.Length) throw new InvalidOperationException("Not the same count of attributes");
 
-            for (int i = 0; i < this.Count; i++)
-            {
-                decimal res = (decimal)this[i] + (decimal)vector[i];
-                this[i] = (double)res;
-            }
+            this.values = this.values + vector.values;
         }
 
         public void Subtract(Vector vector)
         {
-            if (this.Count != vector.Count) throw new InvalidOperationException("Not the same count of attributes");
+            if (this.values.Length != vector.values.Length) throw new InvalidOperationException("Not the same count of attributes");
 
-            for (int i = 0; i < this.Count; i++)
-            {
-                decimal res = (decimal)this[i] - (decimal)vector[i];
-                this[i] = (double)res;
-            }
+            this.values = this.values - vector.values;
         }
 
-        public void Divide(decimal divider)
+        public void Divide(double divider)
         {
-            for (int i = 0; i < this.Count; i++)
-            {
-                decimal res = (decimal)this[i] / (decimal)divider;
-                this[i] = (double)res;
-            }
+            this.values = this.values / divider;
         }
 
-        public void Multiply(decimal multiplier)
+        public void Multiply(double multiplier)
         {
-            for (int i = 0; i < this.Count; i++)
-            {
-                decimal res = (decimal)this[i] * multiplier;
-                this[i] = (double)res;
-            }
+            this.values = this.values * multiplier;
         }
 
         public bool EqualsToVector(Vector vector)
         {
-            for (int i = 0; i < this.Count; i++)
+            if (this.values.Length != vector.values.Length) throw new InvalidOperationException("Not the same count of attributes");
+            for (int i = 0; i < this.values.Length; i++)
             {
-                if (this[i] != vector[i]) return false;
+                if (this.values[i] != vector.values[i]) return false;
             }
             return true;
         }
 
         public double GetDistance(Vector vector)
         {
-            if (this.Count != vector.Count) throw new InvalidOperationException("Different count of attributes");
+            if (this.values.Count() != vector.values.Count()) throw new InvalidOperationException("Not the same count of attributes");
 
             double sum = 0.0;
-            for (int i = 0; i < this.Count; i++)
+            for (int i = 0; i < this.values.Length; i++)
             {
-                sum += Math.Pow(this[i] - vector[i], 2);
+                sum += Math.Pow((this.values[i] - vector.values[i]).ToArray()[0], 2);
             }
             if (sum == 0) return 0;
             return Math.Sqrt(sum);
@@ -122,7 +149,7 @@ namespace IHDRLib
 
         public double GetMDFDistance(ILArray<double> vector)
         {
-            ILArray<double> delta = this.mostDiscrimatingFeatures - vector;
+            ILArray<double> delta = this.valuesMDF - vector;
             double result = ILMath.multiply(delta.T, delta).ToArray()[0];
             if (result == 0) return 0;
             return Math.Sqrt(result);
@@ -131,15 +158,14 @@ namespace IHDRLib
 
         public static Vector GetMeanOfVectors(List<Vector> vectors)
         {
-            if(vectors.Count == null) throw new InvalidOperationException("impossible to return mean from 0 vectors");
-            Vector result = new Vector(vectors[0].Count, 0.0);
+            Vector result = new Vector(vectors[0].values.Length, 0.0);
 
             foreach (Vector item in vectors)
             {
                 result.Add(item);
             }
 
-            result.Divide((decimal)vectors.Count);
+            result.Divide((double)vectors.Count);
 
             return result;
         }
@@ -170,7 +196,7 @@ namespace IHDRLib
             {
                 for (int j = 0; j < 28; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)this[i * 28 + j], (int)this[i * 28 + j], (int)this[i * 28 + j]));
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * 28 + j], (int)this.values[i * 28 + j], (int)this.values[i * 28 + j]));
                 }
             }
 
@@ -188,13 +214,31 @@ namespace IHDRLib
             }
             else
             {
-                bitmap.Save(locationPath + @"\vector_" + this.Id + ".bmp");
+                bitmap.Save(locationPath + @"\vector_" + this.Id + "_" + this.label.ToString() + ".bmp");
+            }
+        }
+
+        public void SaveToBitmap(string locationPath, string fileName)
+        {
+            Bitmap bitmap = new Bitmap(28, 28);
+
+            for (int i = 0; i < 28; i++)
+            {
+                for (int j = 0; j < 28; j++)
+                {
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * 28 + j], (int)this.values[i * 28 + j], (int)this.values[i * 28 + j]));
+                }
             }
 
-            
-
-            
+            // create directory
+            DirectoryInfo dir = new DirectoryInfo(locationPath);
+            if (!dir.Exists)
+            {
+                dir.Create();
+            }
+            bitmap.Save(locationPath + @"\"+ fileName + ".bmp");
         }
+
 
         /// <summary>
         /// return id of closest vector from list
@@ -227,7 +271,17 @@ namespace IHDRLib
 
         #region Properties
 
-        public int Id { get; set; }
+        public int Id
+        {
+            get
+            {
+                return this.id;
+            }
+            set
+            {
+                this.id = value;
+            }
+        }
 
         #endregion
     }

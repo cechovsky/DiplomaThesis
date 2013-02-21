@@ -43,6 +43,36 @@ namespace IHDRLib
         // deltaX - resolution in input space Y
         public static double deltaY { get; set; }
 
+        // reduction of deltaX in next node
+        public static double deltaXReduction { get; set; }
+
+        // reduction of deltaX in next node
+        public static double deltaYReduction { get; set; }
+
+        // minimal deltaX
+        public static double deltaXMin { get; set; }
+
+        // minimal deltaY
+        public static double deltaYMin { get; set; }
+
+        public static double searchWidth { get; set; }
+
+        public static bool useExtendedSearch { get; set; }
+
+        // amnesic average params 
+
+        // t1
+        public static double t1 { get; set; }
+
+        // t2
+        public static double t2 { get; set; }
+
+        // c
+        public static double c { get; set; }
+
+        // m
+        public static double m { get; set; }
+
         // p - portion of y cluster that will be updated ( in percents )
         public static double p { get; set; }
 

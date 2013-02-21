@@ -4,11 +4,13 @@ using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace IHDRLib
 {
-    public class Cluster
+    [Serializable]
+    public class Cluster : ISerializable
     {
         protected ClusterPair clusterPair;
         
@@ -18,10 +20,29 @@ namespace IHDRLib
         protected int dimension;
         protected Node parent;
 
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("clusterPair", clusterPair, typeof(ClusterPair));
+            info.AddValue("items", items, typeof(List<Vector>));
+            info.AddValue("mean", mean, typeof(Vector));
+            info.AddValue("meanMDF", meanMDF, typeof(ILArray<double>));
+            info.AddValue("parent", parent, typeof(Node));
+            info.AddValue("dimension", dimension, typeof(int));
+        }
+
+        // The special constructor is used to deserialize values. 
+        public Cluster(SerializationInfo info, StreamingContext context)
+        {
+            clusterPair = (ClusterPair)info.GetValue("clusterPair", typeof(ClusterPair));
+            items = (List<Vector>)info.GetValue("items", typeof(List<Vector>));
+            mean = (Vector)info.GetValue("mean", typeof(Vector));
+            meanMDF = (ILArray<double>)info.GetValue("meanMDF", typeof(ILArray<double>));
+            parent = (Node)info.GetValue("parent", typeof(Node));
+        }
+
         public Cluster(Node parent)
         {
             this.clusterPair = null;
-            
             this.items = new List<Vector>();
             this.mean = null;
             this.parent = parent;
@@ -42,19 +63,35 @@ namespace IHDRLib
         {
             if (this.items.Count == 1)
             {
-                this.meanMDF = this.items[0].MostDiscrimatingFeatures.ToArray();
+                this.meanMDF = this.items[0].ValuesMDF.ToArray();
             }
             else
             {
                 // initialize array with nulls
-                ILArray<double> sum = ILMath.zeros(this.items[0].MostDiscrimatingFeatures.Length);
+                ILArray<double> sum = ILMath.zeros(this.items[0].ValuesMDF.Length);
                 for (int i = 0; i < this.items.Count; i++)
                 {
-                    sum = ILMath.add(sum, items[i].MostDiscrimatingFeatures);
+                    sum = ILMath.add(sum, items[i].ValuesMDF);
                 }
-
                 this.meanMDF = sum / items.Count;
             }
+        }
+
+        public double GetAmnesicParameter(double t)
+        {
+            if (t < Params.t1)
+            {
+                return 0;
+            }
+            if (t >= Params.t1 && t < Params.t2)
+            {
+                return Params.c * ((t - Params.t1) / (Params.t2 - Params.t1));
+            }
+            if (t >= Params.t2)
+            {
+                return Params.c + ((t - Params.t2) / Params.m);
+            }
+            throw new InvalidOperationException("Bad t");
         }
 
         /// <summary>
@@ -65,13 +102,16 @@ namespace IHDRLib
         {
             #warning this must be remade according to F. Amnesic average with parameters t1, t2
             
-            decimal t = (decimal)this.items.Count;
+            double t = (double)this.items.Count;
 
-            decimal multiplier1 = (t - 1) / t;
+            //double multiplier1 = (t - 1) / t;
+            //double multiplier2 = 1 / t;
+            double multiplier1 = (t - 1 - this.GetAmnesicParameter(t)) / t;
+            double multiplier2 = (1 + this.GetAmnesicParameter(t)) / t;
+
             this.mean.Multiply(multiplier1);
-
-            Vector incrementPart = new Vector(vector.ToArray());
-            decimal multiplier2 = 1 / t;
+            Vector incrementPart = new Vector(vector.Values.ToArray());
+            
             incrementPart.Multiply(multiplier2);
 
             this.mean.Add(incrementPart);
@@ -83,15 +123,14 @@ namespace IHDRLib
         /// <param name="vector">Vector, which should be add to mean</param>
         protected void UpdateMeanMDF(ILArray<double> vector)
         {
-#warning this must be remade according to F. Amnesic average with parameters t1, t2
-
             double t = (double)this.items.Count;
 
-            double multiplier1 = (t - 1) / t;
-            
+            //double multiplier1 = (t - 1) / t;
+            //double multiplier2 = 1 / t;
+            double multiplier1 = (t - 1 - this.GetAmnesicParameter(t)) / t;
+            double multiplier2 = (1 + this.GetAmnesicParameter(t)) / t;
 
             Vector incrementPart = new Vector(vector.ToArray());
-            double multiplier2 = 1 / t;
 
             this.meanMDF = (this.meanMDF * multiplier1) + (vector * multiplier2);
         }

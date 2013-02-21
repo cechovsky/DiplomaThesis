@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace IHDRLib
 {
-    public class Tree
+    [Serializable()]
+    public class Tree : ISerializable
     {
         private Node root;
         private bool isEmpty;
     
         public Tree()
         {
-            root = new Node();
+            root = new Node(Params.deltaX, Params.deltaY);
             isEmpty = true;
         }
 
@@ -24,14 +26,6 @@ namespace IHDRLib
             }            
         }
 
-        public bool IsActive
-        {
-            get
-            {
-                return this.IsActive;
-            }
-        }
-        
         /// <summary>
         /// Update tree with sample
         /// </summary>
@@ -47,7 +41,34 @@ namespace IHDRLib
             {
                 this.root.SaveToFileHierarchy();
             }
+        }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("root", root, typeof(Node));
+            info.AddValue("isEmpty", isEmpty, typeof(bool));
+        }
+
+        // The special constructor is used to deserialize values. 
+        public Tree(SerializationInfo info, StreamingContext context)
+        {
+            // Reset the property value using the GetValue method.
+            root = (Node)info.GetValue("root", typeof(Node));
+            isEmpty = (bool)info.GetValue("isEmpty", typeof(bool));
+        }
+
+        public void EvaluateClustersLabels()
+        {
+            if (this.root != null)
+            {
+                this.root.EvaluateClustersLabels();
+            }
+        }
+
+
+        public TestResult GetLabelOfCategory(Sample item)
+        {
+            return this.root.GetLabelOfCategory(item);
         }
     }
 }

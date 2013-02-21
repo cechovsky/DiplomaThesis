@@ -15,7 +15,7 @@ namespace IHDRLibTest
         [TestMethod]
         public void GetNearestClusterPairX_GetCorrectClusterPair()
         {
-            Node node = new Node();
+            Node node = new Node(0.0,0.0);
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s3 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
@@ -26,7 +26,7 @@ namespace IHDRLibTest
         [TestMethod]
         public void GetCFromClustersX_GetCorrectC()
         {
-            Node node = new Node();
+            Node node = new Node(0.0, 0.0);
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
             Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
@@ -37,15 +37,15 @@ namespace IHDRLibTest
 
             Vector C = node.GetCFromClustersX();
 
-            Assert.AreEqual(C[0], 2.0);
-            Assert.AreEqual(C[1], 3.0);
-            Assert.AreEqual(C[2], 4.0);
+            Assert.AreEqual(C.Values[0], 2.0);
+            Assert.AreEqual(C.Values[1], 3.0);
+            Assert.AreEqual(C.Values[2], 4.0);
         }
 
         [TestMethod]
         public void GetScatterVectors_GetCorrectVectors()
         {
-            Node node = new Node();
+            Node node = new Node(0.0, 0.0);
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
             Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
@@ -56,17 +56,17 @@ namespace IHDRLibTest
 
             List<Vector> scatterVectors = node.GetScatterVectors();
 
-            Assert.AreEqual(scatterVectors[0][0], -1);
-            Assert.AreEqual(scatterVectors[0][1], -1);
-            Assert.AreEqual(scatterVectors[0][2], -1);
+            //Assert.AreEqual(scatterVectors[0].Values[0], -1);
+            //Assert.AreEqual(scatterVectors[0].Values[1], -1);
+            //Assert.AreEqual(scatterVectors[0].Values[2], -1);
 
-            Assert.AreEqual(scatterVectors[1][0], 0);
-            Assert.AreEqual(scatterVectors[1][1], 0);
-            Assert.AreEqual(scatterVectors[1][2], 0);
+            Assert.AreEqual(scatterVectors[0].Values[0], 0);
+            Assert.AreEqual(scatterVectors[0].Values[1], 0);
+            Assert.AreEqual(scatterVectors[0].Values[2], 0);
 
-            Assert.AreEqual(scatterVectors[2][0], 1);
-            Assert.AreEqual(scatterVectors[2][1], 1);
-            Assert.AreEqual(scatterVectors[2][2], 1);
+            Assert.AreEqual(scatterVectors[1].Values[0], 1);
+            Assert.AreEqual(scatterVectors[1].Values[1], 1);
+            Assert.AreEqual(scatterVectors[1].Values[2], 1);
 
         }
 
@@ -75,7 +75,7 @@ namespace IHDRLibTest
         {
             Params.inputDataDimension = 4;
 
-            Node node = new Node();
+            Node node = new Node(0.0, 0.0);
             Sample s1 = new Sample(new double[] { 1, 0, 2, 1 }, 1, 0);
             Sample s2 = new Sample(new double[] { -1, 1, 0, -1 }, 1, 0);
             Sample s3 = new Sample(new double[] { 2, 1, 1, 1 }, 1, 0);

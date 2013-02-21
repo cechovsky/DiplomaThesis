@@ -14,6 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MNISTParserLib;
 using IHDRLib;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace IHDRApplication
 {
@@ -31,8 +34,14 @@ namespace IHDRApplication
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            MnistParser parser = new MnistParser(@"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_images.bin", @"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_labels.bin");
-            parser.ParseData(1000);
+            MnistParser parser = new MnistParser(
+                    @"D:\Dropbox\DP\data\train-images.bin",
+                    @"D:\Dropbox\DP\data\train-labels.bin",
+                    @"D:\Dropbox\DP\data\test-images.bin",
+                    @"D:\Dropbox\DP\data\test-labels.bin"
+                    );
+            parser.ParseData(20000);
+            parser.ParseDataTest(2000);
 
             ihdr = new IHDR();
             List<MNISTParserLib.Sample> mnistSamples = parser.Samples;
@@ -40,19 +49,34 @@ namespace IHDRApplication
             {
                 ihdr.AddSample(item.GetAttributesArray(), (double)item.Label);
             }
+            foreach (var item in parser.SamplesTest)
+            {
+                ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
+            }
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            MnistParser parser = new MnistParser(@"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_images.bin", @"C:\Users\YoYo\Desktop\IHDRApplication\Data\train_labels.bin");
-            parser.ParseData(1);
+            MnistParser parser = new MnistParser(
+                   @"D:\Dropbox\DP\data\train-images.bin",
+                   @"D:\Dropbox\DP\data\train-labels.bin",
+                   @"D:\Dropbox\DP\data\test-images.bin",
+                   @"D:\Dropbox\DP\data\test-labels.bin"
+                   );
+            parser.ParseData(20000);
+            parser.ParseDataTest(4000);
 
-            parser.SaveSamplesToBmp(@"D:\Samples");
+            parser.SaveSamplesToBmp(@"D:\Samples\Train");
+            parser.SaveTestSamplesToBmp(@"D:\Samples\Test");
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
+            ihdr.CountYOfSamplesLabelsMeans();
             ihdr.BuildTree();
+
+            ihdr.EvaluateClustersLabels();
+            ihdr.ExecuteTestingByY();
         }
 
         private void Button_Click_4(object sender, RoutedEventArgs e)
@@ -60,21 +84,46 @@ namespace IHDRApplication
             ihdr.SaveTreeToFileHierarchy();
         }
 
-        //private void Button_Click_3(object sender, RoutedEventArgs e)
-        //{
-            //double averageDistance = ihdr.Samples.GetAverageDisanceBetweenSamples();
-            //double maxDistance = ihdr.Samples.GetMaxDisanceBetweenSamples();
-            //MessageBox.Show(averageDistance.ToString());
-            //Console.WriteLine("Label 0 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(0).ToString());
-            //Console.WriteLine("Label 1 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(1).ToString());
-            //Console.WriteLine("Label 2 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(2).ToString());
-            //Console.WriteLine("Label 3 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(3).ToString());
-            //Console.WriteLine("Label 4 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(4).ToString());
-            //Console.WriteLine("Label 5 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(5).ToString());
-            //Console.WriteLine("Label 6 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(6).ToString());
-            //Console.WriteLine("Label 7 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(7).ToString());
-            //Console.WriteLine("Label 8 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(8).ToString());
-            //Console.WriteLine("Label 9 : " + ihdr.Samples.GetAverageDisanceBetweenSamplesOfOneLabel(9).ToString());
-        //}
+        private void Button_Click_5(object sender, RoutedEventArgs e)
+        {
+            IFormatter formatter = new BinaryFormatter();
+
+            FileStream s = new FileStream(@"C:\IHDRSerializedTree.txt", FileMode.Create);
+            formatter.Serialize(s, ihdr);
+            s.Close();
+        }
+
+        private void Button_Click_6(object sender, RoutedEventArgs e)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            FileStream s = new FileStream(@"C:\IHDRSerializedTree.txt", FileMode.Open);
+            ihdr = (IHDR)formatter.Deserialize(s);
+        }
+
+        private void Button_Click_7(object sender, RoutedEventArgs e)
+        {
+            MnistParser parser = new MnistParser(
+                    @"D:\Dropbox\DP\data\train-images.bin",
+                    @"D:\Dropbox\DP\data\train-labels.bin",
+                    @"D:\Dropbox\DP\data\test-images.bin",
+                    @"D:\Dropbox\DP\data\test-labels.bin"
+                    );
+            //parser.ParseDataTest(2000);
+
+            //foreach (var item in parser.SamplesTest)
+            //{
+            //    ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
+            //}
+
+            ihdr.EvaluateClustersLabels();
+            ihdr.ExecuteTesting();
+        }
+
+        private void Button_Click_8(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        
     }
 }

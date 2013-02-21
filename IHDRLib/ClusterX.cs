@@ -4,22 +4,39 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace IHDRLib
 {
+    [Serializable]
     public class ClusterX : Cluster
     {
         private Node child;
-        protected ILArray<double> covarianceMatrix;
+        //protected ILArray<double> covarianceMatrix;
         protected ILArray<double> covarianceMatrixMDF;
+        private double label;
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("child", child, typeof(Node));
+            info.AddValue("covarianceMatrixMDF", covarianceMatrixMDF, typeof(ILArray<double>));
+            info.AddValue("label", label, typeof(double));
+        }
+
+        public ClusterX(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            child = (Node)info.GetValue("child", typeof(Node));
+            covarianceMatrixMDF = (ILArray<double>)info.GetValue("covarianceMatrixMDF", typeof(ILArray<double>));
+            label = (double)info.GetValue("label", typeof(double));
+        }
 
         public ClusterX(Node parent)
             : base(parent)
         {
             this.child = null;
-            this.dimension = Params.inputDataDimension;
-            this.covarianceMatrix = null;
         }
 
         public ClusterX(Sample sample, Node parent)
@@ -28,12 +45,12 @@ namespace IHDRLib
             this.child = null;
             this.dimension = Params.inputDataDimension;
 
-            items.Add(new Vector(sample.X.ToArray(), sample.Label, 1));
+            items.Add(new Vector(sample.X.Values.ToArray(), sample.Label, 1));
 
-            this.mean = new Vector(sample.X.ToArray());
+            this.mean = new Vector(sample.X.Values.ToArray());
 
             //#warning TODO count covariance matrix 
-            this.covarianceMatrix = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
+            //this.covarianceMatrix = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
         }
 
         public void SetClusterPair(ClusterPair clusterPair)
@@ -62,7 +79,17 @@ namespace IHDRLib
                    this.SaveILArrayToCsvFile(this.covarianceMatrixMDF, this.meanMDF.Length - 1, this.meanMDF.Length - 1, this.SavePath + @"\CovMatrixMdf.txt");
                 }
             }
+
+            this.SaveClusterInfo(this.SavePath + @"\ClusterInfo.txt");
+
             this.mean.SaveToBitmap(this.SavePath, true);
+        }
+
+        private void SaveClusterInfo(string path)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Label of cluster: " + this.Label);
+            File.WriteAllText(path, sb.ToString());
         }
 
         private void SaveMeanMdfToFile()
@@ -106,50 +133,50 @@ namespace IHDRLib
             return Math.Sqrt(result);
         }
 
-        public void UpdateCovarianceMatrix(Vector vector)
+//        public void UpdateCovarianceMatrix(Vector vector)
+//        {
+
+//#warning this must be remage according to F. Amnesic average with parameters t1, t2
+
+//            // newCov = t-1/t * cov(t-1) + 1/t * (newVector - mean(t)) * (newVector - mean(t))T
+//            // oldPart = t-1/t * cov(t-1)
+//            // incrementalPart = 1/t * (newVector - mean(t)) * (newVector - mean(t))T
+//            // vector1 = (newVector - mean(t))
+//            // vector2 = (newVector - mean(t))T
+//            // newCovPart = vector1 * vector2
+
+//            //newVector - mean(t)
+//            Vector v1 = new Vector(vector.ToArray());
+//            v1.Subtract(this.mean);
+
+//            ILArray<double> vector1 = v1.ToArray();
+//            ILArray<double> vector2 = v1.ToArray();
+//            // transpone
+//            vector2 = vector2.T;
+
+//#warning need to edit update covariance matrix
+//            double t = (double)this.items.Count;
+//            double fragment1 = (t - 2) / (t - 1);
+//            double fragment2 = t / (Math.Pow((t - 1), 2));
+
+//            //DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
+//            //DenseMatrix newCovPart = vector1 * vector2;
+
+//            try
+//            {
+//                //DenseMatrix incrementalPart = newCovPart * fragment2;
+//                this.covarianceMatrix = (this.covarianceMatrix * fragment1) + (ILMath.multiply(vector1, vector2) * fragment2);
+//            }
+//            catch (Exception ee)
+//            {
+//                throw new InvalidCastException();
+//            }
+//        }
+
+        public void UpdateCovarianceMatrixMDF_NonParametric(ILArray<double> vector)
         {
 
-#warning this must be remage according to F. Amnesic average with parameters t1, t2
-
-            // newCov = t-1/t * cov(t-1) + 1/t * (newVector - mean(t)) * (newVector - mean(t))T
-            // oldPart = t-1/t * cov(t-1)
-            // incrementalPart = 1/t * (newVector - mean(t)) * (newVector - mean(t))T
-            // vector1 = (newVector - mean(t))
-            // vector2 = (newVector - mean(t))T
-            // newCovPart = vector1 * vector2
-
-            //newVector - mean(t)
-            Vector v1 = new Vector(vector.ToArray());
-            v1.Subtract(this.mean);
-
-            ILArray<double> vector1 = v1.ToArray();
-            ILArray<double> vector2 = v1.ToArray();
-            // transpone
-            vector2 = vector2.T;
-
-#warning need to edit update covariance matrix
-            double t = (double)this.items.Count;
-            double fragment1 = (t - 2) / (t - 1);
-            double fragment2 = t / (Math.Pow((t - 1), 2));
-
-            //DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
-            //DenseMatrix newCovPart = vector1 * vector2;
-
-            try
-            {
-                //DenseMatrix incrementalPart = newCovPart * fragment2;
-                this.covarianceMatrix = (this.covarianceMatrix * fragment1) + (ILMath.multiply(vector1, vector2) * fragment2);
-            }
-            catch (Exception ee)
-            {
-                throw new InvalidCastException();
-            }
-        }
-
-        public void UpdateCovarianceMatrixMDF(ILArray<double> vector)
-        {
-
-#warning this must be remage according to F. Amnesic average with parameters t1, t2
+#warning this must be remake according to F. Amnesic average with parameters t1, t2
 
             // newCov = t-1/t * cov(t-1) + 1/t * (newVector - mean(t)) * (newVector - mean(t))T
             // oldPart = t-1/t * cov(t-1)
@@ -187,28 +214,65 @@ namespace IHDRLib
 
         }
 
-        public void CountCovariacneMatrix()
+        public void UpdateCovarianceMatrixMDF(ILArray<double> vector)
         {
-            this.mean = Vector.GetMeanOfVectors(this.items);
-            this.covarianceMatrix = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
 
-            if (items.Count > 1)
+            // newCov = t-1/t * cov(t-1) + 1/t * (newVector - mean(t)) * (newVector - mean(t))T
+            // oldPart = t-1/t * cov(t-1)
+            // incrementalPart = 1/t * (newVector - mean(t)) * (newVector - mean(t))T
+            // vector1 = (newVector - mean(t))
+            // vector2 = (newVector - mean(t))T
+            // newCovPart = vector1 * vector2
+
+            //newVector - mean(t)
+            //Vector v1 = new Vector(vector.ToArray());
+            //v1.Subtract(this.meanMD);
+
+            ILArray<double> vector1 = (vector - this.meanMDF).ToArray();
+            ILArray<double> vector2 = vector1.ToArray();
+            // transpone
+            vector2 = vector2.T;
+
+            double t = (double)this.items.Count;
+            //double fragment1 = (t - 2) / (t - 1);
+            //double fragment2 = t / (Math.Pow((t - 1), 2));
+
+            double fragment1 = (t - 1 - this.GetAmnesicParameter(t)) / t;
+            double fragment2 = (1 + this.GetAmnesicParameter(t)) / t;
+
+            try
             {
-                for (int i = 0; i < dimension; i++)
-                {
-                    for (int j = 0; j < dimension; j++)
-                    {
-                        double sum = 0.0;
-                        foreach (Vector item in items)
-                        {
-                            sum += (item[i] - this.mean[i]) * (item[j] - this.mean[j]);
-                        }
-                    
-                        this.covarianceMatrix[i, j] = sum / (items.Count - 1);
-                    }
-                }
-           }
+                this.covarianceMatrixMDF = (this.covarianceMatrixMDF * fragment1) + (fragment2 * ILMath.multiply(vector1, vector2));
+            }
+            catch (Exception ee)
+            {
+                throw new InvalidCastException();
+            }
+
         }
+
+        //public void CountCovariacneMatrix()
+        //{
+        //    this.mean = Vector.GetMeanOfVectors(this.items);
+        //    this.covarianceMatrix = ILMath.zeros(Params.inputDataDimension, Params.inputDataDimension);
+
+        //    if (items.Count > 1)
+        //    {
+        //        for (int i = 0; i < dimension; i++)
+        //        {
+        //            for (int j = 0; j < dimension; j++)
+        //            {
+        //                double sum = 0.0;
+        //                foreach (Vector item in items)
+        //                {
+        //                    sum += (item[i] - this.mean[i]) * (item[j] - this.mean[j]);
+        //                }
+                    
+        //                this.covarianceMatrix[i, j] = sum / (items.Count - 1);
+        //            }
+        //        }
+        //   }
+        //}
 
         public void CountCovarianceMatrixMDF()
         {
@@ -245,7 +309,7 @@ namespace IHDRLib
                             foreach (Vector item in items)
                             {
                                 double d = (double)this.meanMDF[i];
-                                sum += ((double)item.MostDiscrimatingFeatures[i] - (double)this.meanMDF[i]) * ((double)item.MostDiscrimatingFeatures[j] - (double)this.meanMDF[j]);
+                                sum += ((double)item.ValuesMDF[i] - (double)this.meanMDF[i]) * ((double)item.ValuesMDF[j] - (double)this.meanMDF[j]);
                             }
                             this.covarianceMatrixMDF[i, j] = Math.Round(sum / (items.Count - 1));
                         }
@@ -274,34 +338,39 @@ namespace IHDRLib
             return sum2 / (double)vector.Length;
         }
 
-        public void DisposeCovMatrix()
-        {
-            this.covarianceMatrix.Dispose();
-        }
+        //public void DisposeCovMatrix()
+        //{
+        //    this.covarianceMatrix.Dispose();
+        //}
 
-        public void AddItem(Vector vector)
+        public void AddItem(Vector vector, double label)
         {
-            vector.Id = this.items.Count + 1;
-            this.items.Add(vector);
+            Vector newItem = new Vector(vector.Values.ToArray());
+            newItem.Label = label;
+            newItem.Id = this.items.Count + 1;
+            this.items.Add(newItem);
 
             // update mean
-            this.UpdateMean(vector);
+            this.UpdateMean(newItem);
             // update covariance matrix
-            this.UpdateCovarianceMatrix(vector);
+            //this.UpdateCovarianceMatrix(vector);
         }
 
-        public void AddItemNonLeaf(Vector vector, Node node)
+        public void AddItemNonLeaf(Vector vector, double label, Node node)
         {
-            vector.Id = this.items.Count + 1;
-            this.items.Add(vector);
+            Vector newItem = new Vector(vector.Values.ToArray());
+            newItem.Label = label;
+            newItem.Id = this.items.Count + 1;
+
+            this.items.Add(newItem);
 
             // update mean
-            this.UpdateMean(vector);
+            this.UpdateMean(newItem);
 
-            node.CountGSOManifold();
+            //node.CountGSOManifold();
 
-            vector.CountMDF(node.GSOManifold, node.C);
-            this.UpdateMeanAndCovMatrixMDF(vector.MostDiscrimatingFeatures.ToArray());   
+            newItem.CountMDF(node.GSOManifold, node.C);
+            this.UpdateMeanAndCovMatrixMDF(newItem.ValuesMDF.ToArray());   
         }
 
         public void UpdateMeanAndCovMatrixMDF(ILArray<double> vector)
@@ -312,17 +381,17 @@ namespace IHDRLib
             this.UpdateCovarianceMatrixMDF(vector);
         }
 
-        public ILArray<double> CovMatrix
-        {
-            get
-            {
-                return this.covarianceMatrix;
-            }
-            set
-            {
-                this.covarianceMatrix = value;
-            }
-        }
+        //public ILArray<double> CovMatrix
+        //{
+        //    get
+        //    {
+        //        return this.covarianceMatrix;
+        //    }
+        //    set
+        //    {
+        //        this.covarianceMatrix = value;
+        //    }
+        //}
 
         public ILArray<double> CovMatrixMDF
         {
@@ -336,50 +405,58 @@ namespace IHDRLib
             }
         }
 
-        #region Probability Based Metrics
-
-        public double GetSDNLL(ILArray<double> vector)
+        public double Label
         {
-            double firstPart = 0;
-            double secondPart = 0;
-            double thirdPart = 0;
-
-            if (this.items.Count == 1)
+            get
             {
-                this.covarianceMatrix = this.GetVarianceMatrix();
+                return this.label;
             }
-
-            ILArray<double> meanIL = this.mean.ToArray();
-
-            ILArray<double> W = this.GetMatrixW();
-
-            ILArray<double> WInverse = 1;
-            if (Params.ContainsSingularCovarianceMatrixes)
+            set
             {
-                //WInverse = this.GetPseudoInverseMatrixOfMatrix(W);
-                WInverse = this.GetInverseMatrixOfMatrix(W, Params.inputDataDimension);
+                this.label = value;
             }
-            else
-            {
-                WInverse = this.GetInverseMatrixOfMatrix(W, Params.inputDataDimension);
-            }
-
-            ILArray<double> vector1 = meanIL - vector;
-            ILArray<double> tmpArray = ILMath.multiply(WInverse, vector1);
-
-            firstPart = 0.5 * ILMath.multiply(vector1.T, tmpArray).ToArray()[0];
-            secondPart = Params.inputDataDimension / 2 * ILMath.log(2 * Math.PI).ToArray()[0];
-            thirdPart = 0.5 * ILMath.log(ILMath.det(W)).ToArray()[0];
-
-            return firstPart + secondPart + thirdPart;
         }
 
-        public double GetSDNLL_MDF(ILArray<double> vector, ILArray<double> manifold, ILArray<double> c)
-        {
-            // convert vector to mdf vector
-            ILArray<double> scaterPart = vector - c;
-            ILArray<double> mdfVector = ILMath.multiply(manifold.T, scaterPart);
+        #region Probability Based Metrics
 
+        //public double GetSDNLL(ILArray<double> vector)
+        //{
+        //    double firstPart = 0;
+        //    double secondPart = 0;
+        //    double thirdPart = 0;
+
+        //    if (this.items.Count == 1)
+        //    {
+        //        this.covarianceMatrix = this.GetVarianceMatrix();
+        //    }
+
+        //    ILArray<double> meanIL = this.mean.ToArray();
+
+        //    ILArray<double> W = this.GetMatrixW();
+
+        //    ILArray<double> WInverse = 1;
+        //    if (Params.ContainsSingularCovarianceMatrixes)
+        //    {
+        //        //WInverse = this.GetPseudoInverseMatrixOfMatrix(W);
+        //        WInverse = this.GetInverseMatrixOfMatrix(W, Params.inputDataDimension);
+        //    }
+        //    else
+        //    {
+        //        WInverse = this.GetInverseMatrixOfMatrix(W, Params.inputDataDimension);
+        //    }
+
+        //    ILArray<double> vector1 = meanIL - vector;
+        //    ILArray<double> tmpArray = ILMath.multiply(WInverse, vector1);
+
+        //    firstPart = 0.5 * ILMath.multiply(vector1.T, tmpArray).ToArray()[0];
+        //    secondPart = Params.inputDataDimension / 2 * ILMath.log(2 * Math.PI).ToArray()[0];
+        //    thirdPart = 0.5 * ILMath.log(ILMath.det(W)).ToArray()[0];
+
+        //    return firstPart + secondPart + thirdPart;
+        //}
+
+        public double GetSDNLL_MDF(ILArray<double> mdfVector)
+        {
             double firstPart = 0;
             double secondPart = 0;
             double thirdPart = 0;
@@ -427,52 +504,49 @@ namespace IHDRLib
             return (wg * gaussianPart) + (wm * mahalonobisPart) + (we * euclideanPart);
         }
 
-        public ILArray<double> GetMatrixW()
-        {
-            double be = this.Getbe();
-            double bm = this.Getbm();
-            double bg = this.Getbg();
+        //public ILArray<double> GetMatrixW()
+        //{
+        //    double be = this.Getbe();
+        //    double bm = this.Getbm();
+        //    double bg = this.Getbg();
 
-            double b = be + bm + bg;
+        //    double b = be + bm + bg;
 
-            double we = be / b;
-            double wm = we / b;
-            double wg = bg / b;
+        //    double we = be / b;
+        //    double wm = we / b;
+        //    double wg = bg / b;
 
-            ILArray<double> result = null;
+        //    ILArray<double> result = null;
             
-            ILArray<double> gaussianPart = null;
-            ILArray<double> mahalonobisPart = null;
-            ILArray<double> euclideanPart = null;
+        //    ILArray<double> gaussianPart = null;
+        //    ILArray<double> mahalonobisPart = null;
+        //    ILArray<double> euclideanPart = null;
 
-            gaussianPart = this.covarianceMatrix;
-            mahalonobisPart = this.parent.CovarianceMatrixMean;
-            euclideanPart = this.GetVarianceMatrix();
+        //    gaussianPart = this.covarianceMatrix;
+        //    mahalonobisPart = this.parent.CovarianceMatrixMean;
+        //    euclideanPart = this.GetVarianceMatrix();
 
-            return result = (wg * gaussianPart) + (wm * mahalonobisPart) + (we * euclideanPart);
-        }
+        //    return result = (wg * gaussianPart) + (wm * mahalonobisPart) + (we * euclideanPart);
+        //}
 
-        public ILArray<double> GetPseudoInverseMatrixOfMatrix(ILArray<double> inputMatrix)
-        {
-            ILArray<double> svdValues = ILMath.svd(inputMatrix);
-            ILArray<double> svdMatrix = ILMath.diag(svdValues);
+        //public ILArray<double> GetPseudoInverseMatrixOfMatrix(ILArray<double> inputMatrix)
+        //{
+        //    ILArray<double> svdValues = ILMath.svd(inputMatrix);
+        //    ILArray<double> svdMatrix = ILMath.diag(svdValues);
 
-            ILArray<double> eigenVectors = 1;
-            ILArray<double> eigValues = ILMath.diag(ILMath.eigSymm(this.covarianceMatrix, eigenVectors));
+        //    ILArray<double> eigenVectors = 1;
+        //    ILArray<double> eigValues = ILMath.diag(ILMath.eigSymm(this.covarianceMatrix, eigenVectors));
 
-            // count pseudoinverse matrix
-            ILArray<double> pseudoInverse = ILMath.multiply(eigenVectors, ILMath.multiply(svdMatrix, eigenVectors.T));
+        //    // count pseudoinverse matrix
+        //    ILArray<double> pseudoInverse = ILMath.multiply(eigenVectors, ILMath.multiply(svdMatrix, eigenVectors.T));
 
-            return pseudoInverse;
-        }
+        //    return pseudoInverse;
+        //}
 
         public ILArray<double> GetInverseMatrixOfMatrix(ILArray<double> inputMatrix, int dimension)
         {
             ILArray<double> identityMatrix = ILMath.eye(dimension, dimension);
             ILArray<double> inverseCovMatrix = ILMath.linsolve(inputMatrix, identityMatrix);
-
-            // ILArray<double> testingMatrix = ILMath.multiply(this.covarianceMatrixMDF, inverseCovMatrix);
-
             return identityMatrix;
         }
                 
@@ -599,5 +673,25 @@ namespace IHDRLib
         }
 
         #endregion
+
+        public void CountLabelOfCluter()
+        {
+            var labels = this.items.GroupBy(i => i.Label).Select(i => i.First().Label);
+
+            int count = int.MinValue;
+            double newLabel = -1;
+
+            foreach (var item in labels)
+            {
+                int labelCount = this.items.Where(i => i.Label == item).Count();
+                if (labelCount > count)
+                {
+                    count = labelCount;
+                    newLabel = item;
+                }
+            }
+            Console.WriteLine("Label : " + newLabel.ToString());
+            this.label = newLabel;
+        }
     }
 }
