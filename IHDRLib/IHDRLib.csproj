@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Cluster.cs" />
     <Compile Include="ClusterPair.cs" />
+    <Compile Include="ClusterPairTestResult.cs" />
     <Compile Include="ClusterX.cs" />
     <Compile Include="ClusterY.cs" />
     <Compile Include="IHDR.cs" />

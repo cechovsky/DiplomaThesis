@@ -70,5 +70,17 @@ namespace IHDRLib
         {
             return this.root.GetLabelOfCategory(item);
         }
+
+        public TestResult GetTestResultByWidthSearch(Sample item)
+        {
+            ClusterPair resultClusterPair = root.GetTestResultByWidthSearch(item);
+
+            return new TestResult()
+            {
+                ClusterMeanX = resultClusterPair.X.Mean,
+                ClusterMeanY = resultClusterPair.Y.Mean,
+                Label = resultClusterPair.X.Label
+            };
+        }
     }
 }

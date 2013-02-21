@@ -49,8 +49,8 @@ namespace IHDRLib
             Params.deltaYMin = 200;
             Params.blx = 20;
             Params.bly = 20;
-            Params.p = 0.3;
-            Params.l = 3;
+            Params.p = 0.2;
+            Params.l = 2;
             Params.confidenceValue = 0.05;
             Params.digitizationNoise = 1;
             Params.ContainsSingularCovarianceMatrixes = true;
@@ -59,12 +59,13 @@ namespace IHDRLib
             Params.SaveCovMatricesMDF = true;
             Params.SaveMeans = false;
             Params.SaveMeansMDF = true;
-
+            
             //amnesic parameters
             Params.t1 = 100.0;
             Params.t2 = 500.0;
             Params.c = 1.0;
             Params.m = 1000.0;
+            Params.WidthOfTesting = 4;
         }
 
         public void AddSample(double[] sample, double label)
@@ -175,7 +176,7 @@ namespace IHDRLib
             }
 
             this.SaveTestResultsNonEqual(@"D:\IHDR\Results\NonEqual", testResults);
-            this.SaveTestResults(@"D:\IHDR\Results\Equal", testResults);
+            this.SaveTestResultsEqual(@"D:\IHDR\Results\Equal", testResults);
 
             int same = 0;
             int different = 0;
@@ -209,7 +210,7 @@ namespace IHDRLib
             }
 
             this.SaveTestResultsNonEqual(@"D:\IHDR\Results\NonEqual", testResults);
-            this.SaveTestResults(@"D:\IHDR\Results\Equal", testResults);
+            this.SaveTestResultsEqual(@"D:\IHDR\Results\Equal", testResults);
 
             int same = 0;
             int different = 0;
@@ -226,6 +227,22 @@ namespace IHDRLib
             }
             Console.WriteLine("The same: " + same.ToString());
             Console.WriteLine("Different: " + different.ToString());
+        }
+
+        public void ExecuteWideTesting()
+        {
+            List<TestResult> testResults = new List<TestResult>();
+
+            int i = 0;
+            foreach (var item in this.testingSamples.Items)
+            {
+                i++;
+                TestResult testResult = this.tree.GetTestResultByWidthSearch(item);
+                testResult.Id = i;
+                testResult.Input = item;
+                testResults.Add(testResult);
+                testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
+            }
         }
 
         private double GetLabelOfClosestY(Vector YMean)
@@ -275,6 +292,34 @@ namespace IHDRLib
             foreach (var item in results)
             {
                 if (item.Label != item.Input.Label)
+                {
+
+                    //string newPath = path + "\\" + i.ToString() + "\\";
+                    string fileName1 = i.ToString() + "_input";
+                    item.Input.X.SaveToBitmap(path, fileName1);
+
+                    string fileNameX = i.ToString() + "_Xresult";
+                    item.ClusterMeanX.SaveToBitmap(path, fileNameX);
+
+                    string fileNameY = i.ToString() + "_Yresult";
+                    item.ClusterMeanY.SaveToBitmap(path, fileNameY);
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("Input label: " + item.Input.Label);
+                    sb.AppendLine("Result label: " + item.Label);
+
+                    File.WriteAllText(path + "ResultInfo" + i.ToString() + ".txt", sb.ToString());
+                }
+                i++;
+            }
+        }
+
+        public void SaveTestResultsEqual(string path, List<TestResult> results)
+        {
+            int i = 1;
+            foreach (var item in results)
+            {
+                if (item.Label == item.Input.Label)
                 {
 
                     //string newPath = path + "\\" + i.ToString() + "\\";

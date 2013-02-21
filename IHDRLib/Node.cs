@@ -372,7 +372,7 @@ namespace IHDRLib
 
         #region Update cluster pairs
 
-        private ClusterPair GetNearestClusterPairX(Sample sample, out double distance, out int index)
+        public ClusterPair GetNearestClusterPairX(Sample sample, out double distance, out int index)
         {
             distance = double.MaxValue;
             ClusterPair closestPair = clusterPairs[0];
@@ -491,6 +491,31 @@ namespace IHDRLib
             //Console.WriteLine("MDF" + sample.Id.ToString() + " : " + index.ToString());
 
             return closestPair;
+        }
+
+        private List<ClusterPair> GetClosestClusterPairsAndSDNLLDistances_MDF(Sample sample)
+        {
+            // convert vector to mdf vector
+            ILArray<double> x = sample.X.Values.ToArray();
+            ILArray<double> scaterPart = x - this.c;
+            ILArray<double> mdfVector = ILMath.multiply(this.gSOManifold.T, scaterPart);
+
+            List<Tuple<double, ClusterPair>> results = new List<Tuple<double, ClusterPair>>();
+
+            foreach(ClusterPair item in clusterPairs)
+            {
+                double newDistance = item.X.GetSDNLL_MDF(mdfVector);
+                results.Add(new Tuple<double,ClusterPair>(newDistance, item));
+            }
+
+            return results.OrderBy(item => item.Item1).Select(item => item.Item2).Take(Params.WidthOfTesting).ToList();
+        }
+
+        public List<Node> GetNodesToSearch(Sample sample)
+        {
+            List<ClusterPair> clusterPairs = this.GetClosestClusterPairsAndSDNLLDistances_MDF(sample);
+
+            return clusterPairs.GroupBy(item => item.CorrespondChild.Id).Select(item => item.First().CorrespondChild).ToList();
         }
 
         //private ClusterPair GetNearestClusterPairXPBySDNLL(Sample sample, out double distance, out int index)
@@ -1210,8 +1235,6 @@ namespace IHDRLib
         {
             if (this.isLeafNode)
             {
-                
-
                 double distance = double.MinValue;
                 int index = int.MinValue;
                 ClusterPair clPair = this.GetNearestClusterPairX(item, out distance, out index);
@@ -1235,6 +1258,41 @@ namespace IHDRLib
             ClusterPair nearestClPair = this.GetNearestClusterPairXBySDNLL_MDF(item, out distance2, out index2);
             Node next = nearestClPair.CorrespondChild;
             return next.GetLabelOfCategory(item);
+        }
+
+        public ClusterPair GetTestResultByWidthSearch(Sample item)
+        {
+            ClusterPairTestResult result = new ClusterPairTestResult() { Distance = double.MaxValue, ClusterPair = new ClusterPair()};
+            this.CountClosestClusterPairByWidthSearch(item, result);
+
+            double distance = 0;
+            int index = 0;
+            ClusterPair finalResult = result.ClusterPair.CorrespondChild.GetNearestClusterPairX(item, out distance, out index);
+
+            return finalResult;
+        }
+
+        public void CountClosestClusterPairByWidthSearch(Sample item, ClusterPairTestResult result)
+        {
+            if (this.children != null && this.children[0] != null && this.children[0].isLeafNode)
+            {
+                double distance = double.MaxValue;
+                int index = 0;
+                ClusterPair clPair = this.GetNearestClusterPairXBySDNLL_MDF(item, out distance, out index);
+                if (distance < result.Distance)
+                {
+                    result.ClusterPair = clPair;
+                    result.Distance = distance;
+                }
+
+                var nodesToSearch = this.GetNodesToSearch(item);
+
+                foreach (var node in nodesToSearch)
+                {
+                    node.CountClosestClusterPairByWidthSearch(item, result);
+                }
+            }
+
         }
     }
 }
