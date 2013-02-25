@@ -40,7 +40,7 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-images.bin",
                     @"D:\Dropbox\DP\data\test-labels.bin"
                     );
-            parser.ParseData(5000);
+            parser.ParseData(15000);
             parser.ParseDataTest(2000);
 
             ihdr = new IHDR();
@@ -76,8 +76,10 @@ namespace IHDRApplication
             ihdr.BuildTree();
 
             ihdr.EvaluateClustersLabels();
-            //ihdr.ExecuteTestingByY();
+            
             ihdr.ExecuteWideTesting();
+
+            ihdr.ExecuteTestingByY();
         }
 
         private void Button_Click_4(object sender, RoutedEventArgs e)

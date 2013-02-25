@@ -1265,26 +1265,53 @@ namespace IHDRLib
             ClusterPairTestResult result = new ClusterPairTestResult() { Distance = double.MaxValue, ClusterPair = new ClusterPair()};
             this.CountClosestClusterPairByWidthSearch(item, result);
 
-            double distance = 0;
-            int index = 0;
-            ClusterPair finalResult = result.ClusterPair.CorrespondChild.GetNearestClusterPairX(item, out distance, out index);
-
-            return finalResult;
+            return result.ClusterPair;
         }
+
+        //public void CountClosestClusterPairByWidthSearch(Sample item, ClusterPairTestResult result)
+        //{
+        //    if (this.children != null && this.children.Count != 0 && this.children[0].IsLeafNode)
+        //    {
+        //        double distance = double.MaxValue;
+        //        int index = 0;
+        //        ClusterPair clPair = this.GetNearestClusterPairXBySDNLL_MDF(item, out distance, out index);
+        //        if (distance < result.Distance)
+        //        {
+        //            result.ClusterPair = clPair;
+        //            result.Distance = distance;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var nodesToSearch = this.GetNodesToSearch(item);
+
+        //        foreach (var node in nodesToSearch)
+        //        {
+        //            node.CountClosestClusterPairByWidthSearch(item, result);
+        //        }
+        //    }
+        //}
 
         public void CountClosestClusterPairByWidthSearch(Sample item, ClusterPairTestResult result)
         {
-            if (this.children != null && this.children[0] != null && this.children[0].isLeafNode)
+            if (this.IsLeafNode)
             {
-                double distance = double.MaxValue;
-                int index = 0;
-                ClusterPair clPair = this.GetNearestClusterPairXBySDNLL_MDF(item, out distance, out index);
-                if (distance < result.Distance)
+                if (this.Parent != null)
                 {
-                    result.ClusterPair = clPair;
-                    result.Distance = distance;
+                    double distance = double.MaxValue;
+                    int index = 0;
+                    ClusterPair clPair = this.Parent.GetNearestClusterPairXBySDNLL_MDF(item, out distance, out index);
+                    Console.WriteLine(distance.ToString());
+                    if (distance < result.Distance)
+                    {
+                        Console.WriteLine("Store");
+                        result.ClusterPair = clPair;
+                        result.Distance = distance;
+                    }
                 }
-
+            }
+            else
+            {
                 var nodesToSearch = this.GetNodesToSearch(item);
 
                 foreach (var node in nodesToSearch)
@@ -1292,7 +1319,6 @@ namespace IHDRLib
                     node.CountClosestClusterPairByWidthSearch(item, result);
                 }
             }
-
         }
     }
 }

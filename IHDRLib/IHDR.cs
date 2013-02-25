@@ -38,7 +38,7 @@ namespace IHDRLib
             Params.useClassMeanLikeY = false;
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
-            Params.q = 10;
+            Params.q = 6;
             Params.bs = 3.5;
             Params.outputIsDefined = false;
             Params.deltaX = 800.0;
@@ -47,8 +47,8 @@ namespace IHDRLib
             Params.deltaXReduction = 150.0;
             Params.deltaXMin = 200;
             Params.deltaYMin = 200;
-            Params.blx = 20;
-            Params.bly = 20;
+            Params.blx = 12;
+            Params.bly = 12;
             Params.p = 0.2;
             Params.l = 2;
             Params.confidenceValue = 0.05;
@@ -61,11 +61,11 @@ namespace IHDRLib
             Params.SaveMeansMDF = true;
             
             //amnesic parameters
-            Params.t1 = 100.0;
-            Params.t2 = 500.0;
-            Params.c = 1.0;
+            Params.t1 = 30.0;
+            Params.t2 = 200.0;
+            Params.c = 4.0;
             Params.m = 1000.0;
-            Params.WidthOfTesting = 4;
+            Params.WidthOfTesting = 3;
         }
 
         public void AddSample(double[] sample, double label)
@@ -209,8 +209,8 @@ namespace IHDRLib
                 testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
             }
 
-            this.SaveTestResultsNonEqual(@"D:\IHDR\Results\NonEqual", testResults);
-            this.SaveTestResultsEqual(@"D:\IHDR\Results\Equal", testResults);
+            //this.SaveTestResultsNonEqual(@"D:\IHDR\Results\NonEqual", testResults);
+            //this.SaveTestResultsEqual(@"D:\IHDR\Results\Equal", testResults);
 
             int same = 0;
             int different = 0;
@@ -240,9 +240,30 @@ namespace IHDRLib
                 TestResult testResult = this.tree.GetTestResultByWidthSearch(item);
                 testResult.Id = i;
                 testResult.Input = item;
-                testResults.Add(testResult);
                 testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
+                testResults.Add(testResult);
+                
             }
+
+            this.SaveTestResultsNonEqual(@"D:\IHDR\Results\NonEqual\", testResults);
+            this.SaveTestResultsEqual(@"D:\IHDR\Results\Equal\", testResults);
+
+            int same = 0;
+            int different = 0;
+            foreach (var item in testResults)
+            {
+                if (item.LabelByClosestYMean == item.Input.Label)
+                {
+                    same++;
+                }
+                else
+                {
+                    different++;
+                }
+            }
+            Console.WriteLine("The same: " + same.ToString());
+            Console.WriteLine("Different: " + different.ToString());
+
         }
 
         private double GetLabelOfClosestY(Vector YMean)
@@ -291,9 +312,8 @@ namespace IHDRLib
             int i = 1;
             foreach (var item in results)
             {
-                if (item.Label != item.Input.Label)
+                if (item.LabelByClosestYMean != item.Input.Label)
                 {
-
                     //string newPath = path + "\\" + i.ToString() + "\\";
                     string fileName1 = i.ToString() + "_input";
                     item.Input.X.SaveToBitmap(path, fileName1);
@@ -319,7 +339,7 @@ namespace IHDRLib
             int i = 1;
             foreach (var item in results)
             {
-                if (item.Label == item.Input.Label)
+                if (item.LabelByClosestYMean == item.Input.Label)
                 {
 
                     //string newPath = path + "\\" + i.ToString() + "\\";
