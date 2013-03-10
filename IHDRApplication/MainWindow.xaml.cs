@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MNISTParserLib;
+using S = SyntheticDataGenerator;
 using IHDRLib;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -125,6 +126,70 @@ namespace IHDRApplication
         private void Button_Click_8(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Button_Click_9(object sender, RoutedEventArgs e)
+        {
+            S.SyntheticDataGenerator generator = new S.SyntheticDataGenerator(70, 50);
+            generator.GenerateSyntheticData();
+            generator.GenerateSyntheticDataTest();
+
+            ihdr = new IHDR();
+            foreach (var item in generator.samples)
+            {
+                ihdr.AddSample(item.Attributes.ToArray(), item.AttributesY.ToArray(), item.Label);
+            }
+            foreach (var item in generator.samplesTest)
+            {
+                ihdr.AddTestingSample(item.Attributes.ToArray(), (double)item.Label);
+            }
+
+            ihdr.BuildTree();
+            ihdr.EvaluateClustersLabels();
+            ihdr.ExecuteTesting();
+        }
+
+        private void Button_Click_10(object sender, RoutedEventArgs e)
+        {
+            S.SyntheticDataGenerator generator = new S.SyntheticDataGenerator(70, 50);
+            generator.GenerateSyntheticData();
+            generator.GenerateSyntheticDataTest();
+
+            ihdr = new IHDR();
+            foreach (var item in generator.samples)
+            {
+                ihdr.AddSample(item.Attributes.ToArray(), item.AttributesY.ToArray(), item.Label);
+            }
+            foreach (var item in generator.samplesTest)
+            {
+                ihdr.AddTestingSample(item.Attributes.ToArray(), (double)item.Label);
+            }
+
+            ihdr.BuildTree();
+            ihdr.EvaluateClustersLabels();
+            ihdr.SaveLeafClustersToPicture();
+        }
+
+        private void Button_Click_11(object sender, RoutedEventArgs e)
+        {
+            S.SyntheticDataGenerator generator = new S.SyntheticDataGenerator(100, 100);
+            generator.GenerateSyntheticData();
+            generator.GenerateSyntheticDataTest();
+
+            ihdr = new IHDR();
+            foreach (var item in generator.samples)
+            {
+                ihdr.AddSample(item.Attributes.ToArray(), item.AttributesY.ToArray(), item.Label);
+            }
+            foreach (var item in generator.samplesTest)
+            {
+                ihdr.AddTestingSample(item.Attributes.ToArray(), (double)item.Label);
+            }
+
+            ihdr.BuildTree();
+            ihdr.EvaluateAllClustersLabels();
+            ihdr.EvaluateDepth();
+            ihdr.SaveLayersToBmp(@"D:\Levels");
         }
 
         

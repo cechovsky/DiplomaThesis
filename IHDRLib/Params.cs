@@ -108,5 +108,10 @@ namespace IHDRLib
 
         // if during saving to hierarchy save also vectors to text files
         public static bool ContainsSingularCovarianceMatrixes { get; set; }
+
+        // 1 normal swap
+        // 2 modified swap ( clusters by k-means )
+        // 3 modified swap ( all samples by k-means )
+        public static int SwapType { get; set; }
     }
 }

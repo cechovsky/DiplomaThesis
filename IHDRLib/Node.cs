@@ -366,6 +366,7 @@ namespace IHDRLib
             newClusterY.SetClusterPair(clusterPair);
 
             clusterPair.Id = clusterPairs.Count;
+            clusterPair.Samples.Add(sample);
 
             this.clusterPairs.Add(clusterPair);
         }
@@ -419,6 +420,10 @@ namespace IHDRLib
             List<Tuple<double, ClusterPair>> result = new List<Tuple<double, ClusterPair>>();
             foreach (ClusterPair item in clusterPairs)
             {
+                if (sample.Y.Values.Count() < 2)
+                {
+                    throw new InvalidOperationException("Bad operation");
+                }
                 double newDistance = item.Y.Mean.GetDistance(sample.Y);
                 result.Add(new Tuple<double,ClusterPair>(newDistance, item));
             }
@@ -590,9 +595,16 @@ namespace IHDRLib
 
                 #endregion
 
-                this.EvaluateSwap();
-                this.Swap();
-                //this.Swap_Modified();
+                if (Params.SwapType == 1)
+                {
+                    this.EvaluateSwap();
+                    this.Swap();
+                }
+                if (Params.SwapType == 2)
+                {
+                    this.EvaluateSwap();
+                    this.Swap_Modified();
+                }
 
                 // count most discriminating features space etc.
                 this.CountC();
@@ -673,14 +685,16 @@ namespace IHDRLib
 
                 for (int i = 0; i < countOfClustersToUpdate; i++)
                 {
+                    //Console.WriteLine("Y");
                     orderedClusterPairs[i].Item2.Y.AddItem(sample.Y, sample.Label);
                 }
+
 
                 //Update a certain portion p (e.g., p = 0:2, i.e., pulling top 20%) of nearest clusters using the amnesic average
                 //explained in Section III-F and return the index j
                 // add sample to clusters, update statistics of clusters
                 orderedClusterPairs[0].Item2.X.AddItemNonLeaf(sample.X, sample.Label, this);
-                
+                orderedClusterPairs[0].Item2.Samples.Add(sample);
             }
         }
 
@@ -704,7 +718,9 @@ namespace IHDRLib
 
         private double GetNSPP()
         {
-            return 2 * (this.countOfSamples - this.ClusterPairs.Count) / Math.Pow(this.ClusterPairs.Count, 2);
+            double nspp = 2 * (this.countOfSamples - this.ClusterPairs.Count) / Math.Pow(this.ClusterPairs.Count, 2);
+            Console.WriteLine("Nspp :" + nspp.ToString());
+            return nspp;
         }
 
         #region Swapping
@@ -789,6 +805,11 @@ namespace IHDRLib
         {
             this.IsLeafNode = false;
 
+            foreach (var item in this.clusterPairs)
+            {
+                Console.WriteLine("Center " + item.CurrentCenter.ToString());
+            } 
+
             for (int i = 0; i < Params.q; i++)
             {
                 // create node + set save path
@@ -805,6 +826,11 @@ namespace IHDRLib
 
                     // set reference to ClusterPair, which node correspond to this ClusterPair
                     item.CorrespondChild = node;
+
+                    if (node == null)
+                    {
+                        throw new InvalidOperationException("Node cant be null");
+                    }
                 }
 
                 // set parent to clusters X
@@ -944,20 +970,38 @@ namespace IHDRLib
 
         private void UpdatePlasticityOfParents(Node node)
         {
+            //Node n = node;
+            //for (int i = 0; i <= Params.l; i++)
+            //{
+            //    if (n.parent != null)
+            //    {
+            //        n = n.parent;
+            //        if (i == Params.l)
+            //        {
+            //            n.IsPlastic = false;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return;
+            //    }
+            //}
             Node n = node;
-            for (int i = 0; i <= Params.l; i++)
+            int distanceFromLeaf = 0;
+            while (node != null)
             {
-                if (n.parent != null)
+                if (node.Parent != null)
                 {
-                    n = n.parent;
-                    if (i == Params.l)
-                    {
-                        n.IsPlastic = false;
-                    }
+                    node = node.Parent;
                 }
                 else
                 {
-                    return;
+                    node = null;
+                }
+                distanceFromLeaf++;
+                if (node != null && distanceFromLeaf > Params.l)
+                {
+                    node.IsPlastic = false;
                 }
             }
         }
@@ -1083,6 +1127,20 @@ namespace IHDRLib
                 {
                     item.EvaluateClustersLabels();
                 }
+            }
+        }
+
+        public void EvaluateAllClustersLabels()
+        {
+            
+            foreach (var item in clustersX)
+            {
+                item.CountLabelOfCluter();
+            }
+            
+            foreach (var item in this.children)
+            {
+                item.EvaluateAllClustersLabels();
             }
         }
 
@@ -1239,16 +1297,12 @@ namespace IHDRLib
                 int index = int.MinValue;
                 ClusterPair clPair = this.GetNearestClusterPairX(item, out distance, out index);
 
-                if (clPair.X.Mean.EqualsToVector(clPair.Y.Mean))
-                {
-                    Debug.Assert(true, "X and Y equals");
-                }
-                
                 TestResult tr = new TestResult()
                 {
                     ClusterMeanX = clPair.X.Mean,
                     ClusterMeanY = clPair.Y.Mean,
-                    Label = clPair.X.Label
+                    Label = clPair.X.Label,
+                    Samples = clPair.Samples
                 };
                 return tr;
             }
@@ -1319,6 +1373,52 @@ namespace IHDRLib
                     node.CountClosestClusterPairByWidthSearch(item, result);
                 }
             }
+        }
+
+        public List<ClusterPair> GetAllLeafClusterPairs()
+        {
+            if (this.isLeafNode)
+            {
+                return this.ClusterPairs;
+            }
+            else
+            {
+                List<ClusterPair> clPairs = new List<ClusterPair>();
+                foreach (var item in children)
+                {
+                    clPairs.AddRange(item.GetAllLeafClusterPairs());
+                }
+                return clPairs;
+            }
+        }
+
+        public void EvaluateDepth(int depth)
+        {
+            foreach (var item in clusterPairs)
+            {
+                item.Depth = depth;
+            }
+            if (!this.isLeafNode)
+            {
+                foreach (var item in children)
+                {
+                    item.EvaluateDepth(depth + 1);
+                }
+            }
+        }
+
+        public List<ClusterPair> GetAllClusterPairs()
+        {
+            List<ClusterPair> clPairs = new List<ClusterPair>();
+
+            clPairs.AddRange(this.ClusterPairs);
+
+            foreach (var item in children)
+            {
+                clPairs.AddRange(item.GetAllClusterPairs());
+            }
+
+            return clPairs;
         }
     }
 }

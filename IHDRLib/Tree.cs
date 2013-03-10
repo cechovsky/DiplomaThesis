@@ -65,6 +65,19 @@ namespace IHDRLib
             }
         }
 
+        public void EvaluateAllClustersLabels()
+        {
+            if (this.root != null)
+            {
+                this.root.EvaluateAllClustersLabels();
+            }
+        }
+
+        public void EvaluateDepth()
+        {
+            this.root.EvaluateDepth(1);
+        }
+
 
         public TestResult GetLabelOfCategory(Sample item)
         {
@@ -81,6 +94,16 @@ namespace IHDRLib
                 ClusterMeanY = resultClusterPair.Y.Mean,
                 Label = resultClusterPair.X.Label
             };
+        }
+
+        public List<ClusterPair> GetAllLeafClusterPairs()
+        {
+            return this.root.GetAllLeafClusterPairs();
+        }
+
+        internal List<ClusterPair> GetAllClusterPairs()
+        {
+            return this.root.GetAllClusterPairs();
         }
     }
 }

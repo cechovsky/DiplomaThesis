@@ -15,6 +15,7 @@ namespace IHDRLib
         private ClusterY clusterY;
         private List<Sample> samples;
         private Node correspondChild;
+        private int depth;
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -131,6 +132,18 @@ namespace IHDRLib
             set
             {
                 this.correspondChild = value;
+            }
+        }
+
+        public int Depth
+        {
+            get
+            {
+                return this.depth;
+            }
+            set
+            {
+                this.depth = value;
             }
         }
 

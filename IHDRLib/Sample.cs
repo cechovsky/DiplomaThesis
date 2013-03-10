@@ -39,11 +39,12 @@ namespace IHDRLib
             this.id = id;
         }
 
-        public Sample(double[] input, double[] output, int id)
+        public Sample(double[] input, double[] output, double label, int id)
         {
             this.x = new Vector(input);
-            this.y = new Vector(input);
+            this.y = new Vector(output);
             this.id = id;
+            this.label = label;
         }
 
         public Vector X

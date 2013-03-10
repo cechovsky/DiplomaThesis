@@ -15,5 +15,6 @@ namespace IHDRLib
         public Vector ClusterMeanY { get; set; }
         public Sample Input { get; set; }
         public double LabelByClosestYMean { get; set; }
+        public List<Sample> Samples { get; set; }
     }
 }

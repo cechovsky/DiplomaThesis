@@ -103,6 +103,10 @@
       <Project>{53bee957-e550-46ca-9129-a6aa3069311d}</Project>
       <Name>MNISTParserLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SyntheticDataGenerator\SyntheticDataGenerator.csproj">
+      <Project>{f54b2ad5-1063-4415-bfa2-ac80a89961b9}</Project>
+      <Name>SyntheticDataGenerator</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
