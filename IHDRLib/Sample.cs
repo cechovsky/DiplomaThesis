@@ -15,6 +15,10 @@ namespace IHDRLib
         private double label;
         private int id;
 
+        public int CenterId { get; set; }
+        public int ClusterAssignemntOld { get; set; }
+        public int ClusterAssignemntNew { get; set; }
+
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("x", x, typeof(Vector));
@@ -52,6 +56,10 @@ namespace IHDRLib
             get
             {
                 return x;
+            }
+            set
+            {
+                this.x = value;
             }
         }
 

@@ -28,6 +28,7 @@ namespace IHDRLib
         private List<Node> children;
         private double deltaX;
         private double deltaY;
+        private List<Sample> samples;
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -78,6 +79,7 @@ namespace IHDRLib
             this.isLeafNode = true;
             this.parent = null;
             this.countOfSamples = 0;
+            this.samples = new List<Sample>();
 
             this.children = new List<Node>(Params.q);
             this.path = Params.savePath + "root\\";
@@ -94,7 +96,7 @@ namespace IHDRLib
 
             clustersX = new List<ClusterX>();
             clustersY = new List<ClusterY>();
-            //samples = new Samples();
+            this.samples = new List<Sample>();
             clusterPairs = new List<ClusterPair>();
             isLeafNode = true;
             countOfSamples = 0;
@@ -247,11 +249,10 @@ namespace IHDRLib
 
         public void UpdateNode(Sample sample)
         {
-            
             //Console.WriteLine("Add sample " + count.ToString());
 
             // add sample (because of counting of output)
-            //samples.Add(sample);
+            this.samples.Add(sample);
 
             // count y of sample, if it is null
             if (sample.Y == null)
@@ -301,27 +302,7 @@ namespace IHDRLib
                 
                 double distance = 0;
                 int index = 0;
-                //double distance2 = 0;
-                //int index2 = 0;
-                //double distance3 = 0;
-                //int index3 = 0;
                 ClusterPair nearestClPair = this.GetNearestClusterPairXBySDNLL_MDF(sample, out distance, out index);
-                //ClusterPair nearestClPair2 = this.GetNearestClusterPairXMDF(sample, out distance2, out index2);
-                //ClusterPair nearestClPair3 = this.GetNearestClusterPairX(sample, out distance3, out index3);
-                
-                //if(index == index3)
-                //{
-                //    Console.WriteLine("Equals");
-                //}
-                //else
-                //{
-                //    Console.WriteLine("Not Equals");
-                //}
-
-                //Console.WriteLine(distance.ToString());
-                //Console.WriteLine(distance2.ToString());
-                //Console.WriteLine(distance3.ToString());
-                //Console.WriteLine("-------------------------------------------------");
 
                 Node next = nearestClPair.CorrespondChild;
                   
@@ -605,6 +586,12 @@ namespace IHDRLib
                     this.EvaluateSwap();
                     this.Swap_Modified();
                 }
+                if (Params.SwapType == 3)
+                {
+                    this.KMeansClustering();
+                    this.EvaluateSwap();
+                    this.Swap();
+                }
 
                 // count most discriminating features space etc.
                 this.CountC();
@@ -619,6 +606,102 @@ namespace IHDRLib
                 //count cov matrix mean
                 this.CountCovarianceMatrixMeanMDF();
             }
+        }
+
+        private void KMeansClustering()
+        {
+            Random random = new Random();
+            List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
+
+            List<Sample> centers = new List<Sample>();
+            foreach (var item in centersCandidates)
+            {
+                centers.Add(new Sample(item.X.Values.ToArray(), item.Label, item.Id));
+            }
+
+            // set centers id 
+            int i = 1;
+            foreach (var item in centers)
+            {
+                item.CenterId = i;
+                i++;
+            }
+
+            //set assigment to 0
+            foreach (var item in this.samples)
+	        {
+                item.ClusterAssignemntNew = 0;
+                item.ClusterAssignemntOld = 0;
+	        }
+
+            // do k-means
+            bool allAssigmentsEquals = false;
+            while (!allAssigmentsEquals)
+            {
+                foreach (var item in this.samples)
+                {
+                    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
+                    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
+                }
+                allAssigmentsEquals = this.AllAssigmentsEquals(this.samples);
+
+                foreach (var item in centers)
+	            {
+                    this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
+	            }
+            }
+
+            // create new clusters
+            this.clusterPairs = new List<ClusterPair>();
+            this.clustersX = new List<ClusterX>();
+            this.clustersY = new List<ClusterY>();
+
+            foreach (var item in centers)
+            {
+                List<Sample> samplesOfCenter = this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                this.CreateNewClusters(samplesOfCenter[0], this);
+                ClusterPair newClPair = this.ClusterPairs[this.ClusterPairs.Count - 1];
+
+                for (int j = 1; j < samplesOfCenter.Count; j++)
+                {
+                    newClPair.AddItem(samplesOfCenter[j]);
+                }                        
+            }
+        }
+
+        // for k-means
+        private void UpdateCenter(Sample center, List<Sample> listOfSamples)
+        {
+            center.X = Vector.GetMeanOfVectors(listOfSamples.Select(sample => sample.X).ToList());
+        }
+
+        private int GetCenterIdOfClosestCenter(List<Sample> centers, Sample sample)
+        {
+            int returnId = 0;
+            double minDistance = Double.MaxValue;
+
+            foreach (var item in centers)
+            {
+                double distance = item.X.GetDistance(sample.X);
+                if (distance < minDistance)
+                {
+                    returnId = item.CenterId;
+                    minDistance = distance;
+                }
+            }
+
+            return returnId;
+        }
+
+        private bool AllAssigmentsEquals(List<Sample> sampleslist)
+        {
+            foreach (var item in sampleslist)
+            {
+                if (item.ClusterAssignemntNew != item.ClusterAssignemntOld)
+                    return false;
+            }
+            return true;
         }
 
         private void UpdateClusterPairsX_ForSwapping(Sample sample)
@@ -719,7 +802,7 @@ namespace IHDRLib
         private double GetNSPP()
         {
             double nspp = 2 * (this.countOfSamples - this.ClusterPairs.Count) / Math.Pow(this.ClusterPairs.Count, 2);
-            Console.WriteLine("Nspp :" + nspp.ToString());
+            //Console.WriteLine("Nspp :" + nspp.ToString());
             return nspp;
         }
 

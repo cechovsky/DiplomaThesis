@@ -51,7 +51,7 @@ namespace IHDRLib
             Params.blx = 12;
             Params.bly = 12;
             Params.p = 0.2;
-            Params.l = 2;
+            Params.l = 3;
             Params.confidenceValue = 0.05;
             Params.digitizationNoise = 1;
             Params.ContainsSingularCovarianceMatrixes = true;
@@ -67,6 +67,9 @@ namespace IHDRLib
             Params.c = 5.0;
             Params.m = 1000.0;
             Params.WidthOfTesting = 3;
+
+            // swap type
+            Params.SwapType = 3;
         }
 
         private void SetSettings2()
@@ -104,7 +107,7 @@ namespace IHDRLib
             Params.WidthOfTesting = 3;
 
             // swap type
-            Params.SwapType = 2;
+            Params.SwapType = 3;
         }
 
         public void AddSample(double[] sample, double label)
