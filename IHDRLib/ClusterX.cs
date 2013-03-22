@@ -494,8 +494,12 @@ namespace IHDRLib
             double b = be + bm + bg;
 
             double we = be / b;
-            double wm = we / b;
+            double wm = bm / b;
             double wg = bg / b;
+
+            //Console.WriteLine(string.Format("we: {0}", we));
+            //Console.WriteLine(string.Format("wm: {0}", wm));
+            //Console.WriteLine(string.Format("wg: {0}", wg));
 
             ILArray<double> gaussianPart = this.covarianceMatrixMDF;
             ILArray<double> mahalonobisPart = this.parent.CovarianceMatrixMeanMDF;
@@ -503,45 +507,6 @@ namespace IHDRLib
 
             return (wg * gaussianPart) + (wm * mahalonobisPart) + (we * euclideanPart);
         }
-
-        //public ILArray<double> GetMatrixW()
-        //{
-        //    double be = this.Getbe();
-        //    double bm = this.Getbm();
-        //    double bg = this.Getbg();
-
-        //    double b = be + bm + bg;
-
-        //    double we = be / b;
-        //    double wm = we / b;
-        //    double wg = bg / b;
-
-        //    ILArray<double> result = null;
-            
-        //    ILArray<double> gaussianPart = null;
-        //    ILArray<double> mahalonobisPart = null;
-        //    ILArray<double> euclideanPart = null;
-
-        //    gaussianPart = this.covarianceMatrix;
-        //    mahalonobisPart = this.parent.CovarianceMatrixMean;
-        //    euclideanPart = this.GetVarianceMatrix();
-
-        //    return result = (wg * gaussianPart) + (wm * mahalonobisPart) + (we * euclideanPart);
-        //}
-
-        //public ILArray<double> GetPseudoInverseMatrixOfMatrix(ILArray<double> inputMatrix)
-        //{
-        //    ILArray<double> svdValues = ILMath.svd(inputMatrix);
-        //    ILArray<double> svdMatrix = ILMath.diag(svdValues);
-
-        //    ILArray<double> eigenVectors = 1;
-        //    ILArray<double> eigValues = ILMath.diag(ILMath.eigSymm(this.covarianceMatrix, eigenVectors));
-
-        //    // count pseudoinverse matrix
-        //    ILArray<double> pseudoInverse = ILMath.multiply(eigenVectors, ILMath.multiply(svdMatrix, eigenVectors.T));
-
-        //    return pseudoInverse;
-        //}
 
         public ILArray<double> GetInverseMatrixOfMatrix(ILArray<double> inputMatrix, int dimension)
         {
@@ -568,7 +533,7 @@ namespace IHDRLib
 
         public double Getbe()
         {
-            double nspp = (this.items.Count - 1) * (parent.ClustersX.Count - 1);
+            double nspp = (this.parent.CountOfSamples - 1) * (parent.ClustersX.Count - 1);
             double ns = 1 / Params.confidenceValue + 1;
             return Math.Min( nspp, ns);
         }
@@ -576,7 +541,7 @@ namespace IHDRLib
         public double Getbm()
         {
             double q = parent.ClustersX.Count;
-            double nspp = 2 * (this.items.Count - q) / q;
+            double nspp = 2 * (this.parent.CountOfSamples - q) / q;
             double ns = 1 / Params.confidenceValue + 1;
             return Math.Min(Math.Max(nspp, 0), ns);
         }
@@ -584,9 +549,8 @@ namespace IHDRLib
         public double Getbg()
         {
             double q = parent.ClustersX.Count;
-            double totalCount = parent.ClustersX.Select(cl => cl.items.Count).Sum();
 
-            double result = 2 * (totalCount - q) / Math.Pow(q, 2);
+            double result = 2 * (this.parent.CountOfSamples - q) / Math.Pow(q, 2);
             return result;
         }
 

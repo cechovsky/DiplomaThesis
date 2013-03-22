@@ -24,6 +24,7 @@ namespace IHDRLib
         private ILArray<double> gSOManifold;
         protected ILArray<double> covarianceMatrixMeanMDF;
         protected ILArray<double> covarianceMatrixMean;
+        private ILArray<double> varianceMDF;
         protected ILArray<double> c;
         private List<Node> children;
         private double deltaX;
@@ -118,6 +119,14 @@ namespace IHDRLib
         }
 
         #region properties
+
+        public int CountOfSamples
+        {
+            get
+            {
+                return this.countOfSamples;
+            }
+        }
 
         public Node Parent
         {
@@ -230,6 +239,15 @@ namespace IHDRLib
                 this.covarianceMatrixMeanMDF = value;
             }
         }
+
+        public ILArray<double> VarianceMDF
+        {
+            get
+            {
+                return this.VarianceMDF;
+            }
+        }
+
 
         public ILArray<double> CovarianceMatrixMean
         {
@@ -1013,17 +1031,17 @@ namespace IHDRLib
             this.covarianceMatrixMeanMDF = this.covarianceMatrixMeanMDF / this.clustersX.Count;
         }
 
-        /// <summary>
-        /// count MDF means in all clusters
-        /// </summary>
-        //public void DisposeCovarianceMatrices()
-        //{
-        //    foreach (var item in clustersX)
-        //    {
-        //        item.DisposeCovMatrix();
-        //    }
-        //}
-        
+        public void CountVarianceMDF()
+        {
+            this.varianceMDF = ILMath.zeros(this.clustersX.Count - 1);
+
+            foreach (var item in clustersX)
+            {
+                ILArray<double> diff = this.
+                this.varianceMDF = this.varianceMDF + ( 
+            }
+        }
+
         /// <summary>
         /// count most discrimating vectors for all x 
         /// </summary>
@@ -1441,7 +1459,7 @@ namespace IHDRLib
                     Console.WriteLine(distance.ToString());
                     if (distance < result.Distance)
                     {
-                        Console.WriteLine("Store");
+                        //Console.WriteLine("Store");
                         result.ClusterPair = clPair;
                         result.Distance = distance;
                     }

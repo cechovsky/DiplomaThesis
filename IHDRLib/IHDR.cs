@@ -27,7 +27,7 @@ namespace IHDRLib
 
         public IHDR()
         {
-            SetSettings2();
+            SetSettings();
             this.samples = new Samples();
             this.testingSamples = new Samples();
             this.tree = new Tree();
@@ -52,7 +52,7 @@ namespace IHDRLib
             Params.bly = 12;
             Params.p = 0.2;
             Params.l = 3;
-            Params.confidenceValue = 0.05;
+            Params.confidenceValue = 0.1;
             Params.digitizationNoise = 1;
             Params.ContainsSingularCovarianceMatrixes = true;
             Params.savePath = @"D:\IHDRTree\";
@@ -63,13 +63,13 @@ namespace IHDRLib
             
             //amnesic parameters
             Params.t1 = 10.0;
-            Params.t2 = 50.0;
-            Params.c = 5.0;
-            Params.m = 1000.0;
+            Params.t2 = 500;
+            Params.c = 3.0;
+            Params.m = 100.0;
             Params.WidthOfTesting = 3;
 
             // swap type
-            Params.SwapType = 3;
+            Params.SwapType = 1;
         }
 
         private void SetSettings2()

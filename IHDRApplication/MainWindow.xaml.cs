@@ -41,7 +41,7 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-images.bin",
                     @"D:\Dropbox\DP\data\test-labels.bin"
                     );
-            parser.ParseData(5000);
+            parser.ParseData(10000);
             parser.ParseDataTest(2000);
 
             ihdr = new IHDR();
@@ -64,8 +64,8 @@ namespace IHDRApplication
                    @"D:\Dropbox\DP\data\test-images.bin",
                    @"D:\Dropbox\DP\data\test-labels.bin"
                    );
-            parser.ParseData(5000);
-            parser.ParseDataTest(4000);
+            parser.ParseData(10000);
+            parser.ParseDataTest(2000);
 
             parser.SaveSamplesToBmp(@"D:\Samples\Train");
             parser.SaveTestSamplesToBmp(@"D:\Samples\Test");
