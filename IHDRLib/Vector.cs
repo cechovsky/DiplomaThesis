@@ -44,6 +44,17 @@ namespace IHDRLib
             this.values = vector.ToArray();
         }
 
+        /// <summary>
+        /// insert attributes in array to vector
+        /// </summary>
+        /// <param name="vector"></param>
+        public Vector(double[] vector, double[] vectorMDF)
+            : base()
+        {
+            this.values = vector.ToArray();
+            this.valuesMDF = vectorMDF.ToArray();
+        }
+
         public Vector(double[] vector, double label, int id)
             : base()
         {
@@ -100,11 +111,24 @@ namespace IHDRLib
             this.values = ILMath.array<double>(value, dimension);
         }
 
+        public Vector(int dimension, int dimensionMDF, double value)
+        {
+            this.values = ILMath.array<double>(value, dimension);
+            this.valuesMDF = ILMath.array<double>(value, dimensionMDF);
+        }
+
         public void Add(Vector vector)
         {
             if (this.values.Length != vector.values.Length) throw new InvalidOperationException("Not the same count of attributes");
 
             this.values = this.values + vector.values;
+        }
+
+        public void AddMDF(Vector vector)
+        {
+            if (this.valuesMDF.Length != vector.valuesMDF.Length) throw new InvalidOperationException("Not the same count of attributes");
+
+            this.valuesMDF = this.valuesMDF + vector.valuesMDF;
         }
 
         public void Subtract(Vector vector)
@@ -114,14 +138,36 @@ namespace IHDRLib
             this.values = this.values - vector.values;
         }
 
+        public void SubtractMDF(Vector vector)
+        {
+            if (this.valuesMDF.Length != vector.valuesMDF.Length) throw new InvalidOperationException("Not the same count of attributes");
+
+            this.valuesMDF = this.valuesMDF - vector.valuesMDF;
+        }
+
         public void Divide(double divider)
         {
             this.values = this.values / divider;
         }
 
+        public void DivideMDF(double divider)
+        {
+            this.valuesMDF = this.valuesMDF / divider;
+        }
+
         public void Multiply(double multiplier)
         {
             this.values = this.values * multiplier;
+        }
+
+        public void Multiply(Vector multiplier)
+        {
+            this.values = this.values * multiplier.values;
+        }
+
+        public void MultiplyMDF(Vector multiplier)
+        {
+            this.valuesMDF = this.valuesMDF * multiplier.valuesMDF;
         }
 
         public bool EqualsToVector(Vector vector)
@@ -166,6 +212,37 @@ namespace IHDRLib
             }
 
             result.Divide((double)vectors.Count);
+
+            return result;
+        }
+
+        public static Vector GetMeanOfVectorsMDF(List<Vector> vectors)
+        {
+            Vector result = new Vector(vectors[0].values.Length, vectors[0].valuesMDF.Length, 0.0);
+
+            foreach (Vector item in vectors)
+            {
+                result.AddMDF(item);
+            }
+
+            result.DivideMDF((double)vectors.Count);
+
+            return result;
+        }
+
+        public static Vector GetVarianceOfVectors(List<Vector> vectors, Vector mean)
+        {
+            Vector result = new Vector(vectors[0].values.Length, vectors[0].valuesMDF.Length, 0.0);
+
+            foreach (var item in vectors)
+            {
+                Vector diff = new Vector(item.valuesMDF.ToArray());
+                diff.SubtractMDF(mean);
+                diff.MultiplyMDF(diff);
+                result.AddMDF(diff);
+            }
+
+            result.DivideMDF(vectors.Count - 1);
 
             return result;
         }

@@ -39,8 +39,8 @@ namespace IHDRLib
             Params.useClassMeanLikeY = false;
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
-            Params.q = 6;
-            Params.bs = 3.5;
+            Params.q = 5;
+            Params.bs = 20;
             Params.outputIsDefined = false;
             Params.deltaX = 800.0;
             Params.deltaY = 800.0;
@@ -48,8 +48,8 @@ namespace IHDRLib
             Params.deltaXReduction = 150.0;
             Params.deltaXMin = 200;
             Params.deltaYMin = 200;
-            Params.blx = 12;
-            Params.bly = 12;
+            Params.blx = 15;
+            Params.bly = 15;
             Params.p = 0.2;
             Params.l = 3;
             Params.confidenceValue = 0.1;

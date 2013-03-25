@@ -123,5 +123,23 @@ namespace IHDRLibTest
 
             Assert.AreEqual(normNum, 2.0);
         }
+
+        [TestMethod]
+        public void GetVarianceOfVectors()
+        {
+            Node node = new Node(0.0, 0.0);            
+            
+            List<Vector> vectors = new List<Vector>();
+            vectors.Add(new Vector(new double[] { 9, 2, 7 }, new double[] { 9, 2, 7 }));
+            vectors.Add(new Vector(new double[] { 3, 3, 10 }, new double[] { 3, 3, 10 }));
+            vectors.Add(new Vector(new double[] { 6, 4, 25 }, new double[] { 6, 4, 25 }));
+
+            node.CountMeanMDF(vectors);
+            node.CountVarianceMDF(vectors);
+
+            Assert.AreEqual(node.VarianceMDF.ToArray()[0], 9);
+            Assert.AreEqual(node.VarianceMDF.ToArray()[1], 1);
+            Assert.AreEqual(node.VarianceMDF.ToArray()[2], 93);
+        }
     }
 }

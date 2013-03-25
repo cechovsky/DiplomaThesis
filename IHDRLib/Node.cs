@@ -24,6 +24,7 @@ namespace IHDRLib
         private ILArray<double> gSOManifold;
         protected ILArray<double> covarianceMatrixMeanMDF;
         protected ILArray<double> covarianceMatrixMean;
+        private ILArray<double> meanMDF;
         private ILArray<double> varianceMDF;
         protected ILArray<double> c;
         private List<Node> children;
@@ -244,7 +245,7 @@ namespace IHDRLib
         {
             get
             {
-                return this.VarianceMDF;
+                return this.varianceMDF;
             }
         }
 
@@ -312,12 +313,16 @@ namespace IHDRLib
 
                 this.CountC();
                 this.CountGSOManifold();
+                this.CountMeanAndVarianceMDF();
                 //this.CountMDFOfVectors();
                 //this.CountMDFMeans();
                 //this.CountCovarianceMatricesMDF();
                 //this.CountCovarianceMatrixMeanMDF();
                 // TODO compute probabilities described in Subsection IV-C. ( it will be implemented latest )
                 
+                // count covariance matrix mean Mdf
+                this.CountCovarianceMatricesMeanMDF();
+
                 double distance = 0;
                 int index = 0;
                 ClusterPair nearestClPair = this.GetNearestClusterPairXBySDNLL_MDF(sample, out distance, out index);
@@ -469,7 +474,7 @@ namespace IHDRLib
         /// <param name="sample"></param>
         /// <param name="distance"></param>
         /// <returns></returns>
-        private ClusterPair GetNearestClusterPairXBySDNLL_MDF(Sample sample, out double distance, out int index)
+        private ClusterPair  GetNearestClusterPairXBySDNLL_MDF(Sample sample, out double distance, out int index)
         {
             // convert vector to mdf vector
             ILArray<double> x = sample.X.Values.ToArray();
@@ -618,11 +623,9 @@ namespace IHDRLib
                 this.CountMDFMeans();
                 this.CountCovarianceMatricesMDF();
                 
-                //dispose matrices
-                //this.DisposeCovarianceMatrices();
-
                 //count cov matrix mean
                 this.CountCovarianceMatrixMeanMDF();
+                this.CountMeanAndVarianceMDF();
             }
         }
 
@@ -1031,15 +1034,39 @@ namespace IHDRLib
             this.covarianceMatrixMeanMDF = this.covarianceMatrixMeanMDF / this.clustersX.Count;
         }
 
-        public void CountVarianceMDF()
+        public void CountMeanAndVarianceMDF()
         {
-            this.varianceMDF = ILMath.zeros(this.clustersX.Count - 1);
+            List<Vector> allSamples = this.ClustersX.SelectMany(cl => cl.Items).ToList();
 
-            foreach (var item in clustersX)
+            this.CountMeanMDF(allSamples);
+            this.CountVarianceMDF(allSamples);    
+        }
+
+        public void CountMeanMDF(List<Vector> allsamples)
+        {
+            this.meanMDF = ILMath.array<double>(0.0, allsamples[0].ValuesMDF.Length);
+
+            foreach (var item in allsamples)
             {
-                ILArray<double> diff = this.
-                this.varianceMDF = this.varianceMDF + ( 
+                this.meanMDF = this.meanMDF + item.ValuesMDF;
             }
+
+            this.meanMDF = this.meanMDF / allsamples.Count;
+        }
+
+        public void CountVarianceMDF(List<Vector> allSamples)
+        {
+            this.varianceMDF = ILMath.array<double>(0.0, allSamples[0].ValuesMDF.Length);
+
+            foreach (var item in allSamples)
+            {
+                ILArray<double> diff = ILMath.array<double>(item.ValuesMDF.ToArray());
+                diff = diff - this.meanMDF;
+                diff = diff * diff;
+                this.varianceMDF = this.varianceMDF + diff;
+            }
+
+            this.varianceMDF = this.varianceMDF / (allSamples.Count - 1);
         }
 
         /// <summary>

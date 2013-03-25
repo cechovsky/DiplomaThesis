@@ -13,8 +13,9 @@ namespace IHDRLib
     public class ClusterX : Cluster
     {
         private Node child;
-        //protected ILArray<double> covarianceMatrix;
         protected ILArray<double> covarianceMatrixMDF;
+        private ILArray<double> varianceMDF;
+
         private double label;
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -119,7 +120,7 @@ namespace IHDRLib
 
         public void CountMDFOfItems(ILArray<double> gSOManifold, ILArray<double> C)
         {
-            foreach (var vector in items)
+            foreach (var vector in this.items)
             {
                 vector.CountMDF(gSOManifold, C);
             }
@@ -132,46 +133,6 @@ namespace IHDRLib
             if (result == 0) return 0;
             return Math.Sqrt(result);
         }
-
-//        public void UpdateCovarianceMatrix(Vector vector)
-//        {
-
-//#warning this must be remage according to F. Amnesic average with parameters t1, t2
-
-//            // newCov = t-1/t * cov(t-1) + 1/t * (newVector - mean(t)) * (newVector - mean(t))T
-//            // oldPart = t-1/t * cov(t-1)
-//            // incrementalPart = 1/t * (newVector - mean(t)) * (newVector - mean(t))T
-//            // vector1 = (newVector - mean(t))
-//            // vector2 = (newVector - mean(t))T
-//            // newCovPart = vector1 * vector2
-
-//            //newVector - mean(t)
-//            Vector v1 = new Vector(vector.ToArray());
-//            v1.Subtract(this.mean);
-
-//            ILArray<double> vector1 = v1.ToArray();
-//            ILArray<double> vector2 = v1.ToArray();
-//            // transpone
-//            vector2 = vector2.T;
-
-//#warning need to edit update covariance matrix
-//            double t = (double)this.items.Count;
-//            double fragment1 = (t - 2) / (t - 1);
-//            double fragment2 = t / (Math.Pow((t - 1), 2));
-
-//            //DenseMatrix oldPart = fragment1 * this.covarianceMatrix;
-//            //DenseMatrix newCovPart = vector1 * vector2;
-
-//            try
-//            {
-//                //DenseMatrix incrementalPart = newCovPart * fragment2;
-//                this.covarianceMatrix = (this.covarianceMatrix * fragment1) + (ILMath.multiply(vector1, vector2) * fragment2);
-//            }
-//            catch (Exception ee)
-//            {
-//                throw new InvalidCastException();
-//            }
-//        }
 
         public void UpdateCovarianceMatrixMDF_NonParametric(ILArray<double> vector)
         {
@@ -466,7 +427,6 @@ namespace IHDRLib
                 this.covarianceMatrixMDF = this.GetVarianceMatrix_MDF();
             }
 
-#warning implement dimension of MDF to property
             int q = this.meanMDF.Length;
 
             // get matrix W
@@ -523,10 +483,17 @@ namespace IHDRLib
             return result;
         }
 
+        //public ILArray<double> GetVarianceMatrix_MDF()
+        //{
+        //    ILArray<double> result = ILMath.eye(this.meanMDF.Length, this.meanMDF.Length);
+        //    result = Params.digitizationNoise * result;
+
+        //    return result;
+        //}
+
         public ILArray<double> GetVarianceMatrix_MDF()
         {
-            ILArray<double> result = ILMath.eye(this.meanMDF.Length, this.meanMDF.Length);
-            result = Params.digitizationNoise * result;
+            ILArray<double> result = ILMath.diag<double>(this.parent.VarianceMDF.ToArray());
 
             return result;
         }
