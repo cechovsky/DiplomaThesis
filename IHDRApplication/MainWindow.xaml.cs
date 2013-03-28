@@ -18,6 +18,7 @@ using IHDRLib;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Diagnostics;
 
 namespace IHDRApplication
 {
@@ -41,7 +42,7 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-images.bin",
                     @"D:\Dropbox\DP\data\test-labels.bin"
                     );
-            parser.ParseData(10000);
+            parser.ParseData(1000);
             parser.ParseDataTest(2000);
 
             ihdr = new IHDR();
@@ -74,11 +75,19 @@ namespace IHDRApplication
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             ihdr.CountYOfSamplesLabelsMeans();
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             ihdr.BuildTree();
 
-            ihdr.EvaluateClustersLabels();
+            sw.Stop();
             
-            ihdr.ExecuteWideTesting();
+             MessageBox.Show(string.Format("M:{0}, S:{1}", sw.Elapsed.Minutes, sw.Elapsed.Seconds));
+
+            //ihdr.EvaluateClustersLabels();
+            
+            //ihdr.ExecuteWideTesting();
 
             ihdr.ExecuteTestingByY();
         }

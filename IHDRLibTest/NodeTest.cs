@@ -91,5 +91,62 @@ namespace IHDRLibTest
 
             ILArray<double> array = node.GetManifold(scatterVectors);
         }
+
+        [TestMethod]
+        public void CountC_CountCCorrect()
+        {
+            Node node = new Node(0, 0);
+            Params.inputDataDimension = 3;
+            node.CountOfSamples = 6;
+
+            // cluster 1
+            ClusterX newClusterX1 = new ClusterX(node);
+            newClusterX1.Items.Add(new Vector(0, 0));
+            newClusterX1.Items.Add(new Vector(0, 0));
+            newClusterX1.Items.Add(new Vector(0, 0));
+            newClusterX1.Mean = new Vector(new double[] { 1, 2, 3 });
+            node.ClustersX.Add(newClusterX1);
+
+            ClusterPair clusterPair1 = new ClusterPair();
+            clusterPair1.X = newClusterX1;
+
+            newClusterX1.SetClusterPair(clusterPair1);
+
+            node.ClusterPairs.Add(clusterPair1);
+
+            // cluster 2
+            ClusterX newClusterX2 = new ClusterX(node);
+            newClusterX2.Items.Add(new Vector(0, 0));
+            newClusterX2.Items.Add(new Vector(0, 0));
+            newClusterX2.Mean = new Vector(new double[] { 3, 3, 4 });
+            node.ClustersX.Add(newClusterX2);
+
+            ClusterPair clusterPair2 = new ClusterPair();
+            clusterPair2.X = newClusterX2;
+
+            newClusterX2.SetClusterPair(clusterPair2);
+
+            node.ClusterPairs.Add(clusterPair2);
+
+            // cluster 3
+            ClusterX newClusterX3 = new ClusterX(node);
+            newClusterX3.Items.Add(new Vector(0, 0));
+            newClusterX3.Mean = new Vector(new double[] { 9, 6, 7 });
+            node.ClustersX.Add(newClusterX3);
+
+            ClusterPair clusterPair3 = new ClusterPair();
+            clusterPair3.X = newClusterX3;
+
+            newClusterX3.SetClusterPair(clusterPair3);
+
+            node.ClusterPairs.Add(clusterPair3);
+
+            Vector mean = node.GetCFromClustersX();
+
+            Assert.AreEqual(mean.Values[0], 3);
+            Assert.AreEqual(mean.Values[1], 3);
+            Assert.AreEqual(mean.Values[2], 4);
+            
+        }
     }
 }

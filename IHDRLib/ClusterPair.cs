@@ -101,6 +101,10 @@ namespace IHDRLib
             {
                 return clusterX;
             }
+            set
+            {
+                this.clusterX = value;
+            }
         }
 
         public ClusterY Y
@@ -108,6 +112,10 @@ namespace IHDRLib
             get
             {
                 return clusterY;
+            }
+            set
+            {
+                this.clusterY = value;
             }
         }
 

@@ -435,7 +435,7 @@ namespace IHDRLib
 
             if (Double.IsNaN(WInverse.ToArray()[0])) throw new InvalidDataException("inverse of covariance matrix MDF is NaN");
 
-            ILArray<double> vector1 = this.meanMDF - mdfVector;
+            ILArray<double> vector1 = mdfVector - this.meanMDF;
             ILArray<double> tmpArray = ILMath.multiply(WInverse, vector1);
 
             firstPart = 0.5 * ILMath.multiply(vector1.T, tmpArray).ToArray()[0];
@@ -621,7 +621,6 @@ namespace IHDRLib
                     newLabel = item;
                 }
             }
-            Console.WriteLine("Label : " + newLabel.ToString());
             this.label = newLabel;
         }
     }

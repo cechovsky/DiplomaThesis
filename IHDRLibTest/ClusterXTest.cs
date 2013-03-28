@@ -25,6 +25,7 @@ namespace IHDRLibTest
         public void UpdateMean_UpdatingIsCorrect()
         {
             Params.inputDataDimension = 3;
+            Params.t1 = 10;
 
             ClusterX clusterX = new ClusterX(new Sample(new double[] { 1.0, 2.0, 3.0 }, 1.0, 0), null);
 
@@ -44,6 +45,7 @@ namespace IHDRLibTest
         public void CountCovarianceMatrix_CovarianceMatrixIsCorrect()
         {
 #warning not complet test, update of covariance matrix must be reimplemented
+
             Params.inputDataDimension = 3;
             Params.outputDataDimension = 3;
 

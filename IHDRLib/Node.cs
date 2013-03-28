@@ -127,6 +127,10 @@ namespace IHDRLib
             {
                 return this.countOfSamples;
             }
+            set
+            {
+                this.countOfSamples = value;
+            }
         }
 
         public Node Parent
@@ -1350,8 +1354,22 @@ namespace IHDRLib
 
         public Vector GetCFromClustersX()
         {
-            var means = clustersX.Select(cl => cl.Mean).ToList<Vector>();
-            return Vector.GetMeanOfVectors(means);
+            //old version
+            //var means = clustersX.Select(cl => cl.Mean).ToList<Vector>();
+            //return Vector.GetMeanOfVectors(means);
+
+            List<Tuple<Vector, int>> means = clustersX.Select(cl => new Tuple<Vector, int>(cl.Mean, cl.Items.Count)).ToList();
+
+            ILArray<double> result =ILMath.zeros(Params.inputDataDimension);
+
+            foreach (var item in means)
+            {
+                result = result + (item.Item1.Values * item.Item2);
+            }
+
+            result = result / this.countOfSamples;
+
+            return new Vector(result.ToArray());
         }
 
         public List<Vector> GetScatterVectors()
