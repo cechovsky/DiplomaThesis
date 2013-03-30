@@ -483,14 +483,6 @@ namespace IHDRLib
             return result;
         }
 
-        //public ILArray<double> GetVarianceMatrix_MDF()
-        //{
-        //    ILArray<double> result = ILMath.eye(this.meanMDF.Length, this.meanMDF.Length);
-        //    result = Params.digitizationNoise * result;
-
-        //    return result;
-        //}
-
         public ILArray<double> GetVarianceMatrix_MDF()
         {
             ILArray<double> result = ILMath.diag<double>(this.parent.VarianceMDF.ToArray());

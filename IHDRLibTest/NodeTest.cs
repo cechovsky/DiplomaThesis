@@ -23,24 +23,24 @@ namespace IHDRLibTest
             node.ClustersX.Add(new ClusterX(s1, null));
         }
 
-        [TestMethod]
-        public void GetCFromClustersX_GetCorrectC()
-        {
-            Node node = new Node(0.0, 0.0);
-            Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
-            Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
-            Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
+        //[TestMethod]
+        //public void GetCFromClustersX_GetCorrectC()
+        //{
+        //    Node node = new Node(0.0, 0.0);
+        //    Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
+        //    Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
+        //    Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
 
-            node.ClustersX.Add(new ClusterX(s1, null));
-            node.ClustersX.Add(new ClusterX(s2, null));
-            node.ClustersX.Add(new ClusterX(s3, null));
+        //    node.ClustersX.Add(new ClusterX(s1, null));
+        //    node.ClustersX.Add(new ClusterX(s2, null));
+        //    node.ClustersX.Add(new ClusterX(s3, null));
 
-            Vector C = node.GetCFromClustersX();
+        //    Vector C = node.GetCFromClustersX();
 
-            Assert.AreEqual(C.Values[0], 2.0);
-            Assert.AreEqual(C.Values[1], 3.0);
-            Assert.AreEqual(C.Values[2], 4.0);
-        }
+        //    Assert.AreEqual(C.Values[0], 2.0);
+        //    Assert.AreEqual(C.Values[1], 3.0);
+        //    Assert.AreEqual(C.Values[2], 4.0);
+        //}
 
         [TestMethod]
         public void GetScatterVectors_GetCorrectVectors()
@@ -55,10 +55,6 @@ namespace IHDRLibTest
             node.ClustersX.Add(new ClusterX(s3, null));
 
             List<Vector> scatterVectors = node.GetScatterVectors();
-
-            //Assert.AreEqual(scatterVectors[0].Values[0], -1);
-            //Assert.AreEqual(scatterVectors[0].Values[1], -1);
-            //Assert.AreEqual(scatterVectors[0].Values[2], -1);
 
             Assert.AreEqual(scatterVectors[0].Values[0], 0);
             Assert.AreEqual(scatterVectors[0].Values[1], 0);

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace IHDRLib
 {
@@ -313,18 +314,10 @@ namespace IHDRLib
                 {
                     this.UpdateClusters(sample);
                 }
+
                 // TODO update subspace of most discrimanting subspace
 
-                this.CountC();
-                this.CountGSOManifold();
                 this.CountMeanAndVarianceMDF();
-                //this.CountMDFOfVectors();
-                //this.CountMDFMeans();
-                //this.CountCovarianceMatricesMDF();
-                //this.CountCovarianceMatrixMeanMDF();
-                // TODO compute probabilities described in Subsection IV-C. ( it will be implemented latest )
-                
-                // count covariance matrix mean Mdf
                 this.CountCovarianceMatricesMeanMDF();
 
                 double distance = 0;
@@ -531,31 +524,6 @@ namespace IHDRLib
             return clusterPairs.GroupBy(item => item.CorrespondChild.Id).Select(item => item.First().CorrespondChild).ToList();
         }
 
-        //private ClusterPair GetNearestClusterPairXPBySDNLL(Sample sample, out double distance, out int index)
-        //{
-        //    ILArray<double> vector = sample.X.ToArray();
-
-        //    distance = double.MaxValue;
-        //    ClusterPair closestPair = clusterPairs[0];
-        //    int i = 0;
-        //    index = -1;
-        //    foreach (ClusterPair item in clusterPairs)
-        //    {
-        //        double newDistance = item.X.GetSDNLL(vector);
-        //        if (newDistance < distance)
-        //        {
-        //            distance = newDistance;
-        //            closestPair = item;
-        //            index = i;
-        //        }
-        //        i++;
-        //    }
-
-        //    //Console.WriteLine("MDF" + sample.Id.ToString() + " : " + index.ToString());
-
-        //    return closestPair;
-        //}
-
         private void UpdateClusterPairsX(Sample sample)
         {
             // update cluster pairs
@@ -635,6 +603,9 @@ namespace IHDRLib
 
         private void KMeansClustering()
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             Random random = new Random();
             List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
 
@@ -663,18 +634,32 @@ namespace IHDRLib
             bool allAssigmentsEquals = false;
             while (!allAssigmentsEquals)
             {
+                //Parallel.ForEach(this.samples, item => {
+                //    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
+                //    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
+                //});
+
                 foreach (var item in this.samples)
                 {
                     item.ClusterAssignemntOld = item.ClusterAssignemntNew;
                     item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
                 }
+
                 allAssigmentsEquals = this.AllAssigmentsEquals(this.samples);
 
+                //Parallel.ForEach(centers, item =>
+                //{
+                //    this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
+                //});
+
                 foreach (var item in centers)
-	            {
+                {
                     this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
-	            }
+                }
             }
+
+            sw.Stop();
+            Console.WriteLine(sw.ElapsedMilliseconds.ToString());
 
             // create new clusters
             this.clusterPairs = new List<ClusterPair>();
@@ -693,6 +678,8 @@ namespace IHDRLib
                     newClPair.AddItem(samplesOfCenter[j]);
                 }                        
             }
+
+
         }
 
         // for k-means
