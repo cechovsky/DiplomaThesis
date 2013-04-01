@@ -65,7 +65,7 @@ namespace IHDRApplication
                    @"D:\Dropbox\DP\data\test-images.bin",
                    @"D:\Dropbox\DP\data\test-labels.bin"
                    );
-            parser.ParseData(10000);
+            parser.ParseData(3000);
             parser.ParseDataTest(2000);
 
             parser.SaveSamplesToBmp(@"D:\Samples\Train");
@@ -74,21 +74,12 @@ namespace IHDRApplication
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            ihdr.CountYOfSamplesLabelsMeans();
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            //ihdr.CountYOfSamplesLabelsMeans();
 
             ihdr.BuildTree();
 
-            sw.Stop();
-            
-             MessageBox.Show(string.Format("M:{0}, S:{1}", sw.Elapsed.Minutes, sw.Elapsed.Seconds));
-
             //ihdr.EvaluateClustersLabels();
             
-            //ihdr.ExecuteWideTesting();
-
             ihdr.ExecuteTestingByY();
         }
 

@@ -313,12 +313,8 @@ namespace IHDRLib
                 if (this.isPlastic)
                 {
                     this.UpdateClusters(sample);
+                    
                 }
-
-                // TODO update subspace of most discrimanting subspace
-
-                this.CountMeanAndVarianceMDF();
-                this.CountCovarianceMatricesMeanMDF();
 
                 double distance = 0;
                 int index = 0;
@@ -587,6 +583,12 @@ namespace IHDRLib
                     this.EvaluateSwap();
                     this.Swap();
                 }
+                if (Params.SwapType == 4)
+                {
+                    this.KMeansClusteringY();
+                    this.EvaluateSwap();
+                    this.Swap();
+                }
 
                 // count most discriminating features space etc.
                 this.CountC();
@@ -603,9 +605,6 @@ namespace IHDRLib
 
         private void KMeansClustering()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
             Random random = new Random();
             List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
 
@@ -658,9 +657,6 @@ namespace IHDRLib
                 }
             }
 
-            sw.Stop();
-            Console.WriteLine(sw.ElapsedMilliseconds.ToString());
-
             // create new clusters
             this.clusterPairs = new List<ClusterPair>();
             this.clustersX = new List<ClusterX>();
@@ -678,6 +674,79 @@ namespace IHDRLib
                     newClPair.AddItem(samplesOfCenter[j]);
                 }                        
             }
+        }
+
+        private void KMeansClusteringY()
+        {
+            Random random = new Random();
+            List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.bly).ToList();
+
+            List<Sample> centers = new List<Sample>();
+            foreach (var item in centersCandidates)
+            {
+                centers.Add(new Sample(item.X.Values.ToArray(), item.Y.Values.ToArray(), item.Label, item.Id));
+            }
+
+            // set centers id 
+            int i = 1;
+            foreach (var item in centers)
+            {
+                item.CenterId = i;
+                i++;
+            }
+
+            //set assigment to 0
+            foreach (var item in this.samples)
+            {
+                item.ClusterAssignemntNew = 0;
+                item.ClusterAssignemntOld = 0;
+            }
+
+            // do k-means
+            bool allAssigmentsEquals = false;
+            while (!allAssigmentsEquals)
+            {
+                //Parallel.ForEach(this.samples, item => {
+                //    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
+                //    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
+                //});
+
+                foreach (var item in this.samples)
+                {
+                    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
+                    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenterY(centers, item);
+                }
+
+                allAssigmentsEquals = this.AllAssigmentsEquals(this.samples);
+
+                //Parallel.ForEach(centers, item =>
+                //{
+                //    this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
+                //});
+
+                foreach (var item in centers)
+                {
+                    this.UpdateCenterY(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
+                }
+            }
+
+            // create new clusters
+            this.clusterPairs = new List<ClusterPair>();
+            this.clustersX = new List<ClusterX>();
+            this.clustersY = new List<ClusterY>();
+
+            foreach (var item in centers)
+            {
+                List<Sample> samplesOfCenter = this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                this.CreateNewClusters(samplesOfCenter[0], this);
+                ClusterPair newClPair = this.ClusterPairs[this.ClusterPairs.Count - 1];
+
+                for (int j = 1; j < samplesOfCenter.Count; j++)
+                {
+                    newClPair.AddItem(samplesOfCenter[j]);
+                }
+            }
 
 
         }
@@ -688,6 +757,12 @@ namespace IHDRLib
             center.X = Vector.GetMeanOfVectors(listOfSamples.Select(sample => sample.X).ToList());
         }
 
+        // for k-means
+        private void UpdateCenterY(Sample center, List<Sample> listOfSamples)
+        {
+            center.Y = Vector.GetMeanOfVectors(listOfSamples.Select(sample => sample.Y).ToList());
+        }
+
         private int GetCenterIdOfClosestCenter(List<Sample> centers, Sample sample)
         {
             int returnId = 0;
@@ -696,6 +771,24 @@ namespace IHDRLib
             foreach (var item in centers)
             {
                 double distance = item.X.GetDistance(sample.X);
+                if (distance < minDistance)
+                {
+                    returnId = item.CenterId;
+                    minDistance = distance;
+                }
+            }
+
+            return returnId;
+        }
+
+        private int GetCenterIdOfClosestCenterY(List<Sample> centers, Sample sample)
+        {
+            int returnId = 0;
+            double minDistance = Double.MaxValue;
+
+            foreach (var item in centers)
+            {
+                double distance = item.Y.GetDistance(sample.Y);
                 if (distance < minDistance)
                 {
                     returnId = item.CenterId;
@@ -778,18 +871,25 @@ namespace IHDRLib
                 int countOfClusters = orderedClusterPairs.Count;
                 int countOfClustersToUpdate = (int)((orderedClusterPairs.Count - 1 ) * Params.p) + 1;
 
+
+                //Update a certain portion p (e.g., p = 0:2, i.e., pulling top 20%) of nearest clusters using the amnesic average
+                //explained in Section III-F and return the index j
                 for (int i = 0; i < countOfClustersToUpdate; i++)
                 {
                     //Console.WriteLine("Y");
                     orderedClusterPairs[i].Item2.Y.AddItem(sample.Y, sample.Label);
                 }
 
+                Vector newItem = new Vector(sample.X.Values.ToArray());
+                newItem.Label = sample.Label;
+                newItem.CountMDF(this.gSOManifold, this.c);
 
-                //Update a certain portion p (e.g., p = 0:2, i.e., pulling top 20%) of nearest clusters using the amnesic average
-                //explained in Section III-F and return the index j
                 // add sample to clusters, update statistics of clusters
-                orderedClusterPairs[0].Item2.X.AddItemNonLeaf(sample.X, sample.Label, this);
+                orderedClusterPairs[0].Item2.X.AddItemNonLeaf(newItem);
                 orderedClusterPairs[0].Item2.Samples.Add(sample);
+
+                // update meanMDF and varianceMDF
+                this.UpdateMeanAndVarianceMdf(newItem);
             }
         }
 
@@ -1058,6 +1158,33 @@ namespace IHDRLib
             }
 
             this.varianceMDF = this.varianceMDF / (allSamples.Count - 1);
+        }
+
+        public void UpdateMeanAndVarianceMdf(Vector newItem)
+        {
+            if (this.countOfSamples < 2)
+            {
+                throw new InvalidOperationException("Small count of samples");
+            }
+
+            ILArray<double> oldsn = (this.countOfSamples - 2) * this.VarianceMDF;
+            ILArray<double> oldmean = this.meanMDF.ToArray();
+            ILArray<double> x = newItem.ValuesMDF.ToArray();
+
+            this.UpdateMeanMdf(newItem);
+
+            ILArray<double> newMean = this.meanMDF.ToArray();
+
+            ILArray<double> newsn = oldsn + ((x - oldmean) * (x - newMean));
+
+            this.varianceMDF = newsn / (this.countOfSamples - 1);
+
+        }
+
+        public void UpdateMeanMdf(Vector newItem)
+        {
+            ILArray<double> newsample = newItem.ValuesMDF.ToArray();
+            this.meanMDF = (this.meanMDF * ((double)(this.countOfSamples - 1) / (double)this.countOfSamples)) + ((1 / (double)this.countOfSamples) * newsample);
         }
 
         /// <summary>
@@ -1349,12 +1476,14 @@ namespace IHDRLib
 
             ILArray<double> result =ILMath.zeros(Params.inputDataDimension);
 
+            int count = 0;
             foreach (var item in means)
             {
                 result = result + (item.Item1.Values * item.Item2);
+                count += item.Item2;
             }
 
-            result = result / this.countOfSamples;
+            result = result / count;
 
             return new Vector(result.ToArray());
         }

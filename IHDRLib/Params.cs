@@ -22,6 +22,9 @@ namespace IHDRLib
         // when is true, we count Y like mean of mean of samples of same label
         public static bool useClassMeanLikeY { get; set; }
 
+        // when is true, we count Y like mean of mean of samples of same label
+        public static bool useClassMeanOfAdded { get; set; }
+
         // is true when output of samples is defined
         public static bool outputIsDefined { get; set; }
 

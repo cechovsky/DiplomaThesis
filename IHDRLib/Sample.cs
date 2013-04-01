@@ -69,6 +69,10 @@ namespace IHDRLib
             {
                 return y;
             }
+            set
+            {
+                this.y = value;
+            }
         }
 
         public int Id

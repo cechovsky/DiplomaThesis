@@ -317,10 +317,8 @@ namespace IHDRLib
             //this.UpdateCovarianceMatrix(vector);
         }
 
-        public void AddItemNonLeaf(Vector vector, double label, Node node)
+        public void AddItemNonLeaf(Vector newItem)
         {
-            Vector newItem = new Vector(vector.Values.ToArray());
-            newItem.Label = label;
             newItem.Id = this.items.Count + 1;
 
             this.items.Add(newItem);
@@ -330,7 +328,6 @@ namespace IHDRLib
 
             //node.CountGSOManifold();
 
-            newItem.CountMDF(node.GSOManifold, node.C);
             this.UpdateMeanAndCovMatrixMDF(newItem.ValuesMDF.ToArray());   
         }
 

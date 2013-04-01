@@ -23,28 +23,30 @@ namespace IHDRLibTest
             node.ClustersX.Add(new ClusterX(s1, null));
         }
 
-        //[TestMethod]
-        //public void GetCFromClustersX_GetCorrectC()
-        //{
-        //    Node node = new Node(0.0, 0.0);
-        //    Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
-        //    Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
-        //    Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
+        [TestMethod]
+        public void GetCFromClustersX_GetCorrectC()
+        {
+            Params.inputDataDimension = 3;
+            Node node = new Node(0.0, 0.0);
+            Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
+            Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
+            Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
 
-        //    node.ClustersX.Add(new ClusterX(s1, null));
-        //    node.ClustersX.Add(new ClusterX(s2, null));
-        //    node.ClustersX.Add(new ClusterX(s3, null));
+            node.ClustersX.Add(new ClusterX(s1, null));
+            node.ClustersX.Add(new ClusterX(s2, null));
+            node.ClustersX.Add(new ClusterX(s3, null));
 
-        //    Vector C = node.GetCFromClustersX();
+            Vector C = node.GetCFromClustersX();
 
-        //    Assert.AreEqual(C.Values[0], 2.0);
-        //    Assert.AreEqual(C.Values[1], 3.0);
-        //    Assert.AreEqual(C.Values[2], 4.0);
-        //}
+            Assert.AreEqual(C.Values[0], 2.0);
+            Assert.AreEqual(C.Values[1], 3.0);
+            Assert.AreEqual(C.Values[2], 4.0);
+        }
 
         [TestMethod]
         public void GetScatterVectors_GetCorrectVectors()
         {
+            Params.inputDataDimension = 3;
             Node node = new Node(0.0, 0.0);
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
@@ -63,7 +65,6 @@ namespace IHDRLibTest
             Assert.AreEqual(scatterVectors[1].Values[0], 1);
             Assert.AreEqual(scatterVectors[1].Values[1], 1);
             Assert.AreEqual(scatterVectors[1].Values[2], 1);
-
         }
 
         [TestMethod]
@@ -142,6 +143,41 @@ namespace IHDRLibTest
             Assert.AreEqual(mean.Values[0], 3);
             Assert.AreEqual(mean.Values[1], 3);
             Assert.AreEqual(mean.Values[2], 4);
+            
+        }
+
+        [TestMethod]
+        public void CountMeanOfNode_CountCorrectMean()
+        {
+            Params.inputDataDimension = 3;
+            Node node = new Node(1, 1);
+            // cluster 1
+            ClusterX newClusterX1 = new ClusterX(node);
+            newClusterX1.Items.Add(new Vector(new double[] { 1, 2, 3 }, new double[] { 1, -2, 3 }));
+            newClusterX1.Items.Add(new Vector(new double[] { 2, 3, 4 }, new double[] { 2, 3, 4 }));
+            newClusterX1.Items.Add(new Vector(new double[] { 3, 4, 5 }, new double[] { 3, 4, 5 }));
+            newClusterX1.Mean = new Vector(new double[] { 1, 2, 3 });
+            node.ClustersX.Add(newClusterX1);
+
+            ClusterPair clusterPair1 = new ClusterPair();
+            clusterPair1.X = newClusterX1;
+
+            newClusterX1.SetClusterPair(clusterPair1);
+
+            node.ClusterPairs.Add(clusterPair1);
+
+            node.CountMeanAndVarianceMDF();
+            node.CountOfSamples = 4;
+
+            node.UpdateMeanAndVarianceMdf(new Vector(new double[] { 4, 5, 6 }, new double[] { 4, 5, 6 }));
+            
+            node.CountOfSamples = 5;
+
+            node.UpdateMeanAndVarianceMdf(new Vector(new double[] { 5, 6, -7 }, new double[] { 5, 6, -7 }));
+            Assert.AreEqual(node.VarianceMDF[0], 2.5);
+            Assert.AreEqual(node.VarianceMDF[1], 9.7);
+            Assert.AreEqual(node.VarianceMDF[2], 27.7);
+
             
         }
     }

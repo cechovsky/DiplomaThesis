@@ -15,6 +15,7 @@ namespace IHDRLib
         private Samples testingSamples;
         private Tree tree;
         private Dictionary<double, Vector> labelOutputVectors;
+        Dictionary<double, MappedValue> outputs = new Dictionary<double, MappedValue>();
 
         #region Properties
 
@@ -40,7 +41,7 @@ namespace IHDRLib
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
             Params.q = 5;
-            Params.bs = 20;
+            Params.bs = 3;
             Params.outputIsDefined = false;
             Params.deltaX = 800.0;
             Params.deltaY = 800.0;
@@ -48,8 +49,8 @@ namespace IHDRLib
             Params.deltaXReduction = 150.0;
             Params.deltaXMin = 200;
             Params.deltaYMin = 200;
-            Params.blx = 15;
-            Params.bly = 15;
+            Params.blx = 10;
+            Params.bly = 10;
             Params.p = 0.2;
             Params.l = 3;
             Params.confidenceValue = 0.1;
@@ -69,7 +70,7 @@ namespace IHDRLib
             Params.WidthOfTesting = 3;
 
             // swap type
-            Params.SwapType = 1;
+            Params.SwapType = 4;
         }
 
         private void SetSettings2()
@@ -78,7 +79,7 @@ namespace IHDRLib
             Params.inputDataDimension = 3;
             Params.outputDataDimension = 2;
             Params.q = 2;
-            Params.bs = 10;
+            Params.bs = 3;
             Params.outputIsDefined = false;
             Params.deltaX = 60.0;
             Params.deltaY = 60.0;
@@ -107,7 +108,7 @@ namespace IHDRLib
             Params.WidthOfTesting = 3;
 
             // swap type
-            Params.SwapType = 3;
+            Params.SwapType = 4;
         }
 
         public void AddSample(double[] sample, double label)
@@ -164,14 +165,35 @@ namespace IHDRLib
 
             if (samples != null && samples.Items.Count > 100)
             {
+
                 int i = 0;
                 foreach (Sample sample in samples.Items)
                 {
                     Console.WriteLine("Update tree Sample " + i.ToString());
+                    sample.SetY(this.GetOutputFromKnownSamples(sample));
                     this.tree.UpdateTree(sample);
                     i++;
                 }
             }
+        }
+
+        public Vector GetOutputFromKnownSamples(Sample sample)
+        {
+            if (!this.outputs.ContainsKey(sample.Label))
+            {
+                this.outputs[sample.Label] = new MappedValue(){ Mean = new Vector(sample.X.Values.ToArray()), Count = 1};
+            }
+            else
+            {
+                this.outputs[sample.Label].Count++;
+                int count = this.outputs[sample.Label].Count;
+                this.outputs[sample.Label].Mean.Multiply((count-1)/count);
+                Vector addPart = new Vector(sample.X.Values.ToArray());
+                addPart.Multiply(1 / count);
+                this.outputs[sample.Label].Mean.Add(addPart);
+            }
+
+            return new Vector(this.outputs[sample.Label].Mean.Values.ToArray());
         }
 
         public void SaveTreeToFileHierarchy()
@@ -618,6 +640,12 @@ namespace IHDRLib
                     g.FillEllipse(b, x, y, size, size);
                 }
             }
+        }
+
+        internal class MappedValue
+        {
+            public Vector Mean { get; set; }
+            public int Count { get; set; }
         }
     
     }
