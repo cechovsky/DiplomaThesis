@@ -42,7 +42,8 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-images.bin",
                     @"D:\Dropbox\DP\data\test-labels.bin"
                     );
-            parser.ParseData(1000);
+
+            parser.ParseData(50000);
             parser.ParseDataTest(2000);
 
             ihdr = new IHDR();
@@ -65,6 +66,7 @@ namespace IHDRApplication
                    @"D:\Dropbox\DP\data\test-images.bin",
                    @"D:\Dropbox\DP\data\test-labels.bin"
                    );
+
             parser.ParseData(3000);
             parser.ParseDataTest(2000);
 
@@ -74,13 +76,13 @@ namespace IHDRApplication
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            //ihdr.CountYOfSamplesLabelsMeans();
+            // ihdr.CountYOfSamplesLabelsMeans();
 
             ihdr.BuildTree();
-
-            //ihdr.EvaluateClustersLabels();
+            Console.WriteLine(ihdr.ResultMessage);
+            // ihdr.EvaluateClustersLabels();
             
-            ihdr.ExecuteTestingByY();
+            // ihdr.ExecuteTestingByY();
         }
 
         private void Button_Click_4(object sender, RoutedEventArgs e)

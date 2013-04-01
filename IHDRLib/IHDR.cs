@@ -16,6 +16,7 @@ namespace IHDRLib
         private Tree tree;
         private Dictionary<double, Vector> labelOutputVectors;
         Dictionary<double, MappedValue> outputs = new Dictionary<double, MappedValue>();
+        StringBuilder sb = new StringBuilder();
 
         #region Properties
 
@@ -35,62 +36,32 @@ namespace IHDRLib
             this.labelOutputVectors = new Dictionary<double, Vector>();
         }
 
+        public string ResultMessage
+        {
+            get
+            {
+                return sb.ToString();
+            }
+        }
+
         private void SetSettings()
         {
             Params.useClassMeanLikeY = false;
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
-            Params.q = 5;
-            Params.bs = 3;
+            Params.q = 7;
+            Params.bs = 5;
             Params.outputIsDefined = false;
-            Params.deltaX = 800.0;
-            Params.deltaY = 800.0;
+            Params.deltaX = 1300.0;
+            Params.deltaY = 1300.0;
             Params.deltaXReduction = 150.0;
             Params.deltaXReduction = 150.0;
             Params.deltaXMin = 200;
             Params.deltaYMin = 200;
-            Params.blx = 10;
-            Params.bly = 10;
-            Params.p = 0.2;
-            Params.l = 3;
-            Params.confidenceValue = 0.1;
-            Params.digitizationNoise = 1;
-            Params.ContainsSingularCovarianceMatrixes = true;
-            Params.savePath = @"D:\IHDRTree\";
-            Params.SaveCovMatrices = false;
-            Params.SaveCovMatricesMDF = true;
-            Params.SaveMeans = false;
-            Params.SaveMeansMDF = true;
-            
-            //amnesic parameters
-            Params.t1 = 10.0;
-            Params.t2 = 500;
-            Params.c = 3.0;
-            Params.m = 100.0;
-            Params.WidthOfTesting = 3;
-
-            // swap type
-            Params.SwapType = 4;
-        }
-
-        private void SetSettings2()
-        {
-            Params.useClassMeanLikeY = false;
-            Params.inputDataDimension = 3;
-            Params.outputDataDimension = 2;
-            Params.q = 2;
-            Params.bs = 3;
-            Params.outputIsDefined = false;
-            Params.deltaX = 60.0;
-            Params.deltaY = 60.0;
-            Params.deltaXReduction = 10.0;
-            Params.deltaXReduction = 10.0;
-            Params.deltaXMin = 12;
-            Params.deltaYMin = 12;
-            Params.blx = 3;
-            Params.bly = 3;
+            Params.blx = 15;
+            Params.bly = 15;
             Params.p = 0.0;
-            Params.l = 3;
+            Params.l = 5;
             Params.confidenceValue = 0.05;
             Params.digitizationNoise = 1;
             Params.ContainsSingularCovarianceMatrixes = true;
@@ -101,14 +72,14 @@ namespace IHDRLib
             Params.SaveMeansMDF = true;
 
             //amnesic parameters
-            Params.t1 = 10.0;
-            Params.t2 = 50.0;
+            Params.t1 = 1000000;
+            Params.t2 = 500;
             Params.c = 3.0;
             Params.m = 100.0;
             Params.WidthOfTesting = 3;
 
             // swap type
-            Params.SwapType = 4;
+            Params.SwapType = 3;
         }
 
         public void AddSample(double[] sample, double label)
@@ -173,6 +144,44 @@ namespace IHDRLib
                     sample.SetY(this.GetOutputFromKnownSamples(sample));
                     this.tree.UpdateTree(sample);
                     i++;
+
+                    if (i == 10000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 15000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 20000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 25000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 30000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 35000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 40000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 45000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+                    if (i == 50000)
+                    {
+                        this.ExecuteTestingByY(i);
+                    }
+
                 }
             }
         }
@@ -391,7 +400,7 @@ namespace IHDRLib
             }
         }
 
-        public void ExecuteTestingByY()
+        public void ExecuteTestingByY(int count)
         {
             List<TestResult> testResults = new List<TestResult>();
             int i = 0;
@@ -421,8 +430,16 @@ namespace IHDRLib
                     different++;
                 }
             }
-            Console.WriteLine("The same: " + same.ToString());
-            Console.WriteLine("Different: " + different.ToString());
+
+            string theSame = string.Format("The same: {0}", same.ToString());
+            string differentStr = string.Format("Different: {0}", different.ToString());
+
+            Console.WriteLine(theSame);
+            Console.WriteLine(differentStr);
+
+            sb.AppendLine(string.Format("Count: {0}", count.ToString()));
+            sb.AppendLine(theSame);
+            sb.AppendLine(differentStr);
         }
 
         public void ExecuteWideTesting()
