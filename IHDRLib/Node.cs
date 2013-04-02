@@ -890,6 +890,9 @@ namespace IHDRLib
 
                 // update meanMDF and varianceMDF
                 this.UpdateMeanAndVarianceMdf(newItem);
+
+                //count cov matrix mean
+                this.CountCovarianceMatrixMeanMDF();
             }
         }
 
@@ -1542,10 +1545,10 @@ namespace IHDRLib
 
             foreach (var item in clustersX)
             {
-                mean = mean + item.CovMatrixMDF;
+                mean = mean + (item.CovMatrixMDF * item.Items.Count);
             }
 
-            mean = mean / this.clustersX.Count;
+            mean = mean / this.countOfSamples;
             this.covarianceMatrixMeanMDF = mean;
         }
 

@@ -133,6 +133,7 @@ namespace IHDRLib
             }
 
             //samples.SaveItemsY(@"D:\SamplesY\");
+            this.CountYMeanOfLabels();
 
             if (samples != null && samples.Items.Count > 100)
             {
@@ -196,9 +197,9 @@ namespace IHDRLib
             {
                 this.outputs[sample.Label].Count++;
                 int count = this.outputs[sample.Label].Count;
-                this.outputs[sample.Label].Mean.Multiply((count-1)/count);
+                this.outputs[sample.Label].Mean.Multiply(((double)count-1.0)/(double)count);
                 Vector addPart = new Vector(sample.X.Values.ToArray());
-                addPart.Multiply(1 / count);
+                addPart.Multiply(1 / (double)count);
                 this.outputs[sample.Label].Mean.Add(addPart);
             }
 
