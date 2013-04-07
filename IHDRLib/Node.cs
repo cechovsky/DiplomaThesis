@@ -276,7 +276,10 @@ namespace IHDRLib
             //Console.WriteLine("Add sample " + count.ToString());
 
             // add sample (because of counting of output)
-            this.samples.Add(sample);
+            if (Params.StoreSamples)
+            {
+                this.samples.Add(sample);
+            }
 
             // count y of sample, if it is null
             if (sample.Y == null)
@@ -579,13 +582,33 @@ namespace IHDRLib
                 }
                 if (Params.SwapType == 3)
                 {
-                    this.KMeansClustering();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (this.KMeansClustering())
+                        {
+                            break;
+                        }
+                        if (i == 9)
+                        {
+                            throw new InvalidOperationException("Not successfull keans clustering.");
+                        }
+                    }
                     this.EvaluateSwap();
                     this.Swap();
                 }
                 if (Params.SwapType == 4)
                 {
-                    this.KMeansClusteringY();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (this.KMeansClusteringY())
+                        {
+                            break;
+                        }
+                        if (i == 9)
+                        {
+                            throw new InvalidOperationException("Not successfull keans clustering.");
+                        }
+                    }
                     this.EvaluateSwap();
                     this.Swap();
                 }
@@ -600,11 +623,24 @@ namespace IHDRLib
                 //count cov matrix mean
                 this.CountCovarianceMatrixMeanMDF();
                 this.CountMeanAndVarianceMDF();
+
+                // dispose cluster items
+                if (!Params.StoreItems)
+                {
+                    this.DisposeClustersItems();
+                }
             }
         }
 
-        private void KMeansClustering()
+        private bool KMeansClustering()
         {
+            if (!Params.StoreSamples)
+            {
+                throw new InvalidOperationException("Unable to evaluate KMeans without stored samples");
+            }
+
+            int countOfKmeansTry = 0;
+
             Random random = new Random();
             List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
 
@@ -633,11 +669,6 @@ namespace IHDRLib
             bool allAssigmentsEquals = false;
             while (!allAssigmentsEquals)
             {
-                //Parallel.ForEach(this.samples, item => {
-                //    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
-                //    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
-                //});
-
                 foreach (var item in this.samples)
                 {
                     item.ClusterAssignemntOld = item.ClusterAssignemntNew;
@@ -646,14 +677,35 @@ namespace IHDRLib
 
                 allAssigmentsEquals = this.AllAssigmentsEquals(this.samples);
 
-                //Parallel.ForEach(centers, item =>
-                //{
-                //    this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
-                //});
-
                 foreach (var item in centers)
                 {
-                    this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
+                    var centerSamples =
+                        this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+                    
+                    if (centerSamples.Count == 0)
+                    {
+                        Console.WriteLine("Not successful kmeans clustering.");
+                        if (countOfKmeansTry > 10)
+                        {
+                            throw new InvalidOperationException("Unable to execute kmeans on this data.");
+                        }
+
+                        return false;
+                    }
+                    this.UpdateCenter(item, centerSamples);
+                }
+            }
+
+            // checking bad clusters created by kmeans, if some are bad, call this method next time
+            foreach (var item in centers)
+            {
+                List<Sample> samplesOfCenter = this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                if (samplesOfCenter.Count == 0)
+                {
+                    Console.WriteLine("Not successful kmeans clustering.");
+
+                    return false;
                 }
             }
 
@@ -674,10 +726,17 @@ namespace IHDRLib
                     newClPair.AddItem(samplesOfCenter[j]);
                 }                        
             }
+
+            return true;
         }
 
-        private void KMeansClusteringY()
+        private bool KMeansClusteringY()
         {
+            if (!Params.StoreSamples)
+            {
+                throw new InvalidOperationException("Unable to evaluate KMeans without stored samples");
+            }
+
             Random random = new Random();
             List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.bly).ToList();
 
@@ -706,11 +765,6 @@ namespace IHDRLib
             bool allAssigmentsEquals = false;
             while (!allAssigmentsEquals)
             {
-                //Parallel.ForEach(this.samples, item => {
-                //    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
-                //    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
-                //});
-
                 foreach (var item in this.samples)
                 {
                     item.ClusterAssignemntOld = item.ClusterAssignemntNew;
@@ -719,14 +773,32 @@ namespace IHDRLib
 
                 allAssigmentsEquals = this.AllAssigmentsEquals(this.samples);
 
-                //Parallel.ForEach(centers, item =>
-                //{
-                //    this.UpdateCenter(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
-                //});
-
-                foreach (var item in centers)
+                if (!allAssigmentsEquals)
                 {
-                    this.UpdateCenterY(item, this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList());
+                    foreach (var item in centers)
+                    {
+                        var samplesToUpdateCenter =
+                            this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+                       
+                        if (samplesToUpdateCenter.Count == 0)
+                        {
+                            Console.WriteLine("Not successful kmeans clustering.");
+                            return false;
+                        }
+                        
+                    }
+                }
+            }
+
+            // checking bad clusters created by kmeans, if some are bad, call this method next time
+            foreach (var item in centers)
+            {
+                List<Sample> samplesOfCenter = this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                if (samplesOfCenter.Count == 0)
+                {
+                    Console.WriteLine("Not successful kmeans clustering.");
+                    return false;
                 }
             }
 
@@ -748,7 +820,7 @@ namespace IHDRLib
                 }
             }
 
-
+            return true;
         }
 
         // for k-means
@@ -851,6 +923,11 @@ namespace IHDRLib
             // add new cluster pair (x,y), increment n
             if (this.clusterPairs.Count < Params.bly && orderedClusterPairs[0].Item1 > this.deltaY)
             {
+                if (!Params.StoreItems)
+                {
+                    throw new InvalidOperationException("Not possible create new cluster. No items available for MDF counting.");
+                }
+
                 this.CreateNewClusters(sample, this);
 
                 // update MDF space
@@ -886,8 +963,12 @@ namespace IHDRLib
 
                 // add sample to clusters, update statistics of clusters
                 orderedClusterPairs[0].Item2.X.AddItemNonLeaf(newItem);
-                orderedClusterPairs[0].Item2.Samples.Add(sample);
-
+                
+                if (Params.StoreSamples)
+                {
+                    orderedClusterPairs[0].Item2.Samples.Add(sample);
+                }
+               
                 // update meanMDF and varianceMDF
                 this.UpdateMeanAndVarianceMdf(newItem);
 
@@ -1003,15 +1084,15 @@ namespace IHDRLib
         {
             this.IsLeafNode = false;
 
-            foreach (var item in this.clusterPairs)
-            {
-                Console.WriteLine("Center " + item.CurrentCenter.ToString());
-            } 
+            //foreach (var item in this.clusterPairs)
+            //{
+            //    Console.WriteLine("Center " + item.CurrentCenter.ToString());
+            //} 
 
             for (int i = 0; i < Params.q; i++)
             {
                 // create node + set save path
-                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\", this.deltaX, this.deltaY);
+                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\", this.deltaX * Params.deltaMultiplyReduction, this.deltaY * Params.deltaMultiplyReduction);
                 List<ClusterPair> clPairs = this.clusterPairs.Where(cp => cp.CurrentCenter == i).ToList();
 
                 // set id of node
@@ -1047,6 +1128,11 @@ namespace IHDRLib
 
         private void Swap_Modified()
         {
+            if (!Params.StoreSamples)
+            {
+                throw new InvalidOperationException("Unable to swap modified because samples are not stored in memory.");
+            }
+
             this.IsLeafNode = false;
 
             for (int i = 0; i < Params.q; i++)
@@ -1098,9 +1184,21 @@ namespace IHDRLib
         /// </summary>
         public void CountMDFMeans()
         {
-            foreach (var item in clustersX)
+            foreach (var item in this.clustersX)
             {
                 item.CountMDFMean();
+            }
+        }
+
+        /// <summary>
+        /// The dispose clusters items.
+        /// </summary>
+        public void DisposeClustersItems()
+        {
+            foreach (var item in this.clusterPairs)
+            {
+                item.X.DisposeItems();
+                item.Y.DisposeItems();
             }
         }
 

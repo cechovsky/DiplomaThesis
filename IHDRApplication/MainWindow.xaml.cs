@@ -43,8 +43,8 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-labels.bin"
                     );
 
-            parser.ParseData(50000);
-            parser.ParseDataTest(2000);
+            parser.ParseData(60000);
+            parser.ParseDataTest(10000);
 
             ihdr = new IHDR();
             List<MNISTParserLib.Sample> mnistSamples = parser.Samples;
@@ -76,7 +76,7 @@ namespace IHDRApplication
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            // ihdr.CountYOfSamplesLabelsMeans();
+            //ihdr.CountYOfSamplesLabelsMeans();
 
             ihdr.BuildTree();
             Console.WriteLine(ihdr.ResultMessage);

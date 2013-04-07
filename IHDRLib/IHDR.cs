@@ -49,20 +49,21 @@ namespace IHDRLib
             Params.useClassMeanLikeY = false;
             Params.inputDataDimension = 784;
             Params.outputDataDimension = 784;
-            Params.q = 7;
-            Params.bs = 5;
+            Params.q = 20;
+            Params.bs = 3;
             Params.outputIsDefined = false;
-            Params.deltaX = 1300.0;
-            Params.deltaY = 1300.0;
-            Params.deltaXReduction = 150.0;
-            Params.deltaXReduction = 150.0;
-            Params.deltaXMin = 200;
-            Params.deltaYMin = 200;
-            Params.blx = 15;
-            Params.bly = 15;
+            Params.deltaX = 1200.0;
+            Params.deltaY = 1200.0;
+            Params.deltaMultiplyReduction = 0.5;
+            Params.deltaXReduction = 50.0;
+            Params.deltaXReduction = 50.0;
+            Params.deltaXMin = 60.0;
+            Params.deltaYMin = 60.0;
+            Params.blx = 20;
+            Params.bly = 20;
             Params.p = 0.0;
-            Params.l = 5;
-            Params.confidenceValue = 0.05;
+            Params.l = 10;
+            Params.confidenceValue = 0.005;
             Params.digitizationNoise = 1;
             Params.ContainsSingularCovarianceMatrixes = true;
             Params.savePath = @"D:\IHDRTree\";
@@ -70,16 +71,19 @@ namespace IHDRLib
             Params.SaveCovMatricesMDF = true;
             Params.SaveMeans = false;
             Params.SaveMeansMDF = true;
+            Params.StoreSamples = true;
+            Params.StoreItems = false;
 
-            //amnesic parameters
-            Params.t1 = 1000000;
-            Params.t2 = 500;
-            Params.c = 3.0;
-            Params.m = 100.0;
+            //amnesic parameters		
+            Params.t1 = 3000000;
+            Params.t2 = 1000;
+            Params.c = 5.0;
+            Params.m = 1000.0;
             Params.WidthOfTesting = 3;
+            Params.Epochs = 3;
 
-            // swap type
-            Params.SwapType = 3;
+            // swap type		
+            Params.SwapType = 4;
         }
 
         public void AddSample(double[] sample, double label)
@@ -134,57 +138,29 @@ namespace IHDRLib
 
             //samples.SaveItemsY(@"D:\SamplesY\");
             this.CountYMeanOfLabels();
-
-            if (samples != null && samples.Items.Count > 100)
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
             {
-
-                int i = 0;
-                foreach (Sample sample in samples.Items)
+                if (samples != null && samples.Items.Count > 100)
                 {
-                    Console.WriteLine("Update tree Sample " + i.ToString());
-                    sample.SetY(this.GetOutputFromKnownSamples(sample));
-                    this.tree.UpdateTree(sample);
-                    i++;
+                  
+                    foreach (Sample sample in samples.Items)
+                    {
+                        //Console.WriteLine("Update tree Sample " + i.ToString());
+                        sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
 
-                    if (i == 10000)
-                    {
-                        this.ExecuteTestingByY(i);
+                        if (i % 10000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
                     }
-                    if (i == 15000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 20000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 25000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 30000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 35000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 40000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 45000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-                    if (i == 50000)
-                    {
-                        this.ExecuteTestingByY(i);
-                    }
-
                 }
             }
+
+            
         }
 
         public Vector GetOutputFromKnownSamples(Sample sample)

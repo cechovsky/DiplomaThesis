@@ -184,13 +184,10 @@ namespace IHDRLib
         {
             if (this.values.Count() != vector.values.Count()) throw new InvalidOperationException("Not the same count of attributes");
 
-            double sum = 0.0;
-            for (int i = 0; i < this.values.Length; i++)
-            {
-                sum += Math.Pow((this.values[i] - vector.values[i]).ToArray()[0], 2);
-            }
-            if (sum == 0) return 0;
-            return Math.Sqrt(sum);
+            ILArray<double> result = this.values - vector.values;
+            result = result * result;
+            
+            return Math.Sqrt(result.Sum());
         }
 
         public double GetMDFDistance(ILArray<double> vector)

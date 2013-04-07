@@ -44,7 +44,7 @@ namespace IHDRLib
             newItem.Id = this.items.Count + 1;
 
             this.items.Add(newItem);
-
+            this.itemsCount++;
             // update mean
             this.UpdateMean(newItem);
         }

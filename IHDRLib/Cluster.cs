@@ -20,6 +20,8 @@ namespace IHDRLib
         protected int dimension;
         protected Node parent;
 
+        protected int itemsCount;
+
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("clusterPair", clusterPair, typeof(ClusterPair));
@@ -38,6 +40,7 @@ namespace IHDRLib
             mean = (Vector)info.GetValue("mean", typeof(Vector));
             meanMDF = (ILArray<double>)info.GetValue("meanMDF", typeof(ILArray<double>));
             parent = (Node)info.GetValue("parent", typeof(Node));
+
         }
 
         public Cluster(Node parent)
@@ -46,6 +49,7 @@ namespace IHDRLib
             this.items = new List<Vector>();
             this.mean = null;
             this.parent = parent;
+            this.itemsCount = 0;
         }
 
         public Cluster(Sample sample, Node parent)
@@ -95,6 +99,14 @@ namespace IHDRLib
         }
 
         /// <summary>
+        /// The dispose items.
+        /// </summary>
+        public void DisposeItems()
+        {
+            this.items = new List<Vector>();
+        }
+
+        /// <summary>
         /// Update mean with amnesic average
         /// </summary>
         /// <param name="vector">Vector, which should be add to mean</param>
@@ -138,6 +150,7 @@ namespace IHDRLib
         public void AddItemWithoutUpdatingStats(Vector vector)
         {
             this.items.Add(vector);
+            this.itemsCount++;
         }
 
         public List<Vector> Items

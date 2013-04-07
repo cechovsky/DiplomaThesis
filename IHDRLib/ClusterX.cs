@@ -61,6 +61,11 @@ namespace IHDRLib
 
         public void SaveSamples()
         {
+            if (!Params.StoreItems)
+            {
+                throw new InvalidOperationException("Unable to save cluster, because items were disposed.");
+            }
+
             foreach (var item in items)
             {
                 item.SaveToBitmap(this.SavePath, false);
@@ -310,6 +315,7 @@ namespace IHDRLib
             newItem.Label = label;
             newItem.Id = this.items.Count + 1;
             this.items.Add(newItem);
+            this.itemsCount++;
 
             // update mean
             this.UpdateMean(newItem);
@@ -322,7 +328,7 @@ namespace IHDRLib
             newItem.Id = this.items.Count + 1;
 
             this.items.Add(newItem);
-
+            this.itemsCount++;
             // update mean
             this.UpdateMean(newItem);
 
@@ -419,7 +425,7 @@ namespace IHDRLib
             double secondPart = 0;
             double thirdPart = 0;
 
-            if (this.items.Count == 1)
+            if (this.itemsCount == 1)
             {
                 this.covarianceMatrixMDF = this.GetVarianceMatrix_MDF();
             }
@@ -444,8 +450,10 @@ namespace IHDRLib
 
         public ILArray<double> GetMatrixW_MDF()
         {
-            double be = this.Getbe();
+            double be = this.Getbe(); 
+            //double be = 0; 
             double bm = this.Getbm();
+            //double bm = 0;
             double bg = this.Getbg();
 
             double b = be + bm + bg;
@@ -482,6 +490,9 @@ namespace IHDRLib
 
         public ILArray<double> GetVarianceMatrix_MDF()
         {
+            //double sum = this.parent.VarianceMDF.Sum() / this.parent.VarianceMDF.Length;
+            //ILArray<double> diagonale = ILMath.eye(this.parent.VarianceMDF.Length, this.parent.VarianceMDF.Length);
+            //ILArray<double> result = diagonale * sum;
             ILArray<double> result = ILMath.diag<double>(this.parent.VarianceMDF.ToArray());
 
             return result;
@@ -596,6 +607,11 @@ namespace IHDRLib
 
         public void CountLabelOfCluter()
         {
+            if (Params.StoreItems)
+            {
+                throw new InvalidOperationException("Unable to count label because items are not stored.");
+            }
+
             var labels = this.items.GroupBy(i => i.Label).Select(i => i.First().Label);
 
             int count = int.MinValue;

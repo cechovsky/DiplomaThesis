@@ -47,6 +47,9 @@ namespace IHDRLib
         public static double deltaY { get; set; }
 
         // reduction of deltaX in next node
+        public static double deltaMultiplyReduction { get; set; }
+
+        // reduction of deltaX in next node
         public static double deltaXReduction { get; set; }
 
         // reduction of deltaX in next node
@@ -116,5 +119,13 @@ namespace IHDRLib
         // 2 modified swap ( clusters by k-means )
         // 3 modified swap ( all samples by k-means )
         public static int SwapType { get; set; }
+
+        // store samples to nodes, clusters
+        public static bool StoreSamples { get; set; }
+
+        // store samples to nodes, clusters
+        public static bool StoreItems { get; set; }
+
+        public static int Epochs { get; set; }
     }
 }
