@@ -262,15 +262,15 @@ namespace IHDRLib
             return result;
         }
 
-        public void SaveToBitmap(string locationPath, bool isMean)
+        public void SaveToBitmap(string locationPath, bool isMean, int bmpWidth, int bmpHeight)
         {
-            Bitmap bitmap = new Bitmap(28, 28);
+            Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
 
             for (int i = 0; i < 28; i++)
             {
                 for (int j = 0; j < 28; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * 28 + j], (int)this.values[i * 28 + j], (int)this.values[i * 28 + j]));
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j]));
                 }
             }
 
@@ -292,15 +292,15 @@ namespace IHDRLib
             }
         }
 
-        public void SaveToBitmap(string locationPath, string fileName)
+        public void SaveToBitmap(string locationPath, string fileName, int bmpWidth, int bmpHeight)
         {
-            Bitmap bitmap = new Bitmap(28, 28);
+            Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
 
-            for (int i = 0; i < 28; i++)
+            for (int i = 0; i < bmpWidth; i++)
             {
-                for (int j = 0; j < 28; j++)
+                for (int j = 0; j < bmpHeight; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * 28 + j], (int)this.values[i * 28 + j], (int)this.values[i * 28 + j]));
+                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j]));
                 }
             }
 

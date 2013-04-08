@@ -58,9 +58,7 @@ namespace IHDRLib
 
         private void SetSettings()
         {
-            Params.useClassMeanLikeY = false;
-            Params.inputDataDimension = 784;
-            Params.outputDataDimension = 784;
+            
             Params.q = 20;
             Params.bs = 3;
             Params.outputIsDefined = false;
@@ -77,6 +75,23 @@ namespace IHDRLib
             Params.l = 10;
             Params.confidenceValue = 0.005;
             Params.digitizationNoise = 1;
+            
+
+            //amnesic parameters		
+            Params.t1 = 3000000;
+            Params.t2 = 1000;
+            Params.c = 5.0;
+            Params.m = 1000.0;
+            
+            // swap type		
+            Params.SwapType = 3;
+
+            #region Not Important Settings
+
+            Params.useClassMeanLikeY = false;
+            Params.inputDataDimension = 784;
+            Params.outputDataDimension = 1600;
+            
             Params.ContainsSingularCovarianceMatrixes = true;
             Params.savePath = @"D:\IHDRTree\";
             Params.SaveCovMatrices = false;
@@ -85,17 +100,15 @@ namespace IHDRLib
             Params.SaveMeansMDF = true;
             Params.StoreSamples = true;
             Params.StoreItems = false;
-
-            //amnesic parameters		
-            Params.t1 = 3000000;
-            Params.t2 = 1000;
-            Params.c = 5.0;
-            Params.m = 1000.0;
             Params.WidthOfTesting = 3;
             Params.Epochs = 3;
 
-            // swap type		
-            Params.SwapType = 4;
+            Params.inputBmpWidth = 28;
+            Params.inputBmpHeight = 28;
+            Params.outputBmpWidth = 40;
+            Params.outputBmpHeight = 40;
+
+            #endregion 
         }
 
         private void SetSettings2()
@@ -191,7 +204,7 @@ namespace IHDRLib
             }
 
             //samples.SaveItemsY(@"D:\SamplesY\");
-            this.CountYMeanOfLabels();
+            //this.CountYMeanOfLabels();
             int i = 0;
             for (int ii = 0; ii < Params.Epochs; ii++)
             {
@@ -201,20 +214,20 @@ namespace IHDRLib
                     foreach (Sample sample in samples.Items)
                     {
                         Console.WriteLine("Update tree Sample " + i.ToString());
-                        sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
                         this.tree.UpdateTree(sample);
                         i++;
 
-                        if (i % 1000 == 0)
-                        {
-                            Console.WriteLine(string.Format("Count of samples: {0}", i));
-                            this.ExecuteTestingByY(i);
-                        }
+                        //if (i % 1000 == 0)
+                        //{
+                        //    Console.WriteLine(string.Format("Count of samples: {0}", i));
+                        //    this.ExecuteTestingByY(i);
+                        //}
                     }
                 }
-            }
 
-            
+                this.ExecuteTestingByY(i);
+            }
         }
 
         public Vector GetOutputFromKnownSamples(Sample sample)
@@ -261,6 +274,49 @@ namespace IHDRLib
             {
                 item.SetY(labelOutputVectors[item.Label]);
             }
+        }
+
+        public void SetYOfSamplesFromBmp(string picturesPath)
+        {
+
+            labelOutputVectors[0.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"0.bmp")));
+            labelOutputVectors[1.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"1.bmp")));
+            labelOutputVectors[2.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"2.bmp")));
+            labelOutputVectors[3.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"3.bmp")));
+            labelOutputVectors[4.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"4.bmp")));
+            labelOutputVectors[5.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"5.bmp")));
+            labelOutputVectors[6.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"6.bmp")));
+            labelOutputVectors[7.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"7.bmp")));
+            labelOutputVectors[8.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"8.bmp")));
+            labelOutputVectors[9.0] = this.GetOutputVectorFromBmp(new Bitmap(Bitmap.FromFile(picturesPath + @"9.bmp")));
+
+
+            foreach (var item in this.samples.Items)
+            {
+                item.SetY(labelOutputVectors[item.Label]);
+            }
+        }
+
+        public Vector GetOutputVectorFromBmp(Bitmap bmp)
+        {
+            if(Params.outputDataDimension != bmp.Width * bmp.Height)
+            {
+                throw new InvalidOperationException("Unable to create output from bmp of another dimensionality.");
+            }
+
+            List<double> attributes = new List<double>();
+
+            for (int i = 0; i < bmp.Width; i++)
+			{
+			    for (int j = 0; j < bmp.Height; j++)
+			    {
+			        Color color = bmp.GetPixel(j,i);
+                    attributes.Add((int)((color.R * .3) + (color.G * .59) + (color.B * .11)));
+			    }
+			}
+            
+            Vector output = new Vector(attributes.ToArray());
+            return output;
         }
 
         public void EvaluateClustersLabels()
@@ -445,8 +501,8 @@ namespace IHDRLib
                 testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
             }
 
-            //this.SaveTestResultsNonEqual(@"D:\IHDR\Results\NonEqual", testResults);
-            //this.SaveTestResultsEqual(@"D:\IHDR\Results\Equal", testResults);
+            this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
+            this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
 
             int same = 0;
             int different = 0;
@@ -534,13 +590,13 @@ namespace IHDRLib
                 //string newPath = path + "\\" + i.ToString() + "\\";
 
                 string fileName1 = i.ToString() + "_input";
-                item.Input.X.SaveToBitmap(path, fileName1);
+                item.Input.X.SaveToBitmap(path, fileName1, Params.inputBmpWidth, Params.inputBmpHeight);
 
                 string fileNameX = i.ToString() + "_Xresult";
-                item.ClusterMeanX.SaveToBitmap(path, fileNameX);
+                item.ClusterMeanX.SaveToBitmap(path, fileNameX, Params.inputBmpWidth, Params.inputBmpHeight);
 
                 string fileNameY = i.ToString() + "_Yresult";
-                item.ClusterMeanY.SaveToBitmap(path, fileNameY);
+                item.ClusterMeanY.SaveToBitmap(path, fileNameY, Params.outputBmpWidth, Params.outputBmpHeight);
 
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("Input label: " + item.Input.Label);
@@ -560,13 +616,13 @@ namespace IHDRLib
                 {
                     //string newPath = path + "\\" + i.ToString() + "\\";
                     string fileName1 = i.ToString() + "_input";
-                    item.Input.X.SaveToBitmap(path, fileName1);
+                    item.Input.X.SaveToBitmap(path, fileName1, Params.inputBmpWidth, Params.inputBmpHeight);
 
                     string fileNameX = i.ToString() + "_Xresult";
-                    item.ClusterMeanX.SaveToBitmap(path, fileNameX);
+                    item.ClusterMeanX.SaveToBitmap(path, fileNameX, Params.inputBmpWidth, Params.inputBmpHeight);
 
                     string fileNameY = i.ToString() + "_Yresult";
-                    item.ClusterMeanY.SaveToBitmap(path, fileNameY);
+                    item.ClusterMeanY.SaveToBitmap(path, fileNameY, Params.outputBmpWidth, Params.outputBmpHeight);
 
                     StringBuilder sb = new StringBuilder();
                     sb.AppendLine("Input label: " + item.Input.Label);
@@ -588,13 +644,13 @@ namespace IHDRLib
 
                     //string newPath = path + "\\" + i.ToString() + "\\";
                     string fileName1 = i.ToString() + "_input";
-                    item.Input.X.SaveToBitmap(path, fileName1);
+                    item.Input.X.SaveToBitmap(path, fileName1, Params.inputBmpWidth, Params.inputBmpHeight);
 
                     string fileNameX = i.ToString() + "_Xresult";
-                    item.ClusterMeanX.SaveToBitmap(path, fileNameX);
+                    item.ClusterMeanX.SaveToBitmap(path, fileNameX, Params.inputBmpWidth, Params.inputBmpHeight);
 
                     string fileNameY = i.ToString() + "_Yresult";
-                    item.ClusterMeanY.SaveToBitmap(path, fileNameY);
+                    item.ClusterMeanY.SaveToBitmap(path, fileNameY, Params.outputBmpWidth, Params.outputBmpHeight);
 
                     StringBuilder sb = new StringBuilder();
                     sb.AppendLine("Input label: " + item.Input.Label);

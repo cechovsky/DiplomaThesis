@@ -127,5 +127,13 @@ namespace IHDRLib
         public static bool StoreItems { get; set; }
 
         public static int Epochs { get; set; }
+
+        public static int inputBmpWidth { get; set; }
+
+        public static int inputBmpHeight { get; set; }
+
+        public static int outputBmpWidth { get; set; }
+
+        public static int outputBmpHeight { get; set; }
     }
 }

@@ -68,7 +68,7 @@ namespace IHDRLib
 
             foreach (var item in items)
             {
-                item.SaveToBitmap(this.SavePath, false);
+                item.SaveToBitmap(this.SavePath, false, Params.inputBmpWidth, Params.inputBmpHeight);
             }
 
             if (Params.SaveMeansMDF)
@@ -88,7 +88,7 @@ namespace IHDRLib
 
             this.SaveClusterInfo(this.SavePath + @"\ClusterInfo.txt");
 
-            this.mean.SaveToBitmap(this.SavePath, true);
+            this.mean.SaveToBitmap(this.SavePath, true, Params.inputBmpWidth, Params.inputBmpHeight);
         }
 
         private void SaveClusterInfo(string path)
