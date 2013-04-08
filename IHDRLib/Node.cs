@@ -642,7 +642,8 @@ namespace IHDRLib
             int countOfKmeansTry = 0;
 
             Random random = new Random();
-            List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
+            //List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
+            List<Sample> centersCandidates = this.samples.Take((int)Params.blx).ToList();
 
             List<Sample> centers = new List<Sample>();
             foreach (var item in centersCandidates)
@@ -1011,27 +1012,41 @@ namespace IHDRLib
                 throw new InvalidOperationException("Small count of microclusters, impossible to swap");
             }
 
+            // random selection is deleted, because of unification of results
             // select q random samples 
+            //List<Vector> centres = new List<Vector>();
+            //Random random = new Random();
+            //List<int> randoms = new List<int>();
+            //for (int i = 0; i < Params.q; i++)
+            //{
+            //    bool randomIsNotUnique = true;
+            //    int r = 0;
+                
+            //    while (randomIsNotUnique)
+            //    {
+            //        r = random.Next(this.clusterPairs.Count);
+            //        randomIsNotUnique = randoms.Contains(r);
+            //    }
+            //    //Console.WriteLine("Center like cluster: " + r.ToString());
+            //    randoms.Add(r);
+                
+            //    Vector vector = new Vector(this.clusterPairs[r].X.Mean.Values.ToArray());
+            //    vector.Id = i;
+            //    centres.Add(vector);
+            //}
+
+            #region instead of random
+
             List<Vector> centres = new List<Vector>();
-            Random random = new Random();
-            List<int> randoms = new List<int>();
             for (int i = 0; i < Params.q; i++)
             {
-                bool randomIsNotUnique = true;
-                int r = 0;
-                
-                while (randomIsNotUnique)
-                {
-                    r = random.Next(this.clusterPairs.Count);
-                    randomIsNotUnique = randoms.Contains(r);
-                }
-                //Console.WriteLine("Center like cluster: " + r.ToString());
-                randoms.Add(r);
-                
-                Vector vector = new Vector(this.clusterPairs[r].X.Mean.Values.ToArray());
+                Vector vector = new Vector(this.clusterPairs[i].X.Mean.Values.ToArray());
                 vector.Id = i;
                 centres.Add(vector);
             }
+
+
+            #endregion 
 
             // evaluate to which center vector belongs
             foreach (ClusterPair clPair in clusterPairs)
@@ -1079,6 +1094,7 @@ namespace IHDRLib
                 whil++;
             }
         }
+
 
         private void Swap()
         {
