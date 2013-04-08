@@ -27,9 +27,21 @@ namespace IHDRLib
 
         #endregion
 
-        public IHDR()
+        public IHDR(int settings)
         {
-            SetSettings();
+            switch (settings)
+            {
+                case 1:
+                    this.SetSettings();
+                    break;
+                case 2:
+                    this.SetSettings2();
+                    break;
+                default:
+                    this.SetSettings();
+                    break;
+            }
+
             this.samples = new Samples();
             this.testingSamples = new Samples();
             this.tree = new Tree();
@@ -84,6 +96,48 @@ namespace IHDRLib
 
             // swap type		
             Params.SwapType = 4;
+        }
+
+        private void SetSettings2()
+        {
+            Params.useClassMeanLikeY = false;
+            Params.inputDataDimension = 10000;
+            Params.outputDataDimension = 10000;
+            Params.q = 5;
+            Params.bs = 1;
+            Params.outputIsDefined = false;
+            Params.deltaX = 1200.0;
+            Params.deltaY = 1200.0;
+            Params.deltaMultiplyReduction = 0.5;
+            Params.deltaXReduction = 50.0;
+            Params.deltaXReduction = 50.0;
+            Params.deltaXMin = 60.0;
+            Params.deltaYMin = 60.0;
+            Params.blx = 5;
+            Params.bly = 5;
+            Params.p = 0.0;
+            Params.l = 10;
+            Params.confidenceValue = 0.005;
+            Params.digitizationNoise = 1;
+            Params.ContainsSingularCovarianceMatrixes = true;
+            Params.savePath = @"D:\IHDRTree\";
+            Params.SaveCovMatrices = false;
+            Params.SaveCovMatricesMDF = true;
+            Params.SaveMeans = false;
+            Params.SaveMeansMDF = true;
+            Params.StoreSamples = true;
+            Params.StoreItems = false;
+
+            //amnesic parameters		
+            Params.t1 = 1000;
+            Params.t2 = 20;
+            Params.c = 5.0;
+            Params.m = 100.0;
+            Params.WidthOfTesting = 3;
+            Params.Epochs = 50;
+
+            // swap type		
+            Params.SwapType = 3;
         }
 
         public void AddSample(double[] sample, double label)
@@ -141,17 +195,17 @@ namespace IHDRLib
             int i = 0;
             for (int ii = 0; ii < Params.Epochs; ii++)
             {
-                if (samples != null && samples.Items.Count > 100)
+                if (samples != null && samples.Items.Count > 10)
                 {
                   
                     foreach (Sample sample in samples.Items)
                     {
-                        //Console.WriteLine("Update tree Sample " + i.ToString());
+                        Console.WriteLine("Update tree Sample " + i.ToString());
                         sample.SetY(this.GetOutputFromKnownSamples(sample));
                         this.tree.UpdateTree(sample);
                         i++;
 
-                        if (i % 10000 == 0)
+                        if (i % 1000 == 0)
                         {
                             Console.WriteLine(string.Format("Count of samples: {0}", i));
                             this.ExecuteTestingByY(i);

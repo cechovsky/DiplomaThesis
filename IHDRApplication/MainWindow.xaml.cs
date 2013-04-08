@@ -19,6 +19,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Diagnostics;
+using ArceneParserLib;
 
 namespace IHDRApplication
 {
@@ -40,13 +41,12 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\train-images.bin",
                     @"D:\Dropbox\DP\data\train-labels.bin",
                     @"D:\Dropbox\DP\data\test-images.bin",
-                    @"D:\Dropbox\DP\data\test-labels.bin"
-                    );
+                    @"D:\Dropbox\DP\data\test-labels.bin");
 
             parser.ParseData(60000);
             parser.ParseDataTest(10000);
 
-            ihdr = new IHDR();
+            ihdr = new IHDR(1);
             List<MNISTParserLib.Sample> mnistSamples = parser.Samples;
             foreach (var item in mnistSamples)
             {
@@ -114,13 +114,7 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-images.bin",
                     @"D:\Dropbox\DP\data\test-labels.bin"
                     );
-            //parser.ParseDataTest(2000);
-
-            //foreach (var item in parser.SamplesTest)
-            //{
-            //    ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
-            //}
-
+           
             ihdr.EvaluateClustersLabels();
             ihdr.ExecuteTesting();
         }
@@ -136,7 +130,7 @@ namespace IHDRApplication
             generator.GenerateSyntheticData();
             generator.GenerateSyntheticDataTest();
 
-            ihdr = new IHDR();
+            ihdr = new IHDR(3);
             foreach (var item in generator.samples)
             {
                 ihdr.AddSample(item.Attributes.ToArray(), item.AttributesY.ToArray(), item.Label);
@@ -157,7 +151,7 @@ namespace IHDRApplication
             generator.GenerateSyntheticData();
             generator.GenerateSyntheticDataTest();
 
-            ihdr = new IHDR();
+            ihdr = new IHDR(3);
             foreach (var item in generator.samples)
             {
                 ihdr.AddSample(item.Attributes.ToArray(), item.AttributesY.ToArray(), item.Label);
@@ -178,7 +172,7 @@ namespace IHDRApplication
             generator.GenerateSyntheticData();
             generator.GenerateSyntheticDataTest();
 
-            ihdr = new IHDR();
+            ihdr = new IHDR(3);
             foreach (var item in generator.samples)
             {
                 ihdr.AddSample(item.Attributes.ToArray(), item.AttributesY.ToArray(), item.Label);
@@ -192,6 +186,38 @@ namespace IHDRApplication
             ihdr.EvaluateAllClustersLabels();
             ihdr.EvaluateDepth();
             ihdr.SaveLayersToBmp(@"D:\Levels");
+        }
+
+        // arcane initialization
+        private void Button_Click_12(object sender, RoutedEventArgs e)
+        {
+            ArceneParser parser = new ArceneParser(
+                    @"D:\Dropbox\DP\datasets\Arcene\arcene_train.data",
+                    @"D:\Dropbox\DP\datasets\Arcene\arcene_train.labels",
+                    @"D:\Dropbox\DP\datasets\Arcene\arcene_valid.data",
+                    @"D:\Dropbox\DP\datasets\Arcene\arcene_valid.labels");
+
+            parser.ParseData();
+            parser.ParseDataTest();
+
+            ihdr = new IHDR(2);
+            List<ArceneParserLib.Sample> arceneSamples = parser.Samples;
+            foreach (var item in arceneSamples)
+            {
+                ihdr.AddSample(item.GetAttributesArray(), (double)item.Label);
+            }
+            foreach (var item in parser.SamplesTest)
+            {
+                ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
+            }
+        }
+
+        private void Button_Click_13(object sender, RoutedEventArgs e)
+        {
+            ihdr.CountYOfSamplesLabelsMeans();
+
+            ihdr.BuildTree();
+            Console.WriteLine(ihdr.ResultMessage);
         }
 
         
