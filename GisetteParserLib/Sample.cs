@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GisetteParserLib
 {
-    class Sample
+    public class Sample
     {
         public List<int> Attributes { get; set; }
         public byte Label { get; set; }

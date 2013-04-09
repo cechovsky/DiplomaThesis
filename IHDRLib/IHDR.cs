@@ -27,21 +27,8 @@ namespace IHDRLib
 
         #endregion
 
-        public IHDR(int settings)
+        public IHDR()
         {
-            switch (settings)
-            {
-                case 1:
-                    this.SetSettings();
-                    break;
-                case 2:
-                    this.SetSettings2();
-                    break;
-                default:
-                    this.SetSettings();
-                    break;
-            }
-
             this.samples = new Samples();
             this.testingSamples = new Samples();
             this.tree = new Tree();
@@ -56,102 +43,8 @@ namespace IHDRLib
             }
         }
 
-        private void SetSettings()
-        {
-            
-            Params.q = 20;
-            Params.bs = 3;
-            Params.outputIsDefined = false;
-            Params.deltaX = 1200.0;
-            Params.deltaY = 1200.0;
-            Params.deltaMultiplyReduction = 0.5;
-            Params.deltaXReduction = 50.0;
-            Params.deltaXReduction = 50.0;
-            Params.deltaXMin = 60.0;
-            Params.deltaYMin = 60.0;
-            Params.blx = 20;
-            Params.bly = 20;
-            Params.p = 0.0;
-            Params.l = 10;
-            Params.confidenceValue = 0.005;
-            Params.digitizationNoise = 1;
-            
 
-            //amnesic parameters		
-            Params.t1 = 3000000;
-            Params.t2 = 1000;
-            Params.c = 5.0;
-            Params.m = 1000.0;
-            
-            // swap type		
-            Params.SwapType = 3;
-
-            #region Not Important Settings
-
-            Params.useClassMeanLikeY = false;
-            Params.inputDataDimension = 784;
-            Params.outputDataDimension = 1600;
-            
-            Params.ContainsSingularCovarianceMatrixes = true;
-            Params.savePath = @"D:\IHDRTree\";
-            Params.SaveCovMatrices = false;
-            Params.SaveCovMatricesMDF = true;
-            Params.SaveMeans = false;
-            Params.SaveMeansMDF = true;
-            Params.StoreSamples = true;
-            Params.StoreItems = false;
-            Params.WidthOfTesting = 3;
-            Params.Epochs = 3;
-
-            Params.inputBmpWidth = 28;
-            Params.inputBmpHeight = 28;
-            Params.outputBmpWidth = 40;
-            Params.outputBmpHeight = 40;
-
-            #endregion 
-        }
-
-        private void SetSettings2()
-        {
-            Params.useClassMeanLikeY = false;
-            Params.inputDataDimension = 10000;
-            Params.outputDataDimension = 10000;
-            Params.q = 5;
-            Params.bs = 1;
-            Params.outputIsDefined = false;
-            Params.deltaX = 1200.0;
-            Params.deltaY = 1200.0;
-            Params.deltaMultiplyReduction = 0.5;
-            Params.deltaXReduction = 50.0;
-            Params.deltaXReduction = 50.0;
-            Params.deltaXMin = 60.0;
-            Params.deltaYMin = 60.0;
-            Params.blx = 5;
-            Params.bly = 5;
-            Params.p = 0.0;
-            Params.l = 10;
-            Params.confidenceValue = 0.005;
-            Params.digitizationNoise = 1;
-            Params.ContainsSingularCovarianceMatrixes = true;
-            Params.savePath = @"D:\IHDRTree\";
-            Params.SaveCovMatrices = false;
-            Params.SaveCovMatricesMDF = true;
-            Params.SaveMeans = false;
-            Params.SaveMeansMDF = true;
-            Params.StoreSamples = true;
-            Params.StoreItems = false;
-
-            //amnesic parameters		
-            Params.t1 = 1000;
-            Params.t2 = 20;
-            Params.c = 5.0;
-            Params.m = 100.0;
-            Params.WidthOfTesting = 3;
-            Params.Epochs = 50;
-
-            // swap type		
-            Params.SwapType = 3;
-        }
+        #region AddingSamples
 
         public void AddSample(double[] sample, double label)
         {
@@ -196,13 +89,13 @@ namespace IHDRLib
             }
         }
 
-        public void BuildTree()
-        {
-            if (Params.useClassMeanLikeY)
-            {
-                samples.CountOutputsFromClassLabels();
-            }
+        #endregion
 
+        // MNIST - output my numbers
+        public void BuildTree_MNIST()
+        {
+            Settings.SetSettings_MNIST();
+            
             //samples.SaveItemsY(@"D:\SamplesY\");
             //this.CountYMeanOfLabels();
             int i = 0;
@@ -210,7 +103,7 @@ namespace IHDRLib
             {
                 if (samples != null && samples.Items.Count > 10)
                 {
-                  
+
                     foreach (Sample sample in samples.Items)
                     {
                         Console.WriteLine("Update tree Sample " + i.ToString());
@@ -227,6 +120,129 @@ namespace IHDRLib
                 }
 
                 this.ExecuteTestingByY(i);
+            }
+        }
+
+        // MNIST - output my numbers
+        public void BuildTree_MNIST_MyOutput()
+        {
+            Settings.SetSettings_MNISTMyOutput();
+
+            this.SetYOfSamplesFromBmp(@"D:\Dropbox\DP\datasets\Numbers\");
+            //ihdr.CountYOfSamplesLabelsMeans();
+            //this.CountYMeanOfLabels();
+
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
+            {
+                if (samples != null && samples.Items.Count > 10)
+                {
+                  
+                    foreach (Sample sample in samples.Items)
+                    {
+                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
+
+                        if (i % 1000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
+                    }
+                }
+
+                this.ExecuteTestingByY(i);
+            }
+        }
+
+        public void BuildTree_Gisette()
+        {
+            Settings.SetSettings_Gisette();
+
+            //this.CountYMeanOfLabels();
+            this.CountYOfSamplesLabelsMeans();
+
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
+            {
+                if (samples != null && samples.Items.Count > 10)
+                {
+
+                    foreach (Sample sample in samples.Items)
+                    {
+                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
+
+                        if (i % 5000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
+                    }
+                }
+
+                this.ExecuteTestingByY(i);
+            }
+        }
+
+        public void BuildTree_Arcene()
+        {
+            Settings.SetSettings_Arcene();
+            // this.CountYOfSamplesLabelsMeans();
+
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
+            {
+                if (samples != null && samples.Items.Count > 10)
+                {
+
+                    foreach (Sample sample in samples.Items)
+                    {
+                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
+
+                        if (i % 1000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
+                    }
+                }
+            }
+        }
+
+        // need to modify
+        public void BuildTree_Synthetic()
+        {
+            Settings.SetSettings_Synthetic();
+            this.CountYOfSamplesLabelsMeans();
+
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
+            {
+                if (samples != null && samples.Items.Count > 10)
+                {
+
+                    foreach (Sample sample in samples.Items)
+                    {
+                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
+
+                        if (i % 1000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
+                    }
+                }
             }
         }
 
@@ -501,8 +517,8 @@ namespace IHDRLib
                 testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
             }
 
-            this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
-            this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
+            //this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
+            //this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
 
             int same = 0;
             int different = 0;
