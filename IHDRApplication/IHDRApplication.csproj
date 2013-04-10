@@ -118,6 +118,14 @@
       <Project>{7f9ee7f5-7fc6-4f8c-aa23-f949a1c465d6}</Project>
       <Name>ArceneParserLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Faces2ParserLib\Faces2ParserLib.csproj">
+      <Project>{d28fd096-cc4e-4b1b-900c-e8b4fc47606e}</Project>
+      <Name>Faces2ParserLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FacesParserLib\FacesParserLib.csproj">
+      <Project>{3c2a4180-40e3-434e-ae0d-6ba0b96c4e38}</Project>
+      <Name>FacesParserLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GisetteParserLib\GisetteParserLib.csproj">
       <Project>{44b4587e-85d1-4bc1-b8a4-baa9b4c04303}</Project>
       <Name>GisetteParserLib</Name>

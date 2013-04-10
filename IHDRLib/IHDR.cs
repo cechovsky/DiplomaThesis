@@ -157,6 +157,67 @@ namespace IHDRLib
             }
         }
 
+        public void BuildTree_Faces()
+        {
+            Settings.SetSettings_Faces();
+
+            this.CountYOfSamplesLabelsMeans();
+            //this.CountYMeanOfLabels();
+
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
+            {
+                if (samples != null && samples.Items.Count > 10)
+                {
+
+                    foreach (Sample sample in samples.Items)
+                    {
+                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
+
+                        if (i % 1000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void BuildTree_Faces2()
+        {
+            Settings.SetSettings_Faces2();
+
+            this.CountYOfSamplesLabelsMeans();
+            //this.samples.SaveItemsY(@"D:\Faces2Y\");
+            //this.CountYMeanOfLabels();
+
+            int i = 0;
+            for (int ii = 0; ii < Params.Epochs; ii++)
+            {
+                if (samples != null && samples.Items.Count > 10)
+                {
+
+                    foreach (Sample sample in samples.Items)
+                    {
+                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        this.tree.UpdateTree(sample);
+                        i++;
+
+                        if (i % 1000 == 0)
+                        {
+                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
+                    }
+                }
+            }
+        }
+
         public void BuildTree_Gisette()
         {
             Settings.SetSettings_Gisette();

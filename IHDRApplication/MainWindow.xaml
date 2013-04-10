@@ -15,9 +15,13 @@
         <Button Content="Initalization" HorizontalAlignment="Left" Margin="252,10,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_12"/>
         <Button Content="Train" HorizontalAlignment="Left" Margin="252,35,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_13"/>
         <Label Content="Arcene" HorizontalAlignment="Left" Margin="332,10,0,0" VerticalAlignment="Top"/>
-        <Button Content="Initializaton" HorizontalAlignment="Left" Margin="252,115,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_8"/>
-        <Label Content="Gisette" HorizontalAlignment="Left" Margin="332,115,0,0" VerticalAlignment="Top"/>
-        <Button Content="Train" HorizontalAlignment="Left" Margin="252,140,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_7"/>
+        <Button Content="Initializaton" HorizontalAlignment="Left" Margin="252,75,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_8"/>
+        <Label Content="Gisette" HorizontalAlignment="Left" Margin="332,75,0,0" VerticalAlignment="Top"/>
+        <Button Content="Train" HorizontalAlignment="Left" Margin="252,100,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_7"/>
+        <Button Content="Initialization" HorizontalAlignment="Left" Margin="252,140,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_14"/>
+        <Button Content="Train" HorizontalAlignment="Left" Margin="252,165,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_15"/>
+        <Button Content="Initialization" HorizontalAlignment="Left" Margin="408,140,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_16"/>
+        <Button Content="Train" HorizontalAlignment="Left" Margin="408,165,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_17"/>
 
     </Grid>
 </Window>

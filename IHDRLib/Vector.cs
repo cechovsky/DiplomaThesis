@@ -266,9 +266,9 @@ namespace IHDRLib
         {
             Bitmap bitmap = new Bitmap(bmpWidth, bmpHeight);
 
-            for (int i = 0; i < 28; i++)
+            for (int i = 0; i < bmpWidth; i++)
             {
-                for (int j = 0; j < 28; j++)
+                for (int j = 0; j < bmpHeight; j++)
                 {
                     bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j]));
                 }

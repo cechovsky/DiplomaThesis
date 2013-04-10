@@ -21,6 +21,8 @@ using System.IO;
 using System.Diagnostics;
 using ArceneParserLib;
 using GisetteParserLib;
+using FacesParserLib;
+using Faces2ParserLib;
 
 namespace IHDRApplication
 {
@@ -223,6 +225,60 @@ namespace IHDRApplication
             {
                 ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
             }
+        }
+
+        private void Button_Click_14(object sender, RoutedEventArgs e)
+        {
+            FacesParser parser = new FacesParser(
+                    @"D:\Dropbox\DP\datasets\Faces\train\face\",
+                    @"D:\Dropbox\DP\datasets\Faces\train\non-face\",
+                    @"D:\Dropbox\DP\datasets\Faces\test\face\",
+                    @"D:\Dropbox\DP\datasets\Faces\test\non-face\");
+
+            parser.ParseData();
+            parser.ParseDataTest();
+
+            ihdr = new IHDR();
+            List<FacesParserLib.Sample> mnistSamples = parser.Samples;
+            foreach (var item in mnistSamples)
+            {
+                ihdr.AddSample(item.GetAttributesArray(), (double)item.Label);
+            }
+            foreach (var item in parser.SamplesTest)
+            {
+                ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
+            }
+        }
+
+        private void Button_Click_15(object sender, RoutedEventArgs e)
+        {
+            ihdr.BuildTree_Faces();
+            Console.WriteLine(ihdr.ResultMessage);
+        }
+
+        private void Button_Click_16(object sender, RoutedEventArgs e)
+        {
+            Faces2Parser parser = new Faces2Parser(
+                    @"D:\Dropbox\DP\datasets\Faces2\");
+
+            parser.ParseData();
+            parser.ParseDataTest();
+
+            ihdr = new IHDR();
+            foreach (var item in parser.Samples)
+            {
+                ihdr.AddSample(item.GetAttributesArray(), (double)item.Label);
+            }
+            foreach (var item in parser.SamplesTest)
+            {
+                ihdr.AddTestingSample(item.GetAttributesArray(), (double)item.Label);
+            }
+        }
+
+        private void Button_Click_17(object sender, RoutedEventArgs e)
+        {
+            ihdr.BuildTree_Faces2();
+            Console.WriteLine(ihdr.ResultMessage);
         }
 
         

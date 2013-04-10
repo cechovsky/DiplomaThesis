@@ -160,13 +160,13 @@ namespace IHDRLib
 
         public void SaveYToBitmap(string locationPath)
         {
-            Bitmap bitmap = new Bitmap(28, 28);
+            Bitmap bitmap = new Bitmap(Params.inputBmpWidth, Params.inputBmpHeight);
 
-            for (int i = 0; i < 28; i++)
+            for (int i = 0; i < Params.inputBmpWidth; i++)
             {
-                for (int j = 0; j < 28; j++)
+                for (int j = 0; j < Params.inputBmpHeight; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)y.Values[i * 28 + j], (int)y.Values[i * 28 + j], (int)y.Values[i * 28 + j]));
+                    bitmap.SetPixel(i, j, Color.FromArgb((int)y.Values[i * Params.inputBmpHeight + j], (int)y.Values[i * Params.inputBmpHeight + j], (int)y.Values[i * Params.inputBmpHeight + j]));
                 }
             }
 
