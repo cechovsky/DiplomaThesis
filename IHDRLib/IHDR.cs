@@ -578,8 +578,8 @@ namespace IHDRLib
                 testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
             }
 
-            //this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
-            //this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
+            this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
+            this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
 
             int same = 0;
             int different = 0;

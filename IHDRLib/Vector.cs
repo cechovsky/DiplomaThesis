@@ -270,7 +270,7 @@ namespace IHDRLib
             {
                 for (int j = 0; j < bmpHeight; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j]));
+                    bitmap.SetPixel(i, j, Color.FromArgb((int)this.values[i * bmpHeight + j], (int)this.values[i * bmpHeight + j], (int)this.values[i * bmpHeight + j]));
                 }
             }
 
@@ -300,7 +300,7 @@ namespace IHDRLib
             {
                 for (int j = 0; j < bmpHeight; j++)
                 {
-                    bitmap.SetPixel(j, i, Color.FromArgb((int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j], (int)this.values[i * bmpWidth + j]));
+                    bitmap.SetPixel(i, j, Color.FromArgb((int)this.values[i * bmpHeight + j], (int)this.values[i * bmpHeight + j], (int)this.values[i * bmpHeight + j]));
                 }
             }
 
