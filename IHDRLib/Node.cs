@@ -32,6 +32,7 @@ namespace IHDRLib
         private double deltaX;
         private double deltaY;
         private List<Sample> samples;
+        private Vector nodeMean;
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -73,7 +74,7 @@ namespace IHDRLib
             children = (List<Node>)info.GetValue("children", typeof(List<Node>));
         }
 
-        public Node(double deltaX, double deltaY)
+        public Node(double deltaX, double deltaY, string savePath)
         {
             this.clustersX = new List<ClusterX>();
             this.clustersY = new List<ClusterY>();
@@ -85,7 +86,7 @@ namespace IHDRLib
             this.samples = new List<Sample>();
 
             this.children = new List<Node>(Params.q);
-            this.path = Params.savePath + "root\\";
+            this.path = savePath + "root\\";
 
             this.deltaX = deltaX;
             this.deltaY = deltaY;
@@ -642,8 +643,8 @@ namespace IHDRLib
             int countOfKmeansTry = 0;
 
             Random random = new Random();
-            //List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
-            List<Sample> centersCandidates = this.samples.Take((int)Params.blx).ToList();
+            List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
+            //List<Sample> centersCandidates = this.samples.Take((int)Params.blx).ToList();
 
             List<Sample> centers = new List<Sample>();
             foreach (var item in centersCandidates)
@@ -1437,6 +1438,12 @@ namespace IHDRLib
         {
             this.SetPathsToClusters();
             this.SaveClusters();
+            this.SaveMean();
+
+            if (!this.isLeafNode)
+            {
+                this.SaveMostDiscriminatingSubspace();
+            }
 
             // save children
             foreach (var child in children)
@@ -1465,7 +1472,43 @@ namespace IHDRLib
             }
         }
 
-        private void SaveClusters()
+        public void SaveMean()
+        {
+            var items = this.clustersX.SelectMany(item => item.Items).ToList();
+            this.nodeMean = Vector.GetMeanOfVectors(items);
+            this.nodeMean.SaveToBitmap(this.path, true, Params.inputBmpWidth, Params.inputBmpHeight);
+        }
+
+        public void SaveMostDiscriminatingSubspace()
+        {
+            if (this.nodeMean == null)
+            {
+                throw new InvalidOperationException("nodemean is not counted");
+            }
+
+            Vector blackVector = new Vector(3888, 255);
+            Vector nodeMeanVector = new Vector(this.nodeMean.Values.ToArray());
+
+            ILArray<double> tmpManifold = ILMath.multiply(this.gSOManifold, this.gSOManifold.T);
+            ILArray<double> resultVector = ILMath.multiply(tmpManifold, blackVector.Values);
+            Vector resultMDF = new Vector(resultVector.ToArray());
+
+            ILArray<double> resultVector2 = ILMath.multiply(tmpManifold, nodeMeanVector.Values);
+            Vector resultMDF2 = new Vector(resultVector2.ToArray());
+
+            int count = resultMDF.Values.Count();
+            for (int i = 0; i < count; i++)
+            {
+                if (resultMDF.Values[i] < 0) resultMDF.Values[i] = 0;
+                if (resultMDF.Values[i] > 255) resultMDF.Values[i] = 255;
+                if (resultMDF2.Values[i] < 0) resultMDF2.Values[i] = 0;
+                if (resultMDF2.Values[i] > 255) resultMDF2.Values[i] = 255;
+            }
+            resultMDF.SaveToBitmap(this.path, "MDFSpace", Params.inputBmpWidth, Params.inputBmpHeight);
+            resultMDF2.SaveToBitmap(this.path, "MDFSpaceFromMean", Params.inputBmpWidth, Params.inputBmpHeight);
+        }
+
+        public void SaveClusters()
         {
             foreach (var item in clustersX)
             {

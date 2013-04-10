@@ -69,7 +69,6 @@ namespace IHDRLibTest
             double distance = Math.Round(v1.GetDistance(v2), 3);
 
             Assert.AreEqual(distance, 6.164);
-
         }
 
         [TestMethod]

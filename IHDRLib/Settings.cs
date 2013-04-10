@@ -118,7 +118,7 @@ namespace IHDRLib
 
         public static void SetSettings_Faces2()
         {
-            Params.q = 2;
+            Params.q = 3;
             Params.bs = 10;
             Params.outputIsDefined = false;
             Params.deltaX = 1200.0;
@@ -128,8 +128,8 @@ namespace IHDRLib
             Params.deltaXReduction = 50.0;
             Params.deltaXMin = 60.0;
             Params.deltaYMin = 60.0;
-            Params.blx = 5;
-            Params.bly = 5;
+            Params.blx = 3;
+            Params.bly = 3;
             Params.p = 0.0;
             Params.l = 10;
             Params.confidenceValue = 0.005;

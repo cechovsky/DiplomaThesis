@@ -85,7 +85,7 @@ namespace Faces2ParserLib
                     Sample finalSample = new Sample(item.Label, id);
                     foreach (var item2 in item.Attributes)
 	                {
-		                int diff = (int)item2 - (int)(random.NextDouble() * 10);
+		                int diff = (int)item2 - (int)(random.NextDouble() * 20);
                         if(diff < 0) diff = 0;
                         finalSample.AddAttribute(BitConverter.GetBytes(diff)[0]);        
 	                }

@@ -71,22 +71,22 @@ namespace IHDRLib
                 item.SaveToBitmap(this.SavePath, false, Params.inputBmpWidth, Params.inputBmpHeight);
             }
 
-            if (Params.SaveMeansMDF)
-            {
-                if (this.meanMDF != null)
-                {
-                    this.SaveILArrayToCsvFile(this.meanMDF, 1, this.meanMDF.Length - 1, this.SavePath + @"\MeanMdf.txt");
-                }
-            }
-            if (Params.SaveCovMatricesMDF)
-            {
-                if (this.covarianceMatrixMDF != null && this.meanMDF != null)
-                {
-                   this.SaveILArrayToCsvFile(this.covarianceMatrixMDF, this.meanMDF.Length - 1, this.meanMDF.Length - 1, this.SavePath + @"\CovMatrixMdf.txt");
-                }
-            }
+            //if (Params.SaveMeansMDF)
+            //{
+            //    if (this.meanMDF != null)
+            //    {
+            //        this.SaveILArrayToCsvFile(this.meanMDF, 1, this.meanMDF.Length - 1, this.SavePath + @"\MeanMdf.txt");
+            //    }
+            //}
+            //if (Params.SaveCovMatricesMDF)
+            //{
+            //    if (this.covarianceMatrixMDF != null && this.meanMDF != null)
+            //    {
+            //       this.SaveILArrayToCsvFile(this.covarianceMatrixMDF, this.meanMDF.Length - 1, this.meanMDF.Length - 1, this.SavePath + @"\CovMatrixMdf.txt");
+            //    }
+            //}
 
-            this.SaveClusterInfo(this.SavePath + @"\ClusterInfo.txt");
+            //this.SaveClusterInfo(this.SavePath + @"\ClusterInfo.txt");
 
             this.mean.SaveToBitmap(this.SavePath, true, Params.inputBmpWidth, Params.inputBmpHeight);
         }

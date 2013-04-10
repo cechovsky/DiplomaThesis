@@ -14,7 +14,7 @@ namespace IHDRLib
     
         public Tree()
         {
-            root = new Node(Params.deltaX, Params.deltaY);
+            root = new Node(Params.deltaX, Params.deltaY, Params.savePath);
             isEmpty = true;
         }
 
@@ -39,6 +39,11 @@ namespace IHDRLib
         {
             if (this.root != null)
             {
+                this.root.SaveMean();
+                if (!root.IsLeafNode)
+                {
+                    this.root.SaveMostDiscriminatingSubspace();
+                }
                 this.root.SaveToFileHierarchy();
             }
         }
