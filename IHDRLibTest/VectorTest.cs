@@ -126,7 +126,7 @@ namespace IHDRLibTest
         [TestMethod]
         public void GetVarianceOfVectors()
         {
-            Node node = new Node(0.0, 0.0);            
+            Node node = new Node(0.0, 0.0, string.Empty);            
             
             List<Vector> vectors = new List<Vector>();
             vectors.Add(new Vector(new double[] { 9, 2, 7 }, new double[] { 9, 2, 7 }));

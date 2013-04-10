@@ -277,6 +277,7 @@ namespace IHDRApplication
 
         private void Button_Click_17(object sender, RoutedEventArgs e)
         {
+            Settings.SetSettings_Faces2();
             ihdr.BuildTree_Faces2();
             Console.WriteLine(ihdr.ResultMessage);
         }
