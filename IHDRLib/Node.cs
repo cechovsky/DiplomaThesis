@@ -585,7 +585,7 @@ namespace IHDRLib
                 {
                     for (int i = 0; i < 10; i++)
                     {
-                        if (this.KMeansClustering())
+                        if (this.KMeansPlusPlusClustering())
                         {
                             break;
                         }
@@ -732,6 +732,126 @@ namespace IHDRLib
             return true;
         }
 
+        private bool KMeansPlusPlusClustering()
+        {
+            if (!Params.StoreSamples)
+            {
+                throw new InvalidOperationException("Unable to evaluate KMeans without stored samples");
+            }
+
+            int countOfKmeansTry = 0;
+
+            Random random = new Random();
+            List<Sample> centersCandidates = new List<Sample>();
+            Sample initialcenter = this.samples.OrderBy(item => random.Next()).First();
+            centersCandidates.Add(initialcenter);
+
+            for (int j = 1; j < Params.blx; j++)
+            {
+                double maxDistance = double.MinValue;
+                int id = 0;
+                foreach (var sample in samples)
+                {
+                    double distance = this.GetDistanceFromClosestCenter(centersCandidates, sample);
+                    if (distance > maxDistance)
+                    {
+                        id = sample.Id;
+                        maxDistance = distance;
+                    }
+                }
+
+                centersCandidates.Add(samples.Where(item => item.Id == id).FirstOrDefault());
+            }
+
+
+            //List<Sample> centersCandidates = this.samples.Take((int)Params.blx).ToList();
+
+            List<Sample> centers = new List<Sample>();
+            foreach (var item in centersCandidates)
+            {
+                centers.Add(new Sample(item.X.Values.ToArray(), item.Label, item.Id));
+            }
+
+            // set centers id 
+            int ii = 1;
+            foreach (var item in centers)
+            {
+                item.CenterId = ii;
+                ii++;
+            }
+
+            //set assigment to 0
+            foreach (var item in this.samples)
+            {
+                item.ClusterAssignemntNew = 0;
+                item.ClusterAssignemntOld = 0;
+            }
+
+            // do k-means
+            bool allAssigmentsEquals = false;
+            while (!allAssigmentsEquals)
+            {
+                foreach (var item in this.samples)
+                {
+                    item.ClusterAssignemntOld = item.ClusterAssignemntNew;
+                    item.ClusterAssignemntNew = this.GetCenterIdOfClosestCenter(centers, item);
+                }
+
+                allAssigmentsEquals = this.AllAssigmentsEquals(this.samples);
+
+                foreach (var item in centers)
+                {
+                    var centerSamples =
+                        this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                    if (centerSamples.Count == 0)
+                    {
+                        Console.WriteLine("Not successful kmeans clustering.");
+                        if (countOfKmeansTry > 10)
+                        {
+                            throw new InvalidOperationException("Unable to execute kmeans on this data.");
+                        }
+
+                        return false;
+                    }
+                    this.UpdateCenter(item, centerSamples);
+                }
+            }
+
+            // checking bad clusters created by kmeans, if some are bad, call this method next time
+            foreach (var item in centers)
+            {
+                List<Sample> samplesOfCenter = this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                if (samplesOfCenter.Count == 0)
+                {
+                    Console.WriteLine("Not successful kmeans clustering.");
+
+                    return false;
+                }
+            }
+
+            // create new clusters
+            this.clusterPairs = new List<ClusterPair>();
+            this.clustersX = new List<ClusterX>();
+            this.clustersY = new List<ClusterY>();
+
+            foreach (var item in centers)
+            {
+                List<Sample> samplesOfCenter = this.samples.Where(sample => sample.ClusterAssignemntNew == item.CenterId).ToList();
+
+                this.CreateNewClusters(samplesOfCenter[0], this);
+                ClusterPair newClPair = this.ClusterPairs[this.ClusterPairs.Count - 1];
+
+                for (int j = 1; j < samplesOfCenter.Count; j++)
+                {
+                    newClPair.AddItem(samplesOfCenter[j]);
+                }
+            }
+
+            return true;
+        }
+
         private bool KMeansClusteringY()
         {
             if (!Params.StoreSamples)
@@ -853,6 +973,22 @@ namespace IHDRLib
             }
 
             return returnId;
+        }
+
+        private double GetDistanceFromClosestCenter(List<Sample> centers, Sample sample)
+        {
+            double minDistance = Double.MaxValue;
+
+            foreach (var item in centers)
+            {
+                double distance = item.X.GetDistance(sample.X);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                }
+            }
+
+            return minDistance;
         }
 
         private int GetCenterIdOfClosestCenterY(List<Sample> centers, Sample sample)
