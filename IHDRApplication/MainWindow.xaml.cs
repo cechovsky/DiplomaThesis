@@ -46,8 +46,8 @@ namespace IHDRApplication
                     @"D:\Dropbox\DP\data\test-images.bin",
                     @"D:\Dropbox\DP\data\test-labels.bin");
 
-            parser.ParseData(5000);
-            parser.ParseDataTest(1000);
+            parser.ParseData(60000);
+            parser.ParseDataTest(10000);
 
             ihdr = new IHDR();
             List<MNISTParserLib.Sample> mnistSamples = parser.Samples;

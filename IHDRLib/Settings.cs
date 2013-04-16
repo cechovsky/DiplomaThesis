@@ -10,11 +10,11 @@ namespace IHDRLib
     {
         public static void SetSettings_MNISTMyOutput()
         {
-            Params.q = 20;
-            Params.bs = 3;
+            Params.q = 10;
+            Params.bs = 2.0;
             Params.outputIsDefined = false;
-            Params.deltaX = 1200.0;
-            Params.deltaY = 1200.0;
+            Params.deltaX = 300.0;
+            Params.deltaY = 300.0;
             Params.deltaMultiplyReduction = 0.5;
             Params.deltaXReduction = 50.0;
             Params.deltaXReduction = 50.0;
@@ -24,7 +24,7 @@ namespace IHDRLib
             Params.bly = 20;
             Params.p = 0.0;
             Params.l = 10;
-            Params.confidenceValue = 0.005;
+            Params.confidenceValue = 0.15;
             Params.digitizationNoise = 1;
 
 
@@ -78,7 +78,7 @@ namespace IHDRLib
             Params.bly = 40;
             Params.p = 0.0;
             Params.l = 10;
-            Params.confidenceValue = 0.005;
+            Params.confidenceValue = 0.05;
             Params.digitizationNoise = 1;
 
 

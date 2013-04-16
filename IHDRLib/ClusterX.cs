@@ -455,7 +455,7 @@ namespace IHDRLib
             double bm = this.Getbm();
             //double bm = 0;
             double bg = this.Getbg();
-
+            //double bg = 0; 
             double b = be + bm + bg;
 
             double we = be / b;
@@ -477,7 +477,7 @@ namespace IHDRLib
         {
             ILArray<double> identityMatrix = ILMath.eye(dimension, dimension);
             ILArray<double> inverseCovMatrix = ILMath.linsolve(inputMatrix, identityMatrix);
-            return identityMatrix;
+            return inverseCovMatrix;
         }
                 
         public ILArray<double> GetVarianceMatrix()
@@ -490,10 +490,10 @@ namespace IHDRLib
 
         public ILArray<double> GetVarianceMatrix_MDF()
         {
-            //double sum = this.parent.VarianceMDF.Sum() / this.parent.VarianceMDF.Length;
-            //ILArray<double> diagonale = ILMath.eye(this.parent.VarianceMDF.Length, this.parent.VarianceMDF.Length);
-            //ILArray<double> result = diagonale * sum;
-            ILArray<double> result = ILMath.diag<double>(this.parent.VarianceMDF.ToArray());
+            double sum = this.parent.VarianceMDF.Sum() / this.parent.VarianceMDF.Length;
+            ILArray<double> diagonale = ILMath.eye(this.parent.VarianceMDF.Length, this.parent.VarianceMDF.Length);
+            ILArray<double> result = diagonale * sum;
+            //ILArray<double> result = ILMath.diag<double>(this.parent.VarianceMDF.ToArray());
 
             return result;
         }

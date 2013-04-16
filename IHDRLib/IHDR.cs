@@ -145,7 +145,7 @@ namespace IHDRLib
                         this.tree.UpdateTree(sample);
                         i++;
 
-                        if (i % 1000 == 0)
+                        if (i % 10000 == 0)
                         {
                             Console.WriteLine(string.Format("Count of samples: {0}", i));
                             this.ExecuteTestingByY(i);
@@ -153,7 +153,7 @@ namespace IHDRLib
                     }
                 }
 
-                this.ExecuteTestingByY(i);
+                //this.ExecuteTestingByY(i);
             }
         }
 
@@ -578,8 +578,8 @@ namespace IHDRLib
                 testResult.LabelByClosestYMean = this.GetLabelOfClosestY(testResult.ClusterMeanY);
             }
 
-            this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
-            this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
+            //this.SaveTestResultsNonEqual(string.Format(@"D:\IHDR\Results\NonEqual_{0}", count), testResults);
+            //this.SaveTestResultsEqual(string.Format(@"D:\IHDR\Results\Equal_{0}", count), testResults);
 
             int same = 0;
             int different = 0;

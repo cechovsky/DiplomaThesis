@@ -314,11 +314,11 @@ namespace IHDRLib
 
                 // update x cluster associated with returned y, mean with amnesic average
 
-                if (this.isPlastic)
-                {
+                //if (this.isPlastic)
+                //{
                     this.UpdateClusters(sample);
                     
-                }
+                //}
 
                 double distance = 0;
                 int index = 0;
@@ -585,6 +585,7 @@ namespace IHDRLib
                 {
                     for (int i = 0; i < 10; i++)
                     {
+                        
                         if (this.KMeansPlusPlusClustering())
                         {
                             break;
@@ -743,7 +744,7 @@ namespace IHDRLib
 
             Random random = new Random();
             List<Sample> centersCandidates = new List<Sample>();
-            Sample initialcenter = this.samples.OrderBy(item => random.Next()).First();
+            Sample initialcenter = this.samples.First();
             centersCandidates.Add(initialcenter);
 
             for (int j = 1; j < Params.blx; j++)
@@ -1622,7 +1623,7 @@ namespace IHDRLib
                 throw new InvalidOperationException("nodemean is not counted");
             }
 
-            Vector blackVector = new Vector(3888, 255);
+            Vector blackVector = new Vector(Params.inputDataDimension, 255);
             Vector nodeMeanVector = new Vector(this.nodeMean.Values.ToArray());
 
             ILArray<double> tmpManifold = ILMath.multiply(this.gSOManifold, this.gSOManifold.T);
