@@ -10,8 +10,8 @@ namespace IHDRLib
     {
         public static void SetSettings_MNISTMyOutput()
         {
-            Params.q = 10;
-            Params.bs = 2.0;
+            Params.q = 2;
+            Params.bs = 50;
             Params.outputIsDefined = false;
             Params.deltaX = 300.0;
             Params.deltaY = 300.0;
@@ -20,21 +20,21 @@ namespace IHDRLib
             Params.deltaXReduction = 50.0;
             Params.deltaXMin = 60.0;
             Params.deltaYMin = 60.0;
-            Params.blx = 20;
-            Params.bly = 20;
+            Params.blx = 3;
+            Params.bly = 3;
             Params.p = 0.0;
             Params.l = 10;
-            Params.confidenceValue = 0.15;
+            Params.confidenceValue = 0.1;
             Params.digitizationNoise = 1;
 
 
-            //amnesic parameters		
+            //amnesic parameters
             Params.t1 = 3000000;
             Params.t2 = 1000;
             Params.c = 5.0;
             Params.m = 1000.0;
 
-            // swap type		
+            // swap type
             Params.SwapType = 3;
 
             #region Not Important Settings
@@ -60,6 +60,7 @@ namespace IHDRLib
             Params.outputBmpHeight = 40;
 
             #endregion
+
         }
 
         public static void SetSettings_Faces()

@@ -20,7 +20,7 @@ namespace IHDRLib
         protected int dimension;
         protected Node parent;
 
-        protected int itemsCount;
+        //protected int itemsCount;
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -49,7 +49,6 @@ namespace IHDRLib
             this.items = new List<Vector>();
             this.mean = null;
             this.parent = parent;
-            this.itemsCount = 0;
         }
 
         public Cluster(Sample sample, Node parent)
@@ -150,7 +149,6 @@ namespace IHDRLib
         public void AddItemWithoutUpdatingStats(Vector vector)
         {
             this.items.Add(vector);
-            this.itemsCount++;
         }
 
         public List<Vector> Items

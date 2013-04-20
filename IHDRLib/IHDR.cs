@@ -140,14 +140,14 @@ namespace IHDRLib
                   
                     foreach (Sample sample in samples.Items)
                     {
-                        Console.WriteLine("Update tree Sample " + i.ToString());
+                        //Console.WriteLine("Update tree Sample " + i.ToString());
                         //sample.SetY(this.GetOutputFromKnownSamples(sample));
                         this.tree.UpdateTree(sample);
                         i++;
 
                         if (i % 10000 == 0)
                         {
-                            Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            //Console.WriteLine(string.Format("Count of samples: {0}", i));
                             this.ExecuteTestingByY(i);
                         }
                     }
@@ -595,7 +595,10 @@ namespace IHDRLib
                 }
             }
 
-            string theSame = string.Format("The same: {0}", same.ToString());
+            double diffPercents = (double)different / 100;
+            Console.WriteLine(diffPercents.ToString());
+
+           /*// string theSame = string.Format("The same: {0}", same.ToString());
             string differentStr = string.Format("Different: {0}", different.ToString());
 
             Console.WriteLine(theSame);
@@ -603,7 +606,7 @@ namespace IHDRLib
 
             sb.AppendLine(string.Format("Count: {0}", count.ToString()));
             sb.AppendLine(theSame);
-            sb.AppendLine(differentStr);
+            sb.AppendLine(differentStr);*/
         }
 
         public void ExecuteWideTesting()

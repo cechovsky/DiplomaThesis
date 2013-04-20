@@ -1,4 +1,6 @@
-﻿using ILNumerics;
+﻿using System.Diagnostics;
+
+using ILNumerics;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
@@ -47,7 +49,6 @@ namespace IHDRLib
             this.dimension = Params.inputDataDimension;
 
             items.Add(new Vector(sample.X.Values.ToArray(), sample.Label, 1));
-
             this.mean = new Vector(sample.X.Values.ToArray());
 
             //#warning TODO count covariance matrix 
@@ -315,7 +316,6 @@ namespace IHDRLib
             newItem.Label = label;
             newItem.Id = this.items.Count + 1;
             this.items.Add(newItem);
-            this.itemsCount++;
 
             // update mean
             this.UpdateMean(newItem);
@@ -328,7 +328,6 @@ namespace IHDRLib
             newItem.Id = this.items.Count + 1;
 
             this.items.Add(newItem);
-            this.itemsCount++;
             // update mean
             this.UpdateMean(newItem);
 
@@ -383,49 +382,13 @@ namespace IHDRLib
 
         #region Probability Based Metrics
 
-        //public double GetSDNLL(ILArray<double> vector)
-        //{
-        //    double firstPart = 0;
-        //    double secondPart = 0;
-        //    double thirdPart = 0;
-
-        //    if (this.items.Count == 1)
-        //    {
-        //        this.covarianceMatrix = this.GetVarianceMatrix();
-        //    }
-
-        //    ILArray<double> meanIL = this.mean.ToArray();
-
-        //    ILArray<double> W = this.GetMatrixW();
-
-        //    ILArray<double> WInverse = 1;
-        //    if (Params.ContainsSingularCovarianceMatrixes)
-        //    {
-        //        //WInverse = this.GetPseudoInverseMatrixOfMatrix(W);
-        //        WInverse = this.GetInverseMatrixOfMatrix(W, Params.inputDataDimension);
-        //    }
-        //    else
-        //    {
-        //        WInverse = this.GetInverseMatrixOfMatrix(W, Params.inputDataDimension);
-        //    }
-
-        //    ILArray<double> vector1 = meanIL - vector;
-        //    ILArray<double> tmpArray = ILMath.multiply(WInverse, vector1);
-
-        //    firstPart = 0.5 * ILMath.multiply(vector1.T, tmpArray).ToArray()[0];
-        //    secondPart = Params.inputDataDimension / 2 * ILMath.log(2 * Math.PI).ToArray()[0];
-        //    thirdPart = 0.5 * ILMath.log(ILMath.det(W)).ToArray()[0];
-
-        //    return firstPart + secondPart + thirdPart;
-        //}
-
         public double GetSDNLL_MDF(ILArray<double> mdfVector)
         {
             double firstPart = 0;
             double secondPart = 0;
             double thirdPart = 0;
 
-            if (this.itemsCount == 1)
+            if (this.items.Count < 2)
             {
                 this.covarianceMatrixMDF = this.GetVarianceMatrix_MDF();
             }
@@ -436,7 +399,13 @@ namespace IHDRLib
             ILArray<double> W = this.GetMatrixW_MDF();
             ILArray<double> WInverse = this.GetInverseMatrixOfMatrix(W, q);
 
-            if (Double.IsNaN(WInverse.ToArray()[0])) throw new InvalidDataException("inverse of covariance matrix MDF is NaN");
+            /*if (Double.IsNaN(WInverse.ToArray()[0]))
+            {
+                //throw new InvalidDataException("inverse of covariance matrix MDF is NaN");
+                WInverse = ILMath.eye(this.parent.VarianceMDF.Length, this.parent.VarianceMDF.Length);
+                Debug.Assert(true, "Problem with covariance gaussian matrix.");
+            }*/
+                
 
             ILArray<double> vector1 = mdfVector - this.meanMDF;
             ILArray<double> tmpArray = ILMath.multiply(WInverse, vector1);
@@ -457,6 +426,11 @@ namespace IHDRLib
             double bg = this.Getbg();
             //double bg = 0; 
             double b = be + bm + bg;
+
+            if (bg == 0)
+            {
+                throw new InvalidOperationException("Not possible to be 0");
+            }
 
             double we = be / b;
             double wm = bm / b;
@@ -490,11 +464,12 @@ namespace IHDRLib
 
         public ILArray<double> GetVarianceMatrix_MDF()
         {
-            double sum = this.parent.VarianceMDF.Sum() / this.parent.VarianceMDF.Length;
+            /*double sum = this.parent.VarianceMDF.Sum() / this.parent.VarianceMDF.Length;
             ILArray<double> diagonale = ILMath.eye(this.parent.VarianceMDF.Length, this.parent.VarianceMDF.Length);
-            ILArray<double> result = diagonale * sum;
+            ILArray<double> result = diagonale * sum;*/
             //ILArray<double> result = ILMath.diag<double>(this.parent.VarianceMDF.ToArray());
 
+            ILArray<double> result = ILMath.eye(this.parent.VarianceMDF.Length, this.parent.VarianceMDF.Length);
             return result;
         }
 
