@@ -15,7 +15,7 @@ namespace IHDRLibTest
         [TestMethod]
         public void GetNearestClusterPairX_GetCorrectClusterPair()
         {
-            Node node = new Node(0.0,0.0,"");
+            Node node = new Node(0.0, 0.0, 0.0, 0.0, "");
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s3 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
@@ -27,7 +27,7 @@ namespace IHDRLibTest
         public void GetCFromClustersX_GetCorrectC()
         {
             Params.inputDataDimension = 3;
-            Node node = new Node(0.0, 0.0, "");
+            Node node = new Node(0.0, 0.0, 0.0, 0.0, "");
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
             Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
@@ -47,7 +47,7 @@ namespace IHDRLibTest
         public void GetScatterVectors_GetCorrectVectors()
         {
             Params.inputDataDimension = 3;
-            Node node = new Node(0.0, 0.0, "");
+            Node node = new Node(0.0, 0.0, 0.0, 0.0, "");
             Sample s1 = new Sample(new double[] { 1, 2, 3 }, 1, 0);
             Sample s2 = new Sample(new double[] { 2, 3, 4 }, 1, 0);
             Sample s3 = new Sample(new double[] { 3, 4, 5 }, 1, 0);
@@ -72,7 +72,7 @@ namespace IHDRLibTest
         {
             Params.inputDataDimension = 4;
 
-            Node node = new Node(0.0, 0.0,"");
+            Node node = new Node(0.0, 0.0, 0.0, 0.0, "");
             Sample s1 = new Sample(new double[] { 1, 0, 2, 1 }, 1, 0);
             Sample s2 = new Sample(new double[] { -1, 1, 0, -1 }, 1, 0);
             Sample s3 = new Sample(new double[] { 2, 1, 1, 1 }, 1, 0);
@@ -92,7 +92,7 @@ namespace IHDRLibTest
         [TestMethod]
         public void CountC_CountCCorrect()
         {
-            Node node = new Node(0, 0, "");
+            Node node = new Node(0, 0, 0.0, 0.0, "");
             Params.inputDataDimension = 3;
             node.CountOfSamples = 6;
 
@@ -150,7 +150,7 @@ namespace IHDRLibTest
         public void CountMeanOfNode_CountCorrectMean()
         {
             Params.inputDataDimension = 3;
-            Node node = new Node(1, 1, "");
+            Node node = new Node(1, 1, 0.0, 0.0, "");
             // cluster 1
             ClusterX newClusterX1 = new ClusterX(node);
             newClusterX1.Items.Add(new Vector(new double[] { 1, 2, 3 }, new double[] { 1, -2, 3 }));

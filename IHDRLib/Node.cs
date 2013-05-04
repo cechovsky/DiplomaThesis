@@ -31,6 +31,9 @@ namespace IHDRLib
         private List<Node> children;
         private double deltaX;
         private double deltaY;
+        private double blx;
+        private double bly;
+
         private List<Sample> samples;
         private Vector nodeMean;
 
@@ -74,7 +77,7 @@ namespace IHDRLib
             children = (List<Node>)info.GetValue("children", typeof(List<Node>));
         }
 
-        public Node(double deltaX, double deltaY, string savePath)
+        public Node(double deltaX, double deltaY, double blx, double bly, string savePath)
         {
             this.clustersX = new List<ClusterX>();
             this.clustersY = new List<ClusterY>();
@@ -91,10 +94,13 @@ namespace IHDRLib
             this.deltaX = deltaX;
             this.deltaY = deltaY;
 
+            this.blx = Math.Min(Math.Round(blx), Params.blxMax);
+            this.bly = Math.Min(Math.Round(bly), Params.blyMax);
+            
             this.IsPlastic = true;
         }
 
-        public Node(Node parent, string path, double deltaX, double deltaY)
+        public Node(Node parent, string path, double deltaX, double deltaY, double blx, double bly)
         {
             this.parent = parent;
 
@@ -107,18 +113,14 @@ namespace IHDRLib
 
             this.children = new List<Node>(Params.q);
             this.path = path;
+            
+            this.deltaX = Math.Max(deltaX, Params.deltaXMin);
+            this.deltaY = Math.Max(deltaY, Params.deltaYMin);
 
-            if (deltaX < Params.deltaXMin)
-            {
-                this.deltaX = deltaX;
-            }
-            if (deltaY < Params.deltaYMin)
-            {
-                this.deltaY = deltaY;
-            }
+            this.blx = Math.Min(Math.Round(blx), Params.blxMax);
+            this.bly = Math.Min(Math.Round(bly), Params.blyMax);
 
             this.IsPlastic = true;
-            
         }
 
         #region properties
@@ -538,7 +540,7 @@ namespace IHDRLib
             //Console.WriteLine(distance.ToString());
             // if is count < like bl and distance > delta create new cluster
             // add new cluster pair (x,y), increment n
-            if (clusterPairs.Count < Params.blx && distance > this.deltaX)
+            if (clusterPairs.Count < this.blx && distance > this.deltaX)
             {
                 this.CreateNewClusters(sample, this);
             }
@@ -644,7 +646,7 @@ namespace IHDRLib
             int countOfKmeansTry = 0;
 
             Random random = new Random();
-            List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)Params.blx).ToList();
+            List<Sample> centersCandidates = this.samples.OrderBy(item => random.Next()).Take((int)this.blx).ToList();
             //List<Sample> centersCandidates = this.samples.Take((int)Params.blx).ToList();
 
             List<Sample> centers = new List<Sample>();
@@ -747,7 +749,7 @@ namespace IHDRLib
             Sample initialcenter = this.samples.First();
             centersCandidates.Add(initialcenter);
 
-            for (int j = 1; j < Params.blx; j++)
+            for (int j = 1; j < this.blx; j++)
             {
                 double maxDistance = double.MinValue;
                 int id = 0;
@@ -1029,7 +1031,7 @@ namespace IHDRLib
             //Console.WriteLine(distance.ToString());
             // if is count < like bl and distance > delta create new cluster
             // add new cluster pair (x,y), increment n
-            if (clusterPairs.Count < Params.blx && distance > this.deltaX)
+            if (clusterPairs.Count < this.blx && distance > this.deltaX)
             {
                 this.CreateNewClusters(sample, this);
             }
@@ -1237,16 +1239,11 @@ namespace IHDRLib
         private void Swap()
         {
             this.IsLeafNode = false;
-
-            //foreach (var item in this.clusterPairs)
-            //{
-            //    Console.WriteLine("Center " + item.CurrentCenter.ToString());
-            //} 
-
+            
             for (int i = 0; i < Params.q; i++)
             {
                 // create node + set save path
-                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\", this.deltaX * Params.deltaMultiplyReduction, this.deltaY * Params.deltaMultiplyReduction);
+                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\", this.deltaX * Params.deltaMultiplyReduction, this.deltaY * Params.deltaMultiplyReduction, this.blx * Params.blxMultiplyIncrease, this.bly * Params.blyMultiplyIncrease);
                 List<ClusterPair> clPairs = this.clusterPairs.Where(cp => cp.CurrentCenter == i).ToList();
 
                 // set id of node
@@ -1292,7 +1289,7 @@ namespace IHDRLib
             for (int i = 0; i < Params.q; i++)
             {
                 // create node + set save path
-                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\", this.deltaX - Params.deltaXReduction, this.deltaY - Params.deltaYReduction);
+                Node node = new Node(this, this.path + "node" + (children.Count + 1).ToString() + @"\", this.deltaX * Params.deltaMultiplyReduction, this.deltaY * Params.deltaMultiplyReduction, this.blx * Params.blxMultiplyIncrease, this.bly * Params.blyMultiplyIncrease);
                 List<ClusterPair> clPairs = this.clusterPairs.Where(cp => cp.CurrentCenter == i).ToList();
 
                 // set id of node

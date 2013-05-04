@@ -40,6 +40,7 @@ namespace IHDRApplication
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            Settings.SetSettings_MNISTMyOutput();
             MnistParser parser = new MnistParser(
                     @"D:\Dropbox\DP\data\train-images.bin",
                     @"D:\Dropbox\DP\data\train-labels.bin",
@@ -80,6 +81,7 @@ namespace IHDRApplication
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             ihdr.BuildTree_MNIST_MyOutput();
+            //ihdr.BuildTree_MNIST();
             Console.WriteLine(ihdr.ResultMessage);
         }
 

@@ -14,7 +14,7 @@ namespace IHDRLib
     
         public Tree()
         {
-            root = new Node(Params.deltaX, Params.deltaY, Params.savePath);
+            root = new Node(Params.deltaX, Params.deltaY, Params.blx, Params.bly, Params.savePath);
             isEmpty = true;
         }
 

@@ -97,7 +97,8 @@ namespace IHDRLib
             Settings.SetSettings_MNIST();
             
             //samples.SaveItemsY(@"D:\SamplesY\");
-            //this.CountYMeanOfLabels();
+            this.CountYMeanOfLabels();
+            //this.CountYOfSamplesLabelsMeans();
             int i = 0;
             for (int ii = 0; ii < Params.Epochs; ii++)
             {
@@ -106,20 +107,20 @@ namespace IHDRLib
 
                     foreach (Sample sample in samples.Items)
                     {
-                        Console.WriteLine("Update tree Sample " + i.ToString());
-                        //sample.SetY(this.GetOutputFromKnownSamples(sample));
+                        //Console.WriteLine("Update tree Sample " + i.ToString());
+                        sample.SetY(this.GetOutputFromKnownSamples(sample));
                         this.tree.UpdateTree(sample);
                         i++;
 
-                        //if (i % 1000 == 0)
-                        //{
-                        //    Console.WriteLine(string.Format("Count of samples: {0}", i));
-                        //    this.ExecuteTestingByY(i);
-                        //}
+                        if (i % 10000 == 0)
+                        {
+                            //Console.WriteLine(string.Format("Count of samples: {0}", i));
+                            this.ExecuteTestingByY(i);
+                        }
                     }
                 }
 
-                this.ExecuteTestingByY(i);
+                //this.ExecuteTestingByY(i);
             }
         }
 
@@ -300,7 +301,7 @@ namespace IHDRLib
                         if (i % 1000 == 0)
                         {
                             Console.WriteLine(string.Format("Count of samples: {0}", i));
-                            this.ExecuteTestingByY(i);
+                            //this.ExecuteTestingByY(i);
                         }
                     }
                 }

@@ -49,6 +49,14 @@ namespace IHDRLib
         // reduction of deltaX in next node
         public static double deltaMultiplyReduction { get; set; }
 
+        public static double blxMultiplyIncrease { get; set; }
+
+        public static double blyMultiplyIncrease { get; set; }
+
+        public static double blxMax { get; set; }
+
+        public static double blyMax { get; set; }
+
         // reduction of deltaX in next node
         public static double deltaXReduction { get; set; }
 

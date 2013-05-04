@@ -10,18 +10,25 @@ namespace IHDRLib
     {
         public static void SetSettings_MNISTMyOutput()
         {
-            Params.q = 2;
-            Params.bs = 50;
+            Params.q = 7;
+            Params.bs = 2;
             Params.outputIsDefined = false;
-            Params.deltaX = 300.0;
-            Params.deltaY = 300.0;
-            Params.deltaMultiplyReduction = 0.5;
-            Params.deltaXReduction = 50.0;
-            Params.deltaXReduction = 50.0;
-            Params.deltaXMin = 60.0;
-            Params.deltaYMin = 60.0;
-            Params.blx = 3;
-            Params.bly = 3;
+            Params.deltaX = 500.0;
+            Params.deltaY = 500.0;
+            Params.deltaMultiplyReduction = 0.3;
+            Params.deltaXMin = 1.0;
+            Params.deltaYMin = 1.0;
+
+            #region blx, bly
+            Params.blx = 7;
+            Params.bly = 7;
+            Params.blxMultiplyIncrease = 1.0;
+            Params.blyMultiplyIncrease = 1.0;
+            Params.blxMax = 50;
+            Params.blyMax = 50;
+            #endregion
+
+            
             Params.p = 0.0;
             Params.l = 10;
             Params.confidenceValue = 0.1;
@@ -29,13 +36,13 @@ namespace IHDRLib
 
 
             //amnesic parameters
-            Params.t1 = 3000000;
+            Params.t1 = 10000;
             Params.t2 = 1000;
-            Params.c = 5.0;
-            Params.m = 1000.0;
+            Params.c = 2.0;
+            Params.m = 100.0;
 
             // swap type
-            Params.SwapType = 3;
+            Params.SwapType = 2;
 
             #region Not Important Settings
 
@@ -174,31 +181,31 @@ namespace IHDRLib
         public static void SetSettings_MNIST()
         {
             Params.q = 20;
-            Params.bs = 3;
+            Params.bs = 1.0;
             Params.outputIsDefined = false;
-            Params.deltaX = 1200.0;
-            Params.deltaY = 1200.0;
+            Params.deltaX = 1000.0;
+            Params.deltaY = 1000.0;
             Params.deltaMultiplyReduction = 0.5;
             Params.deltaXReduction = 50.0;
             Params.deltaXReduction = 50.0;
             Params.deltaXMin = 60.0;
             Params.deltaYMin = 60.0;
-            Params.blx = 20;
-            Params.bly = 20;
+            Params.blx = 40;
+            Params.bly = 40;
             Params.p = 0.0;
             Params.l = 10;
-            Params.confidenceValue = 0.005;
+            Params.confidenceValue = 0.1;
             Params.digitizationNoise = 1;
 
 
             //amnesic parameters		
-            Params.t1 = 3000000;
+            Params.t1 = 100000;
             Params.t2 = 1000;
             Params.c = 5.0;
             Params.m = 1000.0;
 
             // swap type		
-            Params.SwapType = 3;
+            Params.SwapType = 1;
 
             #region Not Important Settings
 
@@ -215,7 +222,7 @@ namespace IHDRLib
             Params.StoreSamples = true;
             Params.StoreItems = false;
             Params.WidthOfTesting = 3;
-            Params.Epochs = 3;
+            Params.Epochs = 2;
 
             Params.inputBmpWidth = 28;
             Params.inputBmpHeight = 28;
